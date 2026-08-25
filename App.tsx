@@ -681,13 +681,16 @@ const Footer = () => (
 
 
 const AppLayout = () => {
+    const location = useLocation();
+    const isFluxPay2Experience = location.pathname.startsWith('/operacao');
+
     return (
         <div className="min-h-screen bg-slate-50">
-            <TopNav />
-            <main className="pt-20 px-4 sm:px-6 pb-6">
+            {!isFluxPay2Experience && <TopNav />}
+            <main className={isFluxPay2Experience ? '' : 'pt-20 px-4 sm:px-6 pb-6'}>
                 <Routes>
                     {/* All admin routes use requireAdmin which now checks RBAC config */}
-                    <Route path="/operacao" element={<ProtectedRoute requireAdmin={true}><OperationsRoute /></ProtectedRoute>} />
+                    <Route path="/operacao/*" element={<ProtectedRoute requireAdmin={true}><OperationsRoute /></ProtectedRoute>} />
                     <Route path="/escala-mes-ano" element={<ProtectedRoute requireAdmin={true}><MonthlyYearlySchedule /></ProtectedRoute>} />
                     <Route path="/empresas" element={<ProtectedRoute requireAdmin={true}><Companies /></ProtectedRoute>} />
                     <Route path="/postos-de-trabalho" element={<ProtectedRoute requireAdmin={true}><Workstations /></ProtectedRoute>} />
@@ -744,7 +747,7 @@ const AppLayout = () => {
                     <Route path="/portal-gerencial/funcionario/:funcionarioId/escalas" element={<ProtectedRoute allowedRoles={['admin', 'manager']}><PortalGerencialEscalas /></ProtectedRoute>} />
                     <Route path="/portal-gerencial/funcionario/:funcionarioId/ferias" element={<ProtectedRoute allowedRoles={['admin', 'manager']}><PortalGerencialFerias /></ProtectedRoute>} />
                 </Routes>
-                <Footer />
+                {!isFluxPay2Experience && <Footer />}
             </main>
         </div>
     );

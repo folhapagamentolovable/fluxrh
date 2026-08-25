@@ -8,6 +8,15 @@ FluxPay2 is an automated, exception-oriented HR operations ERP. The normal flow 
 
 Human attention is reserved for exceptions, approvals, risk, and judgment. Every operational experience must make the current state explicit: `normal`, `attention`, `decision`, or `critical`.
 
+These principles govern product decisions:
+
+- Automation first.
+- Humans handle exceptions.
+- Every operation starts from an event.
+- Decisions are auditable.
+- AI proposes and rules guarantee.
+- Autonomy is graduated by risk.
+
 ## Current phase
 
 The current milestone is the application shell and operational UX. Do not create or redesign the database yet. Do not add migrations, tables, policies, functions, seeds, or remote Supabase changes unless a later task explicitly authorizes the database phase.

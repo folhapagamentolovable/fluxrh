@@ -85,7 +85,7 @@ This is a direction for new code. Do not move the whole legacy tree at once.
 
 ## Milestone 1: app shell and operational UX
 
-Status: **in progress**. The first fixture-backed operational home is available at `#/operacao`, with shared state types, deterministic prioritization, summary tests, and route-level lazy loading. Existing routes remain unchanged.
+Status: **complete for UX validation**. A responsive product shell is available at `#/operacao`, with primary navigation, a fixture-backed operational home, a dedicated exception center, and mock operational views for People, Time, Compensation, Processes, Analytics, Automation, FluxPay AI, and Settings. Shared state types, deterministic prioritization, summary tests, and route-level lazy loading remain in place. Existing legacy routes remain unchanged.
 
 ### Outcome
 
@@ -93,17 +93,17 @@ A responsive, accessible shell that makes the FluxPay2 operating model tangible 
 
 ### Scope
 
-- Extract a new app-shell layout without replacing existing routes in one step.
-- Define the shared operational states: normal, attention, decision, critical.
-- Create an operations home prototype with:
+- [x] Extract a new app-shell layout without replacing existing routes in one step.
+- [x] Define the shared operational states: normal, attention, decision, critical.
+- [x] Create an operations home prototype with:
   - daily processing summary;
   - attention queue ordered by severity and age;
   - exception cards with evidence, recommendation, owner, deadline, and next action;
   - recent automation/audit activity;
   - empty, loading, degraded, and offline states.
-- Use typed local fixture data behind a small repository interface so persistence can be attached later.
-- Establish accessible navigation for RH/DP first while keeping room for collaborator, leader, finance, and executive views.
-- Add route-level lazy loading for the new shell to avoid increasing the oversized main bundle.
+- [ ] Put typed local fixture data behind a small repository interface so persistence can be attached later.
+- [x] Establish accessible navigation for RH/DP first while keeping room for collaborator, leader, finance, and executive views.
+- [x] Add route-level lazy loading for the new shell to avoid increasing the oversized main bundle.
 
 ### Explicitly out of scope
 
