@@ -17,10 +17,9 @@ import {
   type OperationalItem,
   type OperationalState,
 } from '@/domain/operations/operational-state';
-import {
-  automationActivityFixture,
-  operationalItemsFixture,
-} from './fixtures/operational-items';
+import { DataQualityBanner, OperationalError, OperationalLoading } from '@/components/operational-state/OperationalFeedback';
+import { useOperationalSnapshot } from './hooks/use-operational-snapshot';
+import { fixtureOperationalRepository } from './repositories/fixture-operational-repository';
 
 type Filter = 'all' | Exclude<OperationalState, 'normal'>;
 
@@ -150,9 +149,10 @@ const ExceptionCard = ({ item, onResolve }: {
 const OperationsHomePage = () => {
   const [filter, setFilter] = useState<Filter>('all');
   const [resolvedIds, setResolvedIds] = useState<readonly string[]>([]);
+  const snapshotState = useOperationalSnapshot(fixtureOperationalRepository);
   const activeItems = useMemo(
-    () => operationalItemsFixture.filter(({ id }) => !resolvedIds.includes(id)),
-    [resolvedIds],
+    () => (snapshotState.snapshot?.items ?? []).filter(({ id }) => !resolvedIds.includes(id)),
+    [resolvedIds, snapshotState.snapshot],
   );
   const summary = summarizeOperationalItems(activeItems);
   const visibleItems = prioritizeOperationalItems(activeItems).filter((item) => (
@@ -168,8 +168,12 @@ const OperationsHomePage = () => {
     { value: 'attention', label: 'Atenção' },
   ];
 
+  if (snapshotState.status === 'loading') return <OperationalLoading />;
+  if (snapshotState.status === 'error') return <OperationalError onRetry={snapshotState.retry} />;
+
   return (
     <div className="mx-auto max-w-[1500px] space-y-6 pb-6">
+      <DataQualityBanner quality={snapshotState.snapshot.quality} updatedAt={snapshotState.snapshot.updatedAt} />
       <section className="overflow-hidden rounded-3xl bg-slate-950 px-5 py-6 text-white shadow-xl sm:px-8 sm:py-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -270,7 +274,7 @@ const OperationsHomePage = () => {
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <h2 className="font-semibold text-slate-950">Atividade recente</h2>
             <ol className="mt-4 space-y-4">
-              {automationActivityFixture.map((activity) => (
+              {snapshotState.snapshot.activities.map((activity) => (
                 <li key={activity.id} className="relative flex gap-3 text-sm">
                   <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-blue-500" />
                   <div>

@@ -101,7 +101,7 @@ A responsive, accessible shell that makes the FluxPay2 operating model tangible 
   - exception cards with evidence, recommendation, owner, deadline, and next action;
   - recent automation/audit activity;
   - empty, loading, degraded, and offline states.
-- [ ] Put typed local fixture data behind a small repository interface so persistence can be attached later.
+- [x] Put typed local fixture data behind a small repository interface so persistence can be attached later.
 - [x] Establish accessible navigation for RH/DP first while keeping room for collaborator, leader, finance, and executive views.
 - [x] Add route-level lazy loading for the new shell to avoid increasing the oversized main bundle.
 
@@ -124,7 +124,7 @@ A responsive, accessible shell that makes the FluxPay2 operating model tangible 
 
 ## Next foundation increments
 
-1. Add Vitest + Testing Library and one smoke test around the fixture-backed operational state model.
+1. Add Vitest + Testing Library for browser-level component tests; domain interaction tests now cover search, resolution, and selection handoff.
 2. Add ESLint with a small, enforceable baseline; do not introduce hundreds of unrelated fixes in the setup change.
 3. Add Prettier only after agreeing how it interacts with existing formatting and Lovable-generated commits.
 4. Split route registration and navigation metadata out of `App.tsx`.
