@@ -4,10 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "dev": "vite",
     "build": "tsc && vite build",
     "build:dev": "vite build --mode development",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "check": "npm run typecheck && npm run build"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.1",
