@@ -1,0 +1,40 @@
+Listagem de caminhos de pasta
+O n�mero de s�rie do volume � 000000F7 B474:BF38
+C:\USERS\BLOGD\DOCUMENTS\GITHUB\FLUXPAY-REMIX-A6273438\PAGES
+|   BlankTimesheets.tsx
+|   CalculatedPayroll.tsx
+|   Companies.tsx
+|   Dashboard.tsx
+|   Employees.tsx
+|   ForceLogout.tsx
+|   ForgotPassword.tsx
+|   Holidays.tsx
+|   Install.tsx
+|   lista_arquivos.bat
+|   lista_arquivos.txt
+|   Login.tsx
+|   MonthlyYearlySchedule.tsx
+|   PortalGerencial.tsx
+|   PortalLogin.tsx
+|   Positions.tsx
+|   Reports.tsx
+|   ResetPassword.tsx
+|   ScheduleRules.tsx
+|   SupportTables.tsx
+|   TimeSheets.tsx
+|   UserManagement.tsx
+|   VacationAlerts.tsx
+|   VacationManagement.tsx
+|   Workstations.tsx
+|   
+\---portal
+        PortalEscalas.tsx
+        PortalFerias.tsx
+        PortalGerencialEscalas.tsx
+        PortalGerencialFerias.tsx
+        PortalGerencialHolerites.tsx
+        PortalGerencialView.tsx
+        PortalHolerites.tsx
+        PortalHome.tsx
+        PortalPerfil.tsx
+        

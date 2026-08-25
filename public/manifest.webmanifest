@@ -1,0 +1,57 @@
+{
+  "name": "FluxPay - Sistema de Folha de Pagamento",
+  "short_name": "FluxPay",
+  "description": "Sistema automatizado de folha de pagamento e gestão de funcionários",
+  "start_url": "/#/portal/login",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "id": "/",
+  "categories": ["business", "productivity", "finance"],
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/FluxPay_icon_192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/FluxPay_icon_512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/FluxPay_icon_512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/FluxPay_logo_circle_144x144.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Login Admin",
+      "short_name": "Admin",
+      "description": "Acesso administrativo",
+      "url": "/#/login",
+      "icons": [{ "src": "/FluxPay_icon_192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Portal Funcionário",
+      "short_name": "Portal",
+      "description": "Portal do funcionário",
+      "url": "/#/portal/login",
+      "icons": [{ "src": "/FluxPay_icon_192.png", "sizes": "192x192" }]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+ALTER TABLE public.regras_escalas ADD COLUMN IF NOT EXISTS regras_json JSONB;
