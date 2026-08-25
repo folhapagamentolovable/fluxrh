@@ -16,6 +16,7 @@ import AssistenteCadastrosChat from './components/AssistenteCadastrosChat';
 
 import PWARoutePreserver from './components/PWARoutePreserver';
 import OfflineIndicator from './components/OfflineIndicator';
+import { OperationsRoute } from './src/app/routes/OperationsRoute';
 
 // RBAC
 import { isMenuItemAccessible, type AppRole } from './utils/rbacConfig';
@@ -228,6 +229,7 @@ const menuStructure = {
         { path: '/historico-salarios', name: 'Histórico Salários', icon: TrendingUp },
     ],
     operacional: [
+        { path: '/operacao', name: 'Central Operacional', icon: Sparkles },
         { path: '/escala-mes-ano', name: 'Escalas', icon: Calendar },
         { path: '/folhas-de-ponto', name: 'Folhas de Ponto', icon: FileText },
         { path: '/controle-faltas', name: 'Controle de Faltas', icon: ClipboardList },
@@ -685,6 +687,7 @@ const AppLayout = () => {
             <main className="pt-20 px-4 sm:px-6 pb-6">
                 <Routes>
                     {/* All admin routes use requireAdmin which now checks RBAC config */}
+                    <Route path="/operacao" element={<ProtectedRoute requireAdmin={true}><OperationsRoute /></ProtectedRoute>} />
                     <Route path="/escala-mes-ano" element={<ProtectedRoute requireAdmin={true}><MonthlyYearlySchedule /></ProtectedRoute>} />
                     <Route path="/empresas" element={<ProtectedRoute requireAdmin={true}><Companies /></ProtectedRoute>} />
                     <Route path="/postos-de-trabalho" element={<ProtectedRoute requireAdmin={true}><Workstations /></ProtectedRoute>} />

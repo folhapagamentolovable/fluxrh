@@ -41,6 +41,7 @@ export const routePermissions: RoutePermission[] = [
   { path: '/tabelas-de-apoio', allowedRoles: ADMIN_AND_MANAGER },
 
   // Operacional
+  { path: '/operacao', allowedRoles: ADMIN_ONLY },
   { path: '/escala-mes-ano', allowedRoles: CLIENT_ACCESSIBLE },
   { path: '/folhas-de-ponto', allowedRoles: ADMIN_AND_MANAGER },
   { path: '/folhas-em-branco', allowedRoles: ADMIN_AND_MANAGER },

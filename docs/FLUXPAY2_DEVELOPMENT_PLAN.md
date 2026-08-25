@@ -85,6 +85,8 @@ This is a direction for new code. Do not move the whole legacy tree at once.
 
 ## Milestone 1: app shell and operational UX
 
+Status: **in progress**. The first fixture-backed operational home is available at `#/operacao`, with shared state types, deterministic prioritization, summary tests, and route-level lazy loading. Existing routes remain unchanged.
+
 ### Outcome
 
 A responsive, accessible shell that makes the FluxPay2 operating model tangible using local fixtures only. It must not depend on a new database or mutate current Supabase data.
