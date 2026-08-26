@@ -7,6 +7,7 @@ import type {
   CreateEmployeeMovementInput,
   CreateMedicalCertificateInput,
   CreateSpecialCalculationInput,
+  CreateTerminationInput,
   CreateVacationRequestInput,
 } from "@fluxrh/contracts";
 import { InMemoryAbsencesRepository } from "../../../api/src/modules/absences/absences.repository";
@@ -18,6 +19,7 @@ import { InMemoryOrganizationsRepository } from "../../../api/src/modules/organi
 import { InMemoryPayrollRepository } from "../../../api/src/modules/payroll/payroll.repository";
 import { InMemorySpecialRepository } from "../../../api/src/modules/special-calculations/special.repository";
 import { InMemoryTimeRepository } from "../../../api/src/modules/time-tracking/time.repository";
+import { InMemoryTerminationsRepository } from "../../../api/src/modules/terminations/termination.repository";
 import { InMemoryWorkflowsRepository } from "../../../api/src/modules/workflows/workflows.repository";
 
 const operations = new InMemoryOperationsRepository();
@@ -30,6 +32,7 @@ const absences = new InMemoryAbsencesRepository();
 const payroll = new InMemoryPayrollRepository();
 const benefits = new InMemoryBenefitsRepository();
 const special = new InMemorySpecialRepository();
+const terminations = new InMemoryTerminationsRepository();
 
 function body<T>(options?: RequestInit): T {
   return JSON.parse(String(options?.body ?? "{}")) as T;
@@ -88,6 +91,12 @@ export async function localDataRequest(url: string, options?: RequestInit): Prom
   if (method === "POST" && url === "/api/v1/special-calculations/calculations") return special.create(body<CreateSpecialCalculationInput>(options));
   if (method === "POST" && (match = url.match(/^\/api\/v1\/special-calculations\/calculations\/([^/]+)\/exceptions\/([^/]+)\/resolve$/))) return required(await special.resolve(match[1],match[2]),"Exceção não encontrada.");
   if (method === "POST" && (match = url.match(/^\/api\/v1\/special-calculations\/calculations\/([^/]+)\/approve$/))) return required(await special.approve(match[1]),"Existem exceções abertas.");
+
+  if (method === "GET" && url === "/api/v1/terminations/overview") return terminations.overview();
+  if (method === "POST" && url === "/api/v1/terminations/processes") return terminations.create(body<CreateTerminationInput>(options));
+  if (method === "POST" && (match = url.match(/^\/api\/v1\/terminations\/processes\/([^/]+)\/exceptions\/([^/]+)\/resolve$/))) return required(await terminations.resolve(match[1],match[2]),"Exceção não encontrada.");
+  if (method === "POST" && (match = url.match(/^\/api\/v1\/terminations\/processes\/([^/]+)\/tasks\/([^/]+)\/toggle$/))) return required(await terminations.toggleTask(match[1],match[2]),"Tarefa bloqueada.");
+  if (method === "POST" && (match = url.match(/^\/api\/v1\/terminations\/processes\/([^/]+)\/approve$/))) return required(await terminations.approve(match[1]),"Existem pendências abertas.");
 
   throw new Error(`Operação local não implementada: ${method} ${url}`);
 }
