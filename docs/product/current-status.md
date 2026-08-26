@@ -23,7 +23,7 @@ Atualizado em 26 de agosto de 2026.
 
 ## Próximo marco
 
-Implementar a fundação persistente e a primeira jornada vertical sem quebrar o modo local de demonstração.
+Validar a fundação persistente na stack local do Supabase e implementar os adaptadores de repository da primeira jornada vertical, sem quebrar o modo local de demonstração.
 
 ## Regras de transição
 
@@ -31,4 +31,4 @@ Implementar a fundação persistente e a primeira jornada vertical sem quebrar o
 2. Os adaptadores persistentes implementarão as interfaces de repository existentes.
 3. Migrations e políticas de segurança serão revisadas antes de aplicação remota.
 4. O modo local continuará sendo exercitado por testes e pelo preview.
-5. Nenhuma alteração de banco será executada durante a etapa de desenho.
+5. As migrations locais não serão aplicadas a um projeto remoto sem revisão e autorização explícitas.
