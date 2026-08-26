@@ -1,5 +1,10 @@
-import { createHash } from "node:crypto";
 import type { CreateDocumentRequestInput, DocumentOverview, DocumentRecord } from "@fluxrh/contracts";
+
+async function sha256(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
+}
 
 const now = new Date();
 const isoDays = (days: number) => new Date(now.getTime() + days * 86_400_000).toISOString();
@@ -26,5 +31,5 @@ export class InMemoryDocumentsRepository {
   async find(id: string) { const value=documents.find(x=>x.id===id); return value?structuredClone(value):undefined; }
   async create(input: CreateDocumentRequestInput) { const value:DocumentRecord={ id:`doc_${crypto.randomUUID()}`, ...input, status:"requested", version:1, createdAt:new Date().toISOString(), updatedAt:new Date().toISOString(), preview:genericPreview(input.title,input.subjectName), auditTrail:[audit(crypto.randomUUID(),"Documento solicitado","Solicitação criada e disponibilizada no portal.","Marina Alves",0,"user")]}; documents.unshift(value); return structuredClone(value); }
   async validate(id:string,decision:"approve"|"reject",note:string){const value=documents.find(x=>x.id===id);if(!value)return undefined;value.status=decision==="approve"?"validated":"rejected";value.validationNote=note;value.updatedAt=new Date().toISOString();value.auditTrail.unshift(audit(crypto.randomUUID(),decision==="approve"?"Documento validado":"Documento rejeitado",note,"Marina Alves",0,"user"));return structuredClone(value)}
-  async accept(id:string,signerName:string,signerDocument:string,ipAddress:string,userAgent:string){const value=documents.find(x=>x.id===id);if(!value)return undefined;const acceptedAt=new Date().toISOString();const hash=createHash("sha256").update(JSON.stringify({id:value.id,version:value.version,preview:value.preview,signerName,signerDocument,acceptedAt})).digest("hex");value.status="accepted";value.updatedAt=acceptedAt;value.acceptance={id:`accept_${crypto.randomUUID()}`,signerName,signerDocument,acceptedAt,ipAddress,userAgent,documentHash:hash,documentVersion:value.version,method:"authenticated_acceptance",statement:"Li e aceito integralmente o documento apresentado."};value.auditTrail.unshift(audit(crypto.randomUUID(),"Aceite eletrônico registrado",`Comprovante gerado com hash ${hash.slice(0,12)}…`,signerName,0,"signer"));return structuredClone(value)}
+  async accept(id:string,signerName:string,signerDocument:string,ipAddress:string,userAgent:string){const value=documents.find(x=>x.id===id);if(!value)return undefined;const acceptedAt=new Date().toISOString();const hash=await sha256(JSON.stringify({id:value.id,version:value.version,preview:value.preview,signerName,signerDocument,acceptedAt}));value.status="accepted";value.updatedAt=acceptedAt;value.acceptance={id:`accept_${crypto.randomUUID()}`,signerName,signerDocument,acceptedAt,ipAddress,userAgent,documentHash:hash,documentVersion:value.version,method:"authenticated_acceptance",statement:"Li e aceito integralmente o documento apresentado."};value.auditTrail.unshift(audit(crypto.randomUUID(),"Aceite eletrônico registrado",`Comprovante gerado com hash ${hash.slice(0,12)}…`,signerName,0,"signer"));return structuredClone(value)}
 }
