@@ -59,4 +59,13 @@ os pacotes de contratos e API, execute `npm run build:full`.
 - `packages/contracts`: contratos e validações compartilhados
 - `docs`: decisões e documentação do domínio
 
+## Documentação do produto
+
+- [Visão do produto](docs/product/vision.md)
+- [Mapa operacional](docs/product/operational-map.md)
+- [Roadmap](docs/product/roadmap.md)
+- [Estado atual](docs/product/current-status.md)
+- [Decisões do produto](docs/product/decisions.md)
+- [Fundação de dados proposta](docs/architecture/0009-data-foundation.md)
+
 O banco de dados ainda não faz parte deste marco. A aplicação depende de interfaces de repository para que a persistência possa ser adicionada sem alterar regras de negócio ou telas.
