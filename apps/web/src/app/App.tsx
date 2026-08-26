@@ -18,6 +18,7 @@ import { PayrollPage } from "@/features/payroll/PayrollPage";
 import { BenefitsPage } from "@/features/benefits/BenefitsPage";
 import { SpecialCalculationsPage } from "@/features/special-calculations/SpecialCalculationsPage";
 import { TerminationsPage } from "@/features/terminations/TerminationsPage";
+import { EmployeePortalPage } from "@/features/portal/EmployeePortalPage";
 import { ProtectedRoute } from "@/auth/ProtectedRoute";
 import { LoginPage } from "@/features/auth/LoginPage";
 import { OrganizationGate } from "@/auth/OrganizationGate";
@@ -30,6 +31,7 @@ export function App() {
     <Route path="excecoes" element={<ExceptionsPage />} />
     <Route path="pessoas" element={<EmployeesPage />} />
     <Route path="pessoas/:id" element={<EmployeeProfilePage />} />
+    <Route path="portal" element={<EmployeePortalPage />} />
     <Route path="admissoes" element={<AdmissionsPage />} />
     <Route path="admissoes/nova" element={<AdmissionsPage />} />
     <Route path="admissoes/:id" element={<AdmissionDetailPage />} />

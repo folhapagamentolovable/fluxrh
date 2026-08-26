@@ -45,8 +45,8 @@
 
 ## Fase 3 — experiência e integração
 
-- Portal do colaborador e do gestor.
-- Central universal de solicitações.
+- Portal do colaborador e do gestor. **Implementado em modo local.**
+- Central universal de solicitações. **Implementada em modo local.**
 - Comunicação orientada a eventos.
 - Integrações contábeis, bancárias e governamentais.
 - Observabilidade, exportações e operação assistida.

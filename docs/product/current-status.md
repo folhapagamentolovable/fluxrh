@@ -11,6 +11,8 @@ Atualizado em 26 de agosto de 2026.
 - Repositórios em memória substituíveis por persistência.
 - Fluxos demonstráveis dos principais módulos de RH.
 - Suite automatizada de testes e comandos de typecheck/build.
+- Desligamentos e rescisões com cálculo, checklist, documentos e exceções.
+- Portal do colaborador e do gestor com solicitações, documentos e aprovações.
 
 ## Limitações conhecidas
 

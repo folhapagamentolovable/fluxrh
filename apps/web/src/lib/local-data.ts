@@ -6,6 +6,7 @@ import type {
   CreateEmployeeInput,
   CreateEmployeeMovementInput,
   CreateMedicalCertificateInput,
+  CreateServiceRequestInput,
   CreateSpecialCalculationInput,
   CreateTerminationInput,
   CreateVacationRequestInput,
@@ -20,6 +21,7 @@ import { InMemoryPayrollRepository } from "../../../api/src/modules/payroll/payr
 import { InMemorySpecialRepository } from "../../../api/src/modules/special-calculations/special.repository";
 import { InMemoryTimeRepository } from "../../../api/src/modules/time-tracking/time.repository";
 import { InMemoryTerminationsRepository } from "../../../api/src/modules/terminations/termination.repository";
+import { InMemoryPortalRepository } from "../../../api/src/modules/portal/portal.repository";
 import { InMemoryWorkflowsRepository } from "../../../api/src/modules/workflows/workflows.repository";
 
 const operations = new InMemoryOperationsRepository();
@@ -33,6 +35,7 @@ const payroll = new InMemoryPayrollRepository();
 const benefits = new InMemoryBenefitsRepository();
 const special = new InMemorySpecialRepository();
 const terminations = new InMemoryTerminationsRepository();
+const portal = new InMemoryPortalRepository();
 
 function body<T>(options?: RequestInit): T {
   return JSON.parse(String(options?.body ?? "{}")) as T;
@@ -97,6 +100,10 @@ export async function localDataRequest(url: string, options?: RequestInit): Prom
   if (method === "POST" && (match = url.match(/^\/api\/v1\/terminations\/processes\/([^/]+)\/exceptions\/([^/]+)\/resolve$/))) return required(await terminations.resolve(match[1],match[2]),"Exceção não encontrada.");
   if (method === "POST" && (match = url.match(/^\/api\/v1\/terminations\/processes\/([^/]+)\/tasks\/([^/]+)\/toggle$/))) return required(await terminations.toggleTask(match[1],match[2]),"Tarefa bloqueada.");
   if (method === "POST" && (match = url.match(/^\/api\/v1\/terminations\/processes\/([^/]+)\/approve$/))) return required(await terminations.approve(match[1]),"Existem pendências abertas.");
+
+  if (method === "GET" && url === "/api/v1/portal/overview") return portal.overview();
+  if (method === "POST" && url === "/api/v1/portal/requests") return portal.create(body<CreateServiceRequestInput>(options));
+  if (method === "POST" && (match = url.match(/^\/api\/v1\/portal\/approvals\/([^/]+)\/decision$/))) { const input=body<{decision:"approve"|"reject";note:string}>(options); return required(await portal.decide(match[1],input.decision,input.note),"Aprovação não encontrada."); }
 
   throw new Error(`Operação local não implementada: ${method} ${url}`);
 }
