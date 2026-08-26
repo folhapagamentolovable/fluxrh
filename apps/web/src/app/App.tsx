@@ -21,6 +21,7 @@ import { TerminationsPage } from "@/features/terminations/TerminationsPage";
 import { EmployeePortalPage } from "@/features/portal/EmployeePortalPage";
 import { CommunicationsPage } from "@/features/communications/CommunicationsPage";
 import { AnalyticsPage } from "@/features/analytics/AnalyticsPage";
+import { OccupationalHealthPage } from "@/features/occupational-health/OccupationalHealthPage";
 import { ProtectedRoute } from "@/auth/ProtectedRoute";
 import { LoginPage } from "@/features/auth/LoginPage";
 import { OrganizationGate } from "@/auth/OrganizationGate";
@@ -48,6 +49,7 @@ export function App() {
     <Route path="documentos/:id" element={<DocumentDetailPage />} />
     <Route path="comunicacao" element={<CommunicationsPage />} />
     <Route path="indicadores" element={<AnalyticsPage />} />
+    <Route path="saude-ocupacional" element={<OccupationalHealthPage />} />
     <Route path="automacoes" element={<WorkflowsPage />} />
     <Route path="configuracoes" element={<ModulePlaceholder title="Configurações" description="Usuários, permissões, parâmetros e personalização por empresa." icon={Settings2} />} />
     <Route path="*" element={<Navigate to="/" replace />} />

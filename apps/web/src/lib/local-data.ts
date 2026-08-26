@@ -26,6 +26,8 @@ import { InMemoryPortalRepository } from "../../../api/src/modules/portal/portal
 import { InMemoryCommunicationsRepository } from "../../../api/src/modules/communications/communications.repository";
 import { InMemoryAnalyticsRepository } from "../../../api/src/modules/analytics/analytics.repository";
 import type { GenerateReportInput } from "@fluxrh/contracts";
+import type { CompleteOccupationalExamInput, CreateOccupationalExamInput } from "@fluxrh/contracts";
+import { InMemoryOccupationalRepository } from "../../../api/src/modules/occupational-health/occupational.repository";
 import { InMemoryWorkflowsRepository } from "../../../api/src/modules/workflows/workflows.repository";
 
 const operations = new InMemoryOperationsRepository();
@@ -42,6 +44,7 @@ const terminations = new InMemoryTerminationsRepository();
 const portal = new InMemoryPortalRepository();
 const communications = new InMemoryCommunicationsRepository();
 const analytics = new InMemoryAnalyticsRepository();
+const occupational = new InMemoryOccupationalRepository();
 
 function body<T>(options?: RequestInit): T {
   return JSON.parse(String(options?.body ?? "{}")) as T;
@@ -119,6 +122,11 @@ export async function localDataRequest(url: string, options?: RequestInit): Prom
 
   if (method === "GET" && url.startsWith("/api/v1/analytics/overview")) { const params=new URL(url,"http://local").searchParams; return analytics.overview({companyId:params.get("companyId")??undefined,departmentId:params.get("departmentId")??undefined,period:params.get("period")??undefined}); }
   if (method === "POST" && url === "/api/v1/analytics/reports/generate") return required(await analytics.generate(body<GenerateReportInput>(options)),"Relatório não encontrado.");
+
+  if (method === "GET" && url === "/api/v1/occupational-health/overview") return occupational.overview();
+  if (method === "POST" && url === "/api/v1/occupational-health/exams") return occupational.create(body<CreateOccupationalExamInput>(options));
+  if (method === "POST" && (match=url.match(/^\/api\/v1\/occupational-health\/exams\/([^/]+)\/complete$/))) return required(await occupational.complete(match[1],body<CompleteOccupationalExamInput>(options)),"Exame não encontrado.");
+  if (method === "POST" && (match=url.match(/^\/api\/v1\/occupational-health\/exceptions\/([^/]+)\/resolve$/))) return required(await occupational.resolveException(match[1],body<{note:string}>(options).note),"Exceção não encontrada.");
 
   throw new Error(`Operação local não implementada: ${method} ${url}`);
 }

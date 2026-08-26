@@ -15,6 +15,7 @@ Atualizado em 26 de agosto de 2026.
 - Portal do colaborador e do gestor com solicitações, documentos e aprovações.
 - Central de comunicação com notificações por evento, comunicados, modelos, deduplicação e escalonamento.
 - Indicadores gerenciais, análises por departamento, insights e geração rastreável de relatórios.
+- Saúde ocupacional com agenda de exames, ASOs, riscos funcionais, programas e exceções.
 
 ## Limitações conhecidas
 
