@@ -1,4 +1,4 @@
-import { BellRing, Building2, CalendarDays, CircleDollarSign, Clock3, FileText, Gift, HeartHandshake, LayoutDashboard, Settings2, SquareUserRound, UserMinus, UserPlus, UsersRound, Workflow } from "lucide-react";
+import { BellRing, Building2, CalendarDays, CircleDollarSign, Clock3, FileText, Gift, HeartHandshake, LayoutDashboard, Megaphone, Settings2, SquareUserRound, UserMinus, UserPlus, UsersRound, Workflow } from "lucide-react";
 
 export const navigation = [
   { label: "Visão geral", path: "/", icon: LayoutDashboard },
@@ -14,6 +14,7 @@ export const navigation = [
   { label: "Folha", path: "/folha", icon: CircleDollarSign },
   { label: "Desligamentos", path: "/desligamentos", icon: UserMinus },
   { label: "Documentos", path: "/documentos", icon: FileText },
+  { label: "Comunicação", path: "/comunicacao", icon: Megaphone },
   { label: "Automações", path: "/automacoes", icon: Workflow },
   { label: "Configurações", path: "/configuracoes", icon: Settings2 },
 ] as const;

@@ -19,6 +19,7 @@ import { BenefitsPage } from "@/features/benefits/BenefitsPage";
 import { SpecialCalculationsPage } from "@/features/special-calculations/SpecialCalculationsPage";
 import { TerminationsPage } from "@/features/terminations/TerminationsPage";
 import { EmployeePortalPage } from "@/features/portal/EmployeePortalPage";
+import { CommunicationsPage } from "@/features/communications/CommunicationsPage";
 import { ProtectedRoute } from "@/auth/ProtectedRoute";
 import { LoginPage } from "@/features/auth/LoginPage";
 import { OrganizationGate } from "@/auth/OrganizationGate";
@@ -44,6 +45,7 @@ export function App() {
     <Route path="desligamentos" element={<TerminationsPage />} />
     <Route path="documentos" element={<DocumentsPage />} />
     <Route path="documentos/:id" element={<DocumentDetailPage />} />
+    <Route path="comunicacao" element={<CommunicationsPage />} />
     <Route path="automacoes" element={<WorkflowsPage />} />
     <Route path="configuracoes" element={<ModulePlaceholder title="Configurações" description="Usuários, permissões, parâmetros e personalização por empresa." icon={Settings2} />} />
     <Route path="*" element={<Navigate to="/" replace />} />

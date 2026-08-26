@@ -12,6 +12,7 @@ import { benefitsRoutes } from "./modules/benefits/benefits.routes.js";
 import { specialCalculationRoutes } from "./modules/special-calculations/special.routes.js";
 import { terminationRoutes } from "./modules/terminations/termination.routes.js";
 import { portalRoutes } from "./modules/portal/portal.routes.js";
+import { communicationsRoutes } from "./modules/communications/communications.routes.js";
 
 export function buildApp() {
   const app = Fastify({ logger: true });
@@ -29,5 +30,6 @@ export function buildApp() {
   app.register(specialCalculationRoutes, { prefix: "/api/v1/special-calculations" });
   app.register(terminationRoutes, { prefix: "/api/v1/terminations" });
   app.register(portalRoutes, { prefix: "/api/v1/portal" });
+  app.register(communicationsRoutes, { prefix: "/api/v1/communications" });
   return app;
 }

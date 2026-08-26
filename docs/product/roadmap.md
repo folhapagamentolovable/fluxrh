@@ -47,7 +47,7 @@
 
 - Portal do colaborador e do gestor. **Implementado em modo local.**
 - Central universal de solicitações. **Implementada em modo local.**
-- Comunicação orientada a eventos.
+- Comunicação orientada a eventos. **Implementada em modo local.**
 - Integrações contábeis, bancárias e governamentais.
 - Observabilidade, exportações e operação assistida.
 

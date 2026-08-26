@@ -1,6 +1,7 @@
 import type {
   CreateAdmissionInput,
   CreateBenefitEnrollmentInput,
+  CreateAnnouncementInput,
   CreateCompanyInput,
   CreateDocumentRequestInput,
   CreateEmployeeInput,
@@ -22,6 +23,7 @@ import { InMemorySpecialRepository } from "../../../api/src/modules/special-calc
 import { InMemoryTimeRepository } from "../../../api/src/modules/time-tracking/time.repository";
 import { InMemoryTerminationsRepository } from "../../../api/src/modules/terminations/termination.repository";
 import { InMemoryPortalRepository } from "../../../api/src/modules/portal/portal.repository";
+import { InMemoryCommunicationsRepository } from "../../../api/src/modules/communications/communications.repository";
 import { InMemoryWorkflowsRepository } from "../../../api/src/modules/workflows/workflows.repository";
 
 const operations = new InMemoryOperationsRepository();
@@ -36,6 +38,7 @@ const benefits = new InMemoryBenefitsRepository();
 const special = new InMemorySpecialRepository();
 const terminations = new InMemoryTerminationsRepository();
 const portal = new InMemoryPortalRepository();
+const communications = new InMemoryCommunicationsRepository();
 
 function body<T>(options?: RequestInit): T {
   return JSON.parse(String(options?.body ?? "{}")) as T;
@@ -104,6 +107,12 @@ export async function localDataRequest(url: string, options?: RequestInit): Prom
   if (method === "GET" && url === "/api/v1/portal/overview") return portal.overview();
   if (method === "POST" && url === "/api/v1/portal/requests") return portal.create(body<CreateServiceRequestInput>(options));
   if (method === "POST" && (match = url.match(/^\/api\/v1\/portal\/approvals\/([^/]+)\/decision$/))) { const input=body<{decision:"approve"|"reject";note:string}>(options); return required(await portal.decide(match[1],input.decision,input.note),"Aprovação não encontrada."); }
+
+  if (method === "GET" && url === "/api/v1/communications/overview") return communications.overview();
+  if (method === "POST" && (match = url.match(/^\/api\/v1\/communications\/notifications\/([^/]+)\/read$/))) return required(await communications.markRead(match[1]),"Notificação não encontrada.");
+  if (method === "POST" && (match = url.match(/^\/api\/v1\/communications\/notifications\/([^/]+)\/acknowledge$/))) return required(await communications.acknowledge(match[1]),"Notificação não encontrada.");
+  if (method === "POST" && url === "/api/v1/communications/announcements") return communications.createAnnouncement(body<CreateAnnouncementInput>(options));
+  if (method === "POST" && url === "/api/v1/communications/escalations/run") return required((await communications.escalate())?.data,"Nenhum escalonamento disponível.");
 
   throw new Error(`Operação local não implementada: ${method} ${url}`);
 }

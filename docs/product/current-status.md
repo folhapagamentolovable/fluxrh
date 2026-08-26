@@ -13,6 +13,7 @@ Atualizado em 26 de agosto de 2026.
 - Suite automatizada de testes e comandos de typecheck/build.
 - Desligamentos e rescisões com cálculo, checklist, documentos e exceções.
 - Portal do colaborador e do gestor com solicitações, documentos e aprovações.
+- Central de comunicação com notificações por evento, comunicados, modelos, deduplicação e escalonamento.
 
 ## Limitações conhecidas
 
