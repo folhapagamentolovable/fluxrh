@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router-dom";
 import { App } from "./app/App";
+import { AuthProvider } from "./auth/AuthProvider";
 import "./styles.css";
 import "./benefits.css";
 import "./special-calculations.css";
@@ -12,7 +13,7 @@ const queryClient = new QueryClient({ defaultOptions: { queries: { retry: 1, sta
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter><App /></BrowserRouter>
+      <BrowserRouter><AuthProvider><App /></AuthProvider></BrowserRouter>
     </QueryClientProvider>
   </StrictMode>
 );

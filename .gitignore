@@ -7,3 +7,5 @@ coverage/
 .DS_Store
 .vite/
 *.tsbuildinfo
+.npm-cache/
+supabase/.temp/

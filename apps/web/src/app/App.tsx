@@ -17,9 +17,14 @@ import { AbsencesPage } from "@/features/absences/AbsencesPage";
 import { PayrollPage } from "@/features/payroll/PayrollPage";
 import { BenefitsPage } from "@/features/benefits/BenefitsPage";
 import { SpecialCalculationsPage } from "@/features/special-calculations/SpecialCalculationsPage";
+import { ProtectedRoute } from "@/auth/ProtectedRoute";
+import { LoginPage } from "@/features/auth/LoginPage";
+import { OrganizationGate } from "@/auth/OrganizationGate";
 
 export function App() {
-  return <Routes><Route element={<AppShell />}>
+  return <Routes>
+    <Route path="entrar" element={<LoginPage />} />
+    <Route element={<ProtectedRoute />}><Route element={<OrganizationGate />}><Route element={<AppShell />}>
     <Route index element={<DashboardPage />} />
     <Route path="excecoes" element={<ExceptionsPage />} />
     <Route path="pessoas" element={<EmployeesPage />} />
@@ -38,5 +43,6 @@ export function App() {
     <Route path="automacoes" element={<WorkflowsPage />} />
     <Route path="configuracoes" element={<ModulePlaceholder title="Configurações" description="Usuários, permissões, parâmetros e personalização por empresa." icon={Settings2} />} />
     <Route path="*" element={<Navigate to="/" replace />} />
-  </Route></Routes>;
+    </Route></Route></Route>
+  </Routes>;
 }

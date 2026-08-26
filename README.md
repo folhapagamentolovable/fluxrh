@@ -70,7 +70,11 @@ os pacotes de contratos e API, execute `npm run build:full`.
 
 ## Supabase local
 
-As migrations, seeds e testes de RLS estão em `supabase/`. Esta etapa é local e não deve ser vinculada ou enviada a um projeto remoto sem revisão.
+As migrations, seeds e testes de RLS estão em `supabase/`. A migration inicial está aplicada ao projeto Supabase DEV `akdmobvbombhqvvglayn`; o seed permanece opt-in e não foi aplicado.
+
+O frontend exige `VITE_SUPABASE_URL`, `VITE_SUPABASE_PROJECT_ID` e `VITE_SUPABASE_PUBLISHABLE_KEY`. Use `.env.example` como referência e mantenha valores reais somente em `.env`/variáveis do ambiente de deploy. Nunca exponha uma chave `service_role` ou `sb_secret_` no frontend.
+
+O primeiro acesso cria uma conta pelo Supabase Auth. Após autenticar, um usuário sem vínculo é direcionado à criação da organização e se torna `owner` por meio da função segura `create_organization`.
 
 ```bash
 npx supabase start
