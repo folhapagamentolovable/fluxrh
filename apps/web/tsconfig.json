@@ -3,21 +3,20 @@
     "target": "ES2022",
     "useDefineForClassFields": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "allowJs": false,
     "skipLibCheck": true,
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
+    "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["apps/web/src/*"],
-      "@fluxrh/contracts": ["packages/contracts/src/index.ts"]
-    }
+    "paths": { "@/*": ["./src/*"] }
   },
-  "include": ["apps/web/src", "packages/contracts/src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": ["src"],
+  "references": []
 }
