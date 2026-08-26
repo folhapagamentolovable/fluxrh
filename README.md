@@ -68,4 +68,16 @@ os pacotes de contratos e API, execute `npm run build:full`.
 - [Decisões do produto](docs/product/decisions.md)
 - [Fundação de dados proposta](docs/architecture/0009-data-foundation.md)
 
+## Supabase local
+
+As migrations, seeds e testes de RLS estão em `supabase/`. Esta etapa é local e não deve ser vinculada ou enviada a um projeto remoto sem revisão.
+
+```bash
+npx supabase start
+npx supabase db reset --local
+npx supabase test db
+```
+
+Crie usuários de teste pelo Auth do Studio local. O primeiro usuário autenticado pode criar uma organização por meio da função `create_organization`, tornando-se `owner` dessa organização.
+
 O banco de dados ainda não faz parte deste marco. A aplicação depende de interfaces de repository para que a persistência possa ser adicionada sem alterar regras de negócio ou telas.
