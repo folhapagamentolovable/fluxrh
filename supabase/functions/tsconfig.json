@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "noEmit": true,
-    "skipLibCheck": true,
-    "types": []
-  },
-  "include": [],
-  "exclude": ["**/*"]
-}

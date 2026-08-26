@@ -1,26 +1,51 @@
-# Remix of Fluxpay
+# FluxRH
 
-Crie uma pagina 404 simples, em branco, apenas escrito 'HELLO WORLD"
+Sistema operacional autônomo de RH para pequenas e médias empresas. O FluxRH executa rotinas operacionais e solicita intervenção humana somente quando encontra uma exceção ou decisão.
 
-This project was built with [Lovable](https://lovable.dev).
+## Primeiro marco
 
-**Live app**: https://fluxpay2.lovable.app
+- Monorepo React + Node.js em TypeScript
+- Central de operações responsiva
+- Central de exceções
+- Empresas, estabelecimentos, departamentos e centros de custo
+- Cadastro, busca e filtros de colaboradores
+- Prontuário digital em abas
+- Cadastro de empresa e colaborador em memória
+- Motor de workflows com definições versionadas, tarefas e histórico
+- Processo completo de admissão digital até onboarding
+- Gestão documental, modelos versionados e validação
+- Aceite eletrônico com hash SHA-256 e comprovante
+- Escalas 5×2, 6×1 e 12×36
+- Ponto por QR Code, apuração, exceções e fechamento
+- Navegação dos módulos do produto
+- Contratos compartilhados e validados
+- API REST `/api/v1`
+- Repository em memória, substituível futuramente por PostgreSQL/Supabase
 
-## Build with Lovable
+## Executar
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/cdb02cbc-a6c9-4526-ae6e-95f444131001).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+```bash
+npm install
 npm run dev
 ```
+
+- Aplicação: `http://localhost:5173`
+- API: `http://localhost:3333`
+- Health check: `http://localhost:3333/health`
+
+## Validar
+
+```bash
+npm run typecheck
+npm test
+npm run build
+```
+
+## Organização
+
+- `apps/web`: aplicação React
+- `apps/api`: API REST Node.js
+- `packages/contracts`: contratos e validações compartilhados
+- `docs`: decisões e documentação do domínio
+
+O banco de dados ainda não faz parte deste marco. A aplicação depende de interfaces de repository para que a persistência possa ser adicionada sem alterar regras de negócio ou telas.

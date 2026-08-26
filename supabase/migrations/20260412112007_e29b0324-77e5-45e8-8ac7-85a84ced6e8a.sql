@@ -1,1 +1,0 @@
-ALTER TABLE public.funcionarios ADD COLUMN IF NOT EXISTS ronda boolean DEFAULT false;

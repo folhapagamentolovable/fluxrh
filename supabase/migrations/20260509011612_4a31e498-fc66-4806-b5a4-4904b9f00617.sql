@@ -1,1 +1,0 @@
-ALTER TABLE public.ferias ADD COLUMN IF NOT EXISTS itens_calculados JSONB;
