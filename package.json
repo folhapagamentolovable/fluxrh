@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "concurrently -n WEB,API -c cyan,green \"npm run dev -w @fluxrh/web\" \"npm run dev -w @fluxrh/api\"",
     "build": "npm run build -w @fluxrh/contracts && npm run build -w @fluxrh/api && npm run build -w @fluxrh/web",
@@ -13,5 +16,10 @@
   "devDependencies": {
     "concurrently": "9.2.1"
   },
-  "engines": { "node": ">=22" }
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "vite": "^8.2.2"
+  }
 }
