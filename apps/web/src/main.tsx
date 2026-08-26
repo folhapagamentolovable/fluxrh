@@ -10,6 +10,7 @@ import "./special-calculations.css";
 import "./terminations.css";
 import "./portal.css";
 import "./communications.css";
+import "./analytics.css";
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: 1, staleTime: 30_000 } } });
 

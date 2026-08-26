@@ -24,6 +24,8 @@ import { InMemoryTimeRepository } from "../../../api/src/modules/time-tracking/t
 import { InMemoryTerminationsRepository } from "../../../api/src/modules/terminations/termination.repository";
 import { InMemoryPortalRepository } from "../../../api/src/modules/portal/portal.repository";
 import { InMemoryCommunicationsRepository } from "../../../api/src/modules/communications/communications.repository";
+import { InMemoryAnalyticsRepository } from "../../../api/src/modules/analytics/analytics.repository";
+import type { GenerateReportInput } from "@fluxrh/contracts";
 import { InMemoryWorkflowsRepository } from "../../../api/src/modules/workflows/workflows.repository";
 
 const operations = new InMemoryOperationsRepository();
@@ -39,6 +41,7 @@ const special = new InMemorySpecialRepository();
 const terminations = new InMemoryTerminationsRepository();
 const portal = new InMemoryPortalRepository();
 const communications = new InMemoryCommunicationsRepository();
+const analytics = new InMemoryAnalyticsRepository();
 
 function body<T>(options?: RequestInit): T {
   return JSON.parse(String(options?.body ?? "{}")) as T;
@@ -113,6 +116,9 @@ export async function localDataRequest(url: string, options?: RequestInit): Prom
   if (method === "POST" && (match = url.match(/^\/api\/v1\/communications\/notifications\/([^/]+)\/acknowledge$/))) return required(await communications.acknowledge(match[1]),"Notificação não encontrada.");
   if (method === "POST" && url === "/api/v1/communications/announcements") return communications.createAnnouncement(body<CreateAnnouncementInput>(options));
   if (method === "POST" && url === "/api/v1/communications/escalations/run") return required((await communications.escalate())?.data,"Nenhum escalonamento disponível.");
+
+  if (method === "GET" && url.startsWith("/api/v1/analytics/overview")) { const params=new URL(url,"http://local").searchParams; return analytics.overview({companyId:params.get("companyId")??undefined,departmentId:params.get("departmentId")??undefined,period:params.get("period")??undefined}); }
+  if (method === "POST" && url === "/api/v1/analytics/reports/generate") return required(await analytics.generate(body<GenerateReportInput>(options)),"Relatório não encontrado.");
 
   throw new Error(`Operação local não implementada: ${method} ${url}`);
 }

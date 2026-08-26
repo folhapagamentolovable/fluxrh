@@ -13,6 +13,7 @@ import { specialCalculationRoutes } from "./modules/special-calculations/special
 import { terminationRoutes } from "./modules/terminations/termination.routes.js";
 import { portalRoutes } from "./modules/portal/portal.routes.js";
 import { communicationsRoutes } from "./modules/communications/communications.routes.js";
+import { analyticsRoutes } from "./modules/analytics/analytics.routes.js";
 
 export function buildApp() {
   const app = Fastify({ logger: true });
@@ -31,5 +32,6 @@ export function buildApp() {
   app.register(terminationRoutes, { prefix: "/api/v1/terminations" });
   app.register(portalRoutes, { prefix: "/api/v1/portal" });
   app.register(communicationsRoutes, { prefix: "/api/v1/communications" });
+  app.register(analyticsRoutes, { prefix: "/api/v1/analytics" });
   return app;
 }

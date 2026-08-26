@@ -14,6 +14,7 @@ Atualizado em 26 de agosto de 2026.
 - Desligamentos e rescisões com cálculo, checklist, documentos e exceções.
 - Portal do colaborador e do gestor com solicitações, documentos e aprovações.
 - Central de comunicação com notificações por evento, comunicados, modelos, deduplicação e escalonamento.
+- Indicadores gerenciais, análises por departamento, insights e geração rastreável de relatórios.
 
 ## Limitações conhecidas
 
