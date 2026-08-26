@@ -1,6 +1,11 @@
 import { absenceOverviewSchema, admissionListSchema, admissionSchema, benefitEnrollmentSchema, benefitsOverviewSchema, dashboardSnapshotSchema, documentOverviewSchema, documentRecordSchema, employeeListSchema, employeeMovementSchema, employeeSchema, employeeTimeSummarySchema, medicalCertificateSchema, organizationSnapshotSchema, payrollEmployeeSchema, payrollOverviewSchema, payrollRunSchema, specialCalculationSchema, specialCalculationsOverviewSchema, timeExceptionSchema, timeOverviewSchema, timePunchSchema, vacationRequestSchema, workflowOverviewSchema, type AbsenceOverview, type Admission, type ApiResponse, type BenefitEnrollment, type BenefitsOverview, type CreateAdmissionInput, type CreateBenefitEnrollmentInput, type CreateCompanyInput, type CreateDocumentRequestInput, type CreateEmployeeInput, type CreateEmployeeMovementInput, type CreateMedicalCertificateInput, type CreateSpecialCalculationInput, type CreateVacationRequestInput, type DashboardSnapshot, type DocumentOverview, type DocumentRecord, type Employee, type EmployeeListItem, type EmployeeMovement, type EmployeeTimeSummary, type MedicalCertificate, type OrganizationSnapshot, type PayrollEmployee, type PayrollOverview, type PayrollRun, type SpecialCalculation, type SpecialCalculationsOverview, type TimeException, type TimeOverview, type TimePunch, type VacationRequest, type WorkflowOverview } from "@fluxrh/contracts";
+import { localDataRequest } from "./local-data";
+
+const localDataMode = typeof window !== "undefined"
+  && !["localhost", "127.0.0.1"].includes(window.location.hostname);
 
 async function request<T>(url: string, schema: { parse: (value: unknown) => T }, options?: RequestInit): Promise<T> {
+  if (localDataMode) return schema.parse(await localDataRequest(url, options));
   const response = await fetch(url, { headers: { "Content-Type": "application/json", ...options?.headers }, ...options });
   if (!response.ok) throw new Error(`A operação falhou (${response.status}).`);
   const payload = await response.json() as ApiResponse<unknown>;
