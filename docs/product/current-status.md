@@ -26,19 +26,19 @@ Atualizado em 26 de agosto de 2026.
 
 - Os módulos ainda não migrados continuam reiniciando ao recarregar o ambiente ou reiniciar a API.
 - A persistência Supabase depende da aplicação das migrations e da configuração explícita do ambiente.
-- A stack local do Supabase não pôde ser executada nesta validação porque o Docker estava inativo.
+- A validação integrada das migrations será feita diretamente no projeto externo de desenvolvimento do Supabase, sem banco local ou Docker.
 - Documentos, dependentes e linha do tempo do prontuário ainda retornam vazios no adaptador persistente.
 - Algumas áreas do menu continuam como módulos planejados.
 - O preview do Lovable precisa ser verificado após cada publicação relevante.
 
 ## Próximo marco
 
-Com o Docker ativo, executar reset, lint e testes RLS da stack local; depois persistir admissão, tarefas e transições do workflow.
+Revisar e aplicar as migrations no projeto externo de desenvolvimento do Supabase, validar o RLS nesse ambiente e depois persistir admissão, tarefas e transições do workflow.
 
 ## Regras de transição
 
 1. Nenhuma tela acessará o Supabase diretamente.
 2. Os adaptadores persistentes implementarão as interfaces de repository existentes.
-3. Migrations e políticas de segurança serão revisadas antes de aplicação remota.
+3. Migrations e políticas de segurança serão revisadas antes da aplicação no projeto externo autorizado.
 4. O modo local continuará sendo exercitado por testes e pelo preview.
-5. As migrations locais não serão aplicadas a um projeto remoto sem revisão e autorização explícitas.
+5. Não será criado nem utilizado banco Supabase local com Docker; todo deploy de banco ocorrerá no projeto externo autorizado.

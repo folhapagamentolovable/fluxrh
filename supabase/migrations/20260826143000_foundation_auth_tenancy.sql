@@ -1,5 +1,5 @@
 -- FluxRH foundation: identity, tenancy, roles and the first persistent journey.
--- Local/versioned migration only. Do not apply to a linked project without review.
+-- Versioned migration for the authorized external Supabase project. Review before applying.
 
 create schema if not exists extensions;
 create extension if not exists pgcrypto with schema extensions;

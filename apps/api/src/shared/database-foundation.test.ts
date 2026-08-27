@@ -27,7 +27,7 @@ const tenantTables = [
   "audit_events",
 ];
 
-describe("local database foundation", () => {
+describe("versioned database foundation", () => {
   it.each(tenantTables)("enables RLS on %s", (table) => {
     expect(migration).toContain(`alter table public.${table} enable row level security;`);
   });

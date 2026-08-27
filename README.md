@@ -68,20 +68,12 @@ os pacotes de contratos e API, execute `npm run build:full`.
 - [Decisões do produto](docs/product/decisions.md)
 - [Fundação de dados proposta](docs/architecture/0009-data-foundation.md)
 
-## Supabase local
+## Supabase externo
 
-As migrations, seeds e testes de RLS estão em `supabase/`. A migration inicial está aplicada ao projeto Supabase DEV `akdmobvbombhqvvglayn`; o seed permanece opt-in e não foi aplicado.
+O FluxRH utiliza exclusivamente projetos externos hospedados no Supabase. Não faz parte do fluxo do projeto executar ou implantar um banco Supabase local com Docker. As migrations, seeds e testes de RLS versionados estão em `supabase/` e devem ser revisados antes da aplicação no projeto externo autorizado. A migration inicial está aplicada ao projeto Supabase DEV `akdmobvbombhqvvglayn`; o seed permanece opt-in e não foi aplicado.
 
 O frontend exige `VITE_SUPABASE_URL`, `VITE_SUPABASE_PROJECT_ID` e `VITE_SUPABASE_PUBLISHABLE_KEY`. Use `.env.example` como referência e mantenha valores reais somente em `.env`/variáveis do ambiente de deploy. Nunca exponha uma chave `service_role` ou `sb_secret_` no frontend.
 
 O primeiro acesso cria uma conta pelo Supabase Auth. Após autenticar, um usuário sem vínculo é direcionado à criação da organização e se torna `owner` por meio da função segura `create_organization`.
 
-```bash
-npx supabase start
-npx supabase db reset --local
-npx supabase test db
-```
-
-Crie usuários de teste pelo Auth do Studio local. O primeiro usuário autenticado pode criar uma organização por meio da função `create_organization`, tornando-se `owner` dessa organização.
-
-O banco de dados ainda não faz parte deste marco. A aplicação depende de interfaces de repository para que a persistência possa ser adicionada sem alterar regras de negócio ou telas.
+Crie usuários de teste pelo Supabase Auth do projeto externo de desenvolvimento. O primeiro usuário autenticado pode criar uma organização por meio da função `create_organization`, tornando-se `owner` dessa organização.

@@ -9,4 +9,4 @@ Este arquivo mantém decisões de produto que precisam sobreviver às conversas.
 | 2026-08-26 | O preview usa uma camada de dados local. | Permitir demonstração funcional sem API ou banco disponíveis. | Vigente |
 | 2026-08-26 | O banco será implementado somente após aprovação do modelo. | Evitar acoplamento prematuro e migrations descartáveis. | Vigente |
 | 2026-08-26 | A primeira jornada persistente será organização até auditoria. | Validar tenancy, autorização, workflow e rastreabilidade de ponta a ponta. | Vigente |
-| 2026-08-26 | A fundação de dados começa com migrations e testes exclusivamente locais. | Permitir revisão de schema e RLS antes de qualquer alteração remota. | Vigente |
+| 2026-08-26 | O banco será implantado exclusivamente em projeto externo hospedado no Supabase; banco Supabase local com Docker não será utilizado. | Manter um único fluxo de persistência e validação alinhado ao ambiente real de desenvolvimento. | Vigente |

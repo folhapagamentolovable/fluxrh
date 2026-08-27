@@ -1,5 +1,5 @@
--- Local demonstration data only. No personal or production data.
--- A login-capable user should be created through local Studio/Auth API.
+-- Optional demonstration data for the external development project only.
+-- No personal or production data. Create login-capable users through Supabase Auth.
 
 insert into public.organizations(id, name, document, status)
 values ('10000000-0000-4000-8000-000000000001', 'Grupo Flux Local', '00.000.000/0001-00', 'active')
