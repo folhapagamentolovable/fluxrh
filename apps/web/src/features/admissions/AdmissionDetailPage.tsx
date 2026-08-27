@@ -31,3 +31,5 @@ function StagePanel({item}:{item:NonNullable<Awaited<ReturnType<typeof getAdmiss
 function StageHeader({icon:Icon,eyebrow,title,description}:{icon:typeof FileText;eyebrow:string;title:string;description:string}){return <div className="stage-header"><span><Icon/></span><div><small>{eyebrow}</small><h2>{title}</h2><p>{description}</p></div></div>}
 function Validation({label,done=false}:{label:string;done?:boolean}){return <div className={done?"done":""}><span>{done?<Check/>:<CircleAlert/>}</span><strong>{label}</strong></div>}
 function Info({label,value}:{label:string;value:string}){return <div className="candidate-info-row"><small>{label}</small><strong>{value}</strong></div>}
+
+

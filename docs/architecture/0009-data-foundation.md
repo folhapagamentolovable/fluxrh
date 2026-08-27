@@ -77,3 +77,5 @@ Documentos serão adicionados à primeira jornada quando a fundação estiver va
 A seleção do adaptador será feita por configuração. Os contratos públicos permanecem iguais, permitindo que Lovable e testes continuem usando dados locais enquanto o ambiente integrado usa a persistência.
 
 O modo padrão é `FLUXRH_PERSISTENCE=memory`. Para usar os adaptadores persistentes no projeto externo, a API exige `FLUXRH_PERSISTENCE=supabase`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` e o token Bearer da sessão autenticada. A API usa a chave publicável e preserva o contexto do usuário para que o RLS permaneça efetivo; não utiliza `service_role`. O modo em memória serve apenas para demonstração e testes da aplicação, não representa um banco Supabase local.
+
+

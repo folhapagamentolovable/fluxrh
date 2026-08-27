@@ -27,3 +27,5 @@ export async function employeesRoutes(app: FastifyInstance) {
     return sendData(reply, await repositoryFor(request.headers.authorization).create(normalizePersonalData(parsed.data)), 201);
   });
 }
+
+

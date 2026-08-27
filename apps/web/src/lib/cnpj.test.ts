@@ -39,3 +39,5 @@ describe("CPF e telefone", () => {
     expect(normalizeDigits("529.982.247-25")).toBe("52998224725");
   });
 });
+
+

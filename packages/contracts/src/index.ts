@@ -353,3 +353,5 @@ export const inviteGovernanceUserSchema=z.object({name:z.string().min(3),email:z
 export const updateRolePermissionsSchema=z.object({module:governanceModuleSchema,actions:z.array(governanceActionSchema),dataAccess:z.enum(["none","own","team","scope","organization"]),sensitiveData:z.enum(["hidden","masked","visible"])});
 export const revokeSessionSchema=z.object({justification:z.string().min(3).max(500)});
 export type GovernanceOverview=z.infer<typeof governanceOverviewSchema>;export type GovernanceUser=z.infer<typeof governanceUserSchema>;export type AuditEvent=z.infer<typeof auditEventSchema>;export type InviteGovernanceUserInput=z.infer<typeof inviteGovernanceUserSchema>;export type UpdateRolePermissionsInput=z.infer<typeof updateRolePermissionsSchema>;
+
+

@@ -33,3 +33,5 @@ export function EmployeeProfilePage() {
 }
 
 function Info({ label, value }: { label: string; value: string }) { return <div className="info-item"><small>{label}</small><strong>{value}</strong></div>; }
+
+

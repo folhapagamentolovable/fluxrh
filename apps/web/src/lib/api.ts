@@ -87,3 +87,4 @@ export const getGovernance=():Promise<GovernanceOverview>=>request("/api/v1/gove
 export const inviteGovernanceUser=(input:InviteGovernanceUserInput):Promise<GovernanceUser>=>request("/api/v1/governance/users/invite",governanceUserSchema,{method:"POST",body:JSON.stringify(input)});
 export const updateRolePermission=(role:string,input:UpdateRolePermissionsInput)=>request(`/api/v1/governance/roles/${role}/permissions`,permissionMatrixEntrySchema,{method:"PUT",body:JSON.stringify(input)});
 export const revokeGovernanceSession=(id:string)=>request(`/api/v1/governance/sessions/${id}/revoke`,governanceSessionSchema,{method:"POST",body:JSON.stringify({justification:"Sessão encerrada pelo administrador por segurança."})});
+

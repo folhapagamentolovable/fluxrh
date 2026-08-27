@@ -22,3 +22,5 @@ export async function organizationsRoutes(app: FastifyInstance) {
     return sendData(reply, await repositoryFor(request.headers.authorization).createCompany(normalizePersonalData(parsed.data)), 201);
   });
 }
+
+
