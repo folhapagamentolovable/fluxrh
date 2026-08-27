@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Outlet } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { formatCnpj, isValidCnpj } from "@/lib/cnpj";
 import { useAuth } from "./AuthProvider";
 
 export function OrganizationGate() {
@@ -9,6 +10,7 @@ export function OrganizationGate() {
   const [hasOrganization, setHasOrganization] = useState(false);
   const [name, setName] = useState("");
   const [document, setDocument] = useState("");
+  const [documentTouched, setDocumentTouched] = useState(false);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
 
@@ -29,6 +31,8 @@ export function OrganizationGate() {
 
   async function createOrganization(event: FormEvent) {
     event.preventDefault();
+    setDocumentTouched(true);
+    if (!isValidCnpj(document)) return;
     setPending(true);
     setError("");
     const { error: rpcError } = await supabase.rpc("create_organization", {
@@ -42,11 +46,24 @@ export function OrganizationGate() {
 
   if (loading) return <div className="auth-loading">Preparando sua organização…</div>;
   if (hasOrganization) return <Outlet />;
+  const documentIsInvalid = documentTouched && !isValidCnpj(document);
   return <main className="onboarding-page"><form className="auth-card" onSubmit={createOrganization}>
     <header><span className="eyebrow">Configuração inicial</span><h2>Crie sua organização</h2><p>Seu acesso será definido como proprietário. Os dados desta organização ficarão isolados das demais.</p></header>
     <label>Nome da organização<input required minLength={2} value={name} onChange={event => setName(event.target.value)} placeholder="Ex.: Grupo Flux" /></label>
-    <label>CNPJ<input required minLength={14} value={document} onChange={event => setDocument(event.target.value)} placeholder="00.000.000/0001-00" /></label>
+    <label>CNPJ<input
+      required
+      inputMode="numeric"
+      autoComplete="off"
+      maxLength={18}
+      value={document}
+      onChange={event => setDocument(formatCnpj(event.target.value))}
+      onBlur={() => setDocumentTouched(true)}
+      aria-invalid={documentIsInvalid}
+      aria-describedby="cnpj-error"
+      placeholder="00.000.000/0001-00"
+    /></label>
+    {documentIsInvalid && <div id="cnpj-error" className="auth-message error">Informe um CNPJ válido.</div>}
     {error && <div className="auth-message error">{error}</div>}
-    <button className="primary-button auth-submit" disabled={pending}>{pending ? "Criando…" : "Criar organização"}</button>
+    <button className="primary-button auth-submit" disabled={pending || !isValidCnpj(document)}>{pending ? "Criando…" : "Criar organização"}</button>
   </form></main>;
 }
