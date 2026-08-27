@@ -26,7 +26,15 @@ const admissions: Admission[] = [
 ];
 admissions[3].progress = 100;
 
-export class InMemoryWorkflowsRepository {
+export interface WorkflowsRepository {
+  overview(): Promise<WorkflowOverview>;
+  list(): Promise<Admission[]>;
+  find(id: string): Promise<Admission | undefined>;
+  create(input: CreateAdmissionInput): Promise<Admission>;
+  advance(id: string, note?: string): Promise<Admission | undefined>;
+}
+
+export class InMemoryWorkflowsRepository implements WorkflowsRepository {
   async overview(): Promise<WorkflowOverview> {
     const tasks = admissions.flatMap(instance => instance.tasks.filter(task => task.status !== "completed").map(task => ({ ...task, workflowId: instance.id, subject: instance.candidateName })));
     return { summary: { running: admissions.filter(x => x.status === "running").length, pendingTasks: tasks.length, automatedToday: 34, exceptions: admissions.filter(x => x.status === "exception").length }, definition: { id: "admission_v1", name: "Admissão completa", version: 1, active: true, steps: admissionSteps.map((key, index) => ({ key, name: stepNames[key], description: ["Coleta de dados e aprovação da solicitação", "Solicitação e recebimento dos documentos", "Conferências automáticas e tratamento de divergências", "Geração, envio e aceite do contrato", "Tarefas do primeiro dia e período de experiência"][index], automationCount: [3, 5, 6, 4, 7][index] })) }, tasks, instances: structuredClone(admissions) };

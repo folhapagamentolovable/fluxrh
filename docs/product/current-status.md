@@ -1,6 +1,6 @@
 # Estado atual
 
-Atualizado em 26 de agosto de 2026.
+Atualizado em 27 de agosto de 2026.
 
 ## Entregue
 
@@ -22,20 +22,22 @@ Atualizado em 26 de agosto de 2026.
 - Criação transacional de colaborador e vínculo empregatício por função protegida por papel e RLS.
 - Seleção explícita entre persistência em memória e Supabase, mantendo o modo demonstrativo como padrão.
 - Fundação persistente e criação transacional de colaboradores implantadas no projeto Supabase externo `akdmobvbombhqvvglayn`.
+- Primeiro acesso e organização reais validados; usuário administrador promovido a `super_admin`.
+- Adaptador Supabase de admissões iniciado, com criação e transição transacionais de instância e tarefas, evento de domínio e auditoria.
 - RLS externo validado nas tabelas principais e execução pública da função automática de RLS removida.
 
 ## Limitações conhecidas
 
 - Os módulos ainda não migrados continuam reiniciando ao recarregar o ambiente ou reiniciar a API.
 - A persistência Supabase depende da configuração explícita das variáveis da aplicação e da seleção do adaptador persistente.
-- O projeto externo ainda não possui usuários, organizações ou dados; a jornada autenticada será validada após o primeiro cadastro.
+- A migration de persistência das admissões está preparada localmente, mas ainda não foi aplicada ao Supabase externo.
 - Documentos, dependentes e linha do tempo do prontuário ainda retornam vazios no adaptador persistente.
 - Algumas áreas do menu continuam como módulos planejados.
 - O preview do Lovable precisa ser verificado após cada publicação relevante.
 
 ## Próximo marco
 
-Configurar a aplicação para o Supabase externo, validar o primeiro acesso e a criação da organização e, em seguida, persistir admissão, tarefas e transições do workflow.
+Aplicar e validar a migration de admissões no Supabase externo, testar criação e avanço com o usuário autenticado e então implementar exceções operacionais e auditoria consultável.
 
 ## Regras de transição
 

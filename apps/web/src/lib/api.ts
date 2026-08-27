@@ -5,6 +5,7 @@ import { occupationalExamSchema,occupationalHealthOverviewSchema,occupationalExc
 import { patrolOccurrenceSchema,patrolOverviewSchema,patrolSchema,patrolVisitSchema,type CreatePatrolOccurrenceInput,type Patrol,type PatrolOccurrence,type PatrolOverview,type PatrolVisit,type RegisterPatrolVisitInput,type StartPatrolInput } from "@fluxrh/contracts";
 import { governanceOverviewSchema,governanceSessionSchema,governanceUserSchema,permissionMatrixEntrySchema,type GovernanceOverview,type GovernanceUser,type InviteGovernanceUserInput,type UpdateRolePermissionsInput } from "@fluxrh/contracts";
 import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
+import { normalizeDigits } from "./cnpj";
 
 const localDataMode = typeof window !== "undefined"
   && !["localhost", "127.0.0.1"].includes(window.location.hostname);
@@ -23,14 +24,14 @@ export async function getDashboard(): Promise<DashboardSnapshot> {
 }
 
 export const getOrganizations = (): Promise<OrganizationSnapshot> => request("/api/v1/organizations", organizationSnapshotSchema);
-export const createCompany = (input: CreateCompanyInput) => request("/api/v1/organizations/companies", organizationSnapshotSchema.shape.companies.element, { method: "POST", body: JSON.stringify(input) });
+export const createCompany = (input: CreateCompanyInput) => request("/api/v1/organizations/companies", organizationSnapshotSchema.shape.companies.element, { method: "POST", body: JSON.stringify({ ...input, document: normalizeDigits(input.document) }) });
 export const getEmployees = (): Promise<EmployeeListItem[]> => request("/api/v1/employees", employeeListSchema);
 export const getEmployee = (id: string): Promise<Employee> => request(`/api/v1/employees/${id}`, employeeSchema);
-export const createEmployee = (input: CreateEmployeeInput): Promise<Employee> => request("/api/v1/employees", employeeSchema, { method: "POST", body: JSON.stringify(input) });
+export const createEmployee = (input: CreateEmployeeInput): Promise<Employee> => request("/api/v1/employees", employeeSchema, { method: "POST", body: JSON.stringify({ ...input, cpf: normalizeDigits(input.cpf), phone: normalizeDigits(input.phone) }) });
 export const getWorkflowOverview = (): Promise<WorkflowOverview> => request("/api/v1/workflows/overview", workflowOverviewSchema);
 export const getAdmissions = (): Promise<Admission[]> => request("/api/v1/workflows/admissions", admissionListSchema);
 export const getAdmission = (id: string): Promise<Admission> => request(`/api/v1/workflows/admissions/${id}`, admissionSchema);
-export const createAdmission = (input: CreateAdmissionInput): Promise<Admission> => request("/api/v1/workflows/admissions", admissionSchema, { method: "POST", body: JSON.stringify(input) });
+export const createAdmission = (input: CreateAdmissionInput): Promise<Admission> => request("/api/v1/workflows/admissions", admissionSchema, { method: "POST", body: JSON.stringify({ ...input, cpf: normalizeDigits(input.cpf), phone: normalizeDigits(input.phone) }) });
 export const advanceAdmission = (id: string, note?: string): Promise<Admission> => request(`/api/v1/workflows/admissions/${id}/advance`, admissionSchema, { method: "POST", body: JSON.stringify({ note }) });
 export const getDocumentOverview = (): Promise<DocumentOverview> => request("/api/v1/documents/overview", documentOverviewSchema);
 export const getDocument = (id: string): Promise<DocumentRecord> => request(`/api/v1/documents/${id}`, documentRecordSchema);
