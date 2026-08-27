@@ -70,7 +70,7 @@
 
 ### Próximo passo confirmado
 
-⬜ Executar a Fase 22 de segurança e robustez, começando pelos testes de uploads, permissões e isolamento multiempresa.
+🟡 Continuar a Fase 22 de segurança e robustez. Uploads, permissões, isolamento, proteção HTTP, sessões reais e retenção estão concluídos; o próximo incremento cobre testes de componentes, acessibilidade, responsividade e ensaio de restauração em projeto isolado.
 
 ---
 
@@ -1011,37 +1011,43 @@ Férias
 14. Auditoria
 15. Relatórios
     Cada módulo só migra quando seus testes de contrato funcionarem igualmente com repository em memória e repository PostgreSQL.
-    Fase 22 — Segurança e robustez
-    Testes
 
-- Unitários
-- Integração
-- Contrato REST
+## Fase 22 — Segurança e robustez 🟡
+
+Testes
+
+- ✅ Unitários
+- ✅ Integração de Storage no projeto externo
+- ✅ Contrato REST da proteção HTTP e validação de uploads
 - Componentes
 - Fluxos completos
-- Permissões
-- Isolamento multiempresa
-- Cálculos trabalhistas
-- Concorrência
-- Uploads
+- ✅ Permissões de arquivos por papel e usuário
+- ✅ Isolamento multiempresa dos arquivos e objetos
+- ✅ Cálculos trabalhistas
+- ✅ Concorrência otimista dos estados persistidos
+- ✅ Uploads
 - Impressão
 - Responsividade
 - Acessibilidade
 - Restauração de backup
-  Segurança
-- Proteção contra acesso entre empresas
-- Rate limiting
-- Sanitização
-- Validação de arquivos
-- Proteção de dados sensíveis
-- Mascaramento em logs
+
+Segurança
+
+- ✅ Proteção contra acesso entre empresas no Storage
+- ✅ Rate limiting na API
+- ✅ Sanitização e rejeição de entradas perigosas
+- ✅ Validação de tamanho, MIME, extensão, categoria e transições de arquivos
+- ✅ Proteção de dados sensíveis com bucket privado e URLs temporárias
+- ✅ Mascaramento de autorização, cookies e sessão nos logs
 - Rotação de segredos
-- Expiração de sessões
-- Revogação de acesso
-- Auditoria imutável
-- Cabeçalhos de segurança
-- Política de retenção
-  Desempenho
+- ✅ Validação de expiração e existência da sessão nas autorizações sensíveis
+- ✅ Revogação remota de sessão com bloqueio imediato e auditoria
+- ✅ Auditoria imutável para papéis da aplicação
+- ✅ Cabeçalhos de segurança
+- ✅ Política de retenção por organização e categoria, com “legal hold”
+
+Desempenho
+
 - Paginação
 - Filtros server-side
 - Cache controlado

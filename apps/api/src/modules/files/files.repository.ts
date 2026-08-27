@@ -25,10 +25,13 @@ type FileAssetRow = {
   uploaded_at: string | null;
   created_at: string;
   updated_at: string;
+  retention_until: string;
+  legal_hold: boolean;
+  legal_hold_reason: string | null;
 };
 
 const columns =
-  "id,organization_id,owner_user_id,subject_user_id,category,bucket_id,object_path,original_name,mime_type,size_bytes,status,related_entity_type,related_entity_id,replaces_asset_id,checksum_sha256,uploaded_at,created_at,updated_at";
+  "id,organization_id,owner_user_id,subject_user_id,category,bucket_id,object_path,original_name,mime_type,size_bytes,status,related_entity_type,related_entity_id,replaces_asset_id,checksum_sha256,uploaded_at,created_at,updated_at,retention_until,legal_hold,legal_hold_reason";
 
 function mapAsset(row: FileAssetRow): FileAsset {
   return {
@@ -56,6 +59,11 @@ function mapAsset(row: FileAssetRow): FileAsset {
     ...(row.uploaded_at ? { uploadedAt: row.uploaded_at } : {}),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    retentionUntil: row.retention_until,
+    legalHold: row.legal_hold,
+    ...(row.legal_hold_reason
+      ? { legalHoldReason: row.legal_hold_reason }
+      : {}),
   };
 }
 
@@ -176,5 +184,49 @@ export class SupabaseFilesRepository {
     if (result.error)
       throw new Error(`file_asset_delete_mark_failed:${result.error.message}`);
     return { ...asset, status: "deleted", updatedAt: new Date().toISOString() };
+  }
+
+  async retentionPolicies() {
+    const organizationId = await getCurrentOrganizationId(this.client);
+    const { data, error } = await this.client
+      .from("file_retention_policies")
+      .select("organization_id,category,retention_days,updated_at")
+      .eq("organization_id", organizationId)
+      .order("category");
+    if (error) throw new Error(`retention_policy_load_failed:${error.message}`);
+    return (data ?? []).map((policy) => ({
+      organizationId: policy.organization_id as string,
+      category: policy.category as FileAsset["category"],
+      retentionDays: policy.retention_days as number,
+      updatedAt: policy.updated_at as string,
+    }));
+  }
+
+  async updateRetentionPolicy(
+    category: FileAsset["category"],
+    retentionDays: number,
+  ) {
+    const organizationId = await getCurrentOrganizationId(this.client);
+    const { data, error } = await this.client.rpc(
+      "update_file_retention_policy",
+      {
+        organization_id_value: organizationId,
+        category_value: category,
+        retention_days_value: retentionDays,
+      },
+    );
+    if (error)
+      throw new Error(`retention_policy_update_failed:${error.message}`);
+    return data;
+  }
+
+  async setLegalHold(id: string, enabled: boolean, reason: string) {
+    const { error } = await this.client.rpc("set_file_legal_hold", {
+      asset_id_value: id,
+      enabled_value: enabled,
+      reason_value: reason,
+    });
+    if (error) throw new Error(`file_legal_hold_failed:${error.message}`);
+    return this.find(id);
   }
 }

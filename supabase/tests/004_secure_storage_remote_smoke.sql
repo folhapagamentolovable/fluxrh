@@ -24,7 +24,7 @@ begin
     prepared := public.prepare_file_upload(jsonb_build_object(
       'organizationId', organization_id_value,
       'category', category_value,
-      'originalName', category_value || '.pdf',
+      'originalName', category_value || case when category_value = 'patrol_evidence' then '.jpg' else '.pdf' end,
       'mimeType', case when category_value = 'patrol_evidence' then 'image/jpeg' else 'application/pdf' end,
       'sizeBytes', 128,
       'relatedEntityType', 'smoke_test',

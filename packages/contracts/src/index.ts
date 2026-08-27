@@ -512,20 +512,77 @@ export const fileAssetSchema = z.object({
     .string()
     .regex(/^[a-f0-9]{64}$/)
     .optional(),
+  retentionUntil: z.string().optional(),
+  legalHold: z.boolean().default(false),
+  legalHoldReason: z.string().optional(),
   uploadedAt: z.string().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
-export const prepareFileUploadSchema = z.object({
-  category: fileAssetCategorySchema,
-  subjectUserId: z.string().uuid().optional(),
-  originalName: z.string().min(3).max(255),
-  mimeType: z.string().min(3).max(150),
-  sizeBytes: z.number().int().positive().max(26_214_400),
-  relatedEntityType: z.string().min(2).max(80).optional(),
-  relatedEntityId: z.string().min(1).max(200).optional(),
-  replacesAssetId: z.string().uuid().optional(),
-});
+const uploadMimeExtensions = {
+  "application/pdf": ["pdf"],
+  "text/csv": ["csv"],
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [
+    "docx",
+  ],
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": ["xlsx"],
+  "image/jpeg": ["jpg", "jpeg"],
+  "image/png": ["png"],
+  "image/webp": ["webp"],
+  "video/mp4": ["mp4"],
+} as const;
+export const fileUploadMimeTypeSchema = z.enum(
+  Object.keys(uploadMimeExtensions) as [
+    keyof typeof uploadMimeExtensions,
+    ...(keyof typeof uploadMimeExtensions)[],
+  ],
+);
+export const prepareFileUploadSchema = z
+  .object({
+    category: fileAssetCategorySchema,
+    subjectUserId: z.string().uuid().optional(),
+    originalName: z.string().trim().min(3).max(255),
+    mimeType: fileUploadMimeTypeSchema,
+    sizeBytes: z.number().int().positive().max(26_214_400),
+    relatedEntityType: z.string().trim().min(2).max(80).optional(),
+    relatedEntityId: z.string().trim().min(1).max(200).optional(),
+    replacesAssetId: z.string().uuid().optional(),
+  })
+  .superRefine((value, context) => {
+    const extension = value.originalName.toLowerCase().match(/\.([^.]+)$/)?.[1];
+    const validExtensions = uploadMimeExtensions[value.mimeType];
+    if (
+      !extension ||
+      !(validExtensions as readonly string[]).includes(extension)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["originalName"],
+        message: "A extensão do arquivo não corresponde ao tipo MIME.",
+      });
+    }
+    const allowedByCategory: Partial<
+      Record<(typeof value)["category"], readonly string[]>
+    > = {
+      contracts: ["application/pdf"],
+      payslips: ["application/pdf"],
+      medical_certificates: [
+        "application/pdf",
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+      ],
+      patrol_evidence: ["image/jpeg", "image/png", "image/webp", "video/mp4"],
+    };
+    const categoryTypes = allowedByCategory[value.category];
+    if (categoryTypes && !categoryTypes.includes(value.mimeType)) {
+      context.addIssue({
+        code: "custom",
+        path: ["mimeType"],
+        message: "O tipo MIME não é permitido para esta categoria.",
+      });
+    }
+  });
 export const completeFileUploadSchema = z.object({
   checksumSha256: z
     .string()
@@ -540,6 +597,19 @@ export const fileAssetFilterSchema = z.object({
 export const fileDownloadQuerySchema = z.object({
   expiresIn: z.coerce.number().int().min(60).max(3600).default(300),
 });
+export const fileRetentionPolicySchema = z.object({
+  organizationId: z.string().uuid(),
+  category: fileAssetCategorySchema,
+  retentionDays: z.number().int().min(30).max(36_500),
+  updatedAt: z.string(),
+});
+export const updateFileRetentionPolicySchema = z.object({
+  retentionDays: z.number().int().min(30).max(36_500),
+});
+export const setFileLegalHoldSchema = z.object({
+  enabled: z.boolean(),
+  reason: z.string().trim().min(3).max(500),
+});
 export const preparedFileUploadSchema = z.object({
   asset: fileAssetSchema,
   signedUrl: z.string().url(),
@@ -548,6 +618,7 @@ export const preparedFileUploadSchema = z.object({
 export type FileAsset = z.infer<typeof fileAssetSchema>;
 export type PrepareFileUploadInput = z.infer<typeof prepareFileUploadSchema>;
 export type PreparedFileUpload = z.infer<typeof preparedFileUploadSchema>;
+export type FileRetentionPolicy = z.infer<typeof fileRetentionPolicySchema>;
 
 export const schedulePatternSchema = z.enum(["5x2", "6x1", "12x36", "custom"]);
 export const scheduleTemplateSchema = z.object({

@@ -38,6 +38,12 @@ Atualizado em 27 de agosto de 2026.
 - Storage privado implantado para documentos, atestados, contratos, holerites, relatórios e evidências de ronda, com metadados relacionais e isolamento por organização e usuário.
 - Upload direto por URL assinada, confirmação de integridade, download temporário, substituição versionada e remoção física pela API REST.
 - Smoke test remoto transacional das políticas de Storage versionado em `supabase/tests/004_secure_storage_remote_smoke.sql`, sem deixar arquivos ou metadados artificiais no projeto.
+- Primeira entrega da Fase 22 concluída: rate limiting, CORS restritivo, limite de payload, sanitização, cabeçalhos defensivos e mascaramento de credenciais nos logs da API.
+- Matriz remota de permissões de Storage validada para colaborador, gestor e organização externa em `supabase/tests/005_storage_permissions_isolation_remote.sql`.
+- Metadados de arquivos endurecidos no banco contra divergência entre extensão e MIME, alteração da identidade do objeto e transições inválidas de estado.
+- Sessões reais do Supabase Auth integradas à governança, com revogação administrativa auditada e bloqueio imediato das autorizações vinculadas ao `session_id` removido.
+- Retenção de arquivos configurável por organização e categoria, prazo calculado no banco e preservação por “legal hold”.
+- Runbook de backup e restauração criado, incluindo a cópia separada dos objetos do Storage; o ensaio destrutivo permanece reservado a um projeto temporário isolado.
 
 ## Limitações conhecidas
 
@@ -49,7 +55,7 @@ Atualizado em 27 de agosto de 2026.
 
 ## Próximo marco
 
-Executar a Fase 22 de segurança e robustez, começando pelos testes de uploads, permissões e isolamento multiempresa.
+Continuar a Fase 22 com testes de componentes, acessibilidade e responsividade, rotação de segredos e ensaio de restauração em projeto Supabase temporário.
 
 ## Regras de transição
 

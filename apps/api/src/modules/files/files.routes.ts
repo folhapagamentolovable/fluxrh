@@ -3,6 +3,9 @@ import {
   fileAssetFilterSchema,
   fileDownloadQuerySchema,
   prepareFileUploadSchema,
+  fileAssetCategorySchema,
+  setFileLegalHoldSchema,
+  updateFileRetentionPolicySchema,
 } from "@fluxrh/contracts";
 import type { FastifyInstance } from "fastify";
 import { sendData } from "../../shared/http.js";
@@ -13,6 +16,52 @@ const repositoryFor = (authorization?: string) =>
   new SupabaseFilesRepository(createRequestSupabaseClient(authorization));
 
 export async function filesRoutes(app: FastifyInstance) {
+  app.get("/retention", async (request, reply) =>
+    sendData(
+      reply,
+      await repositoryFor(request.headers.authorization).retentionPolicies(),
+    ),
+  );
+
+  app.put<{ Params: { category: string } }>(
+    "/retention/:category",
+    async (request, reply) => {
+      const category = fileAssetCategorySchema.safeParse(
+        request.params.category,
+      );
+      const body = updateFileRetentionPolicySchema.safeParse(request.body);
+      if (!category.success || !body.success)
+        return reply.code(400).send({ error: "validation_error" });
+      return sendData(
+        reply,
+        await repositoryFor(
+          request.headers.authorization,
+        ).updateRetentionPolicy(category.data, body.data.retentionDays),
+      );
+    },
+  );
+
+  app.put<{ Params: { id: string } }>(
+    "/:id/legal-hold",
+    async (request, reply) => {
+      const parsed = setFileLegalHoldSchema.safeParse(request.body);
+      if (!parsed.success)
+        return reply
+          .code(400)
+          .send({ error: "validation_error", issues: parsed.error.issues });
+      const asset = await repositoryFor(
+        request.headers.authorization,
+      ).setLegalHold(
+        request.params.id,
+        parsed.data.enabled,
+        parsed.data.reason,
+      );
+      return asset
+        ? sendData(reply, asset)
+        : reply.code(404).send({ error: "file_asset_not_found" });
+    },
+  );
+
   app.get("/", async (request, reply) => {
     const parsed = fileAssetFilterSchema.safeParse(request.query);
     if (!parsed.success)

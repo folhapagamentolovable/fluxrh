@@ -18,10 +18,40 @@ import { occupationalHealthRoutes } from "./modules/occupational-health/occupati
 import { patrolsRoutes } from "./modules/patrols/patrols.routes.js";
 import { governanceRoutes } from "./modules/governance/governance.routes.js";
 import { filesRoutes } from "./modules/files/files.routes.js";
+import {
+  registerApiSecurity,
+  resolveAllowedOrigins,
+  type ApiSecurityOptions,
+} from "./shared/security.js";
 
-export function buildApp() {
-  const app = Fastify({ logger: true });
-  app.register(cors, { origin: true });
+export function buildApp(securityOptions: ApiSecurityOptions = {}) {
+  const app = Fastify({
+    bodyLimit: 1_048_576,
+    logger: {
+      redact: {
+        paths: [
+          "req.headers.authorization",
+          "req.headers.cookie",
+          "res.headers.set-cookie",
+        ],
+        censor: "[REDACTED]",
+      },
+    },
+  });
+  const allowedOrigins = resolveAllowedOrigins(securityOptions.allowedOrigins);
+  app.register(cors, {
+    credentials: true,
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin))
+        return callback(null, true);
+      const error = new Error("origin_not_allowed") as Error & {
+        statusCode: number;
+      };
+      error.statusCode = 403;
+      return callback(error, false);
+    },
+  });
+  registerApiSecurity(app, securityOptions);
   app.get("/health", async () => ({ status: "ok", service: "fluxrh-api" }));
   app.register(operationsRoutes, { prefix: "/api/v1/operations" });
   app.register(organizationsRoutes, { prefix: "/api/v1/organizations" });

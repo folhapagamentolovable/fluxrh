@@ -219,7 +219,11 @@ export class InMemoryGovernanceRepository {
   hydrate(state: Record<string, unknown>) {
     const value = state as unknown as GovernanceOverview;
     users.splice(0, users.length, ...structuredClone(value.users));
-    permissions.splice(0, permissions.length, ...structuredClone(value.permissions));
+    permissions.splice(
+      0,
+      permissions.length,
+      ...structuredClone(value.permissions),
+    );
     audit.splice(0, audit.length, ...structuredClone(value.audit));
     sessions.splice(0, sessions.length, ...structuredClone(value.sessions));
   }
