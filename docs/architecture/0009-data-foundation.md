@@ -78,4 +78,6 @@ A seleção do adaptador será feita por configuração. Os contratos públicos 
 
 O modo padrão é `FLUXRH_PERSISTENCE=memory`. Para usar os adaptadores persistentes no projeto externo, a API exige `FLUXRH_PERSISTENCE=supabase`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` e o token Bearer da sessão autenticada. A API usa a chave publicável e preserva o contexto do usuário para que o RLS permaneça efetivo; não utiliza `service_role`. O modo em memória serve apenas para demonstração e testes da aplicação, não representa um banco Supabase local.
 
+O frontend usa dados locais por padrão. A ativação persistente exige `VITE_FLUXRH_DATA_MODE=remote` e `VITE_FLUXRH_API_URL` apontando para a API publicada. A aplicação falha explicitamente se o modo remoto for ativado sem URL, evitando fallback silencioso para mocks.
+
 

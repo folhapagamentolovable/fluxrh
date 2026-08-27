@@ -7,13 +7,14 @@ import { governanceOverviewSchema,governanceSessionSchema,governanceUserSchema,p
 import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 import { normalizeDigits } from "./cnpj";
 
-const localDataMode = typeof window !== "undefined"
-  && !["localhost", "127.0.0.1"].includes(window.location.hostname);
+const apiBaseUrl = (import.meta.env.VITE_FLUXRH_API_URL as string | undefined)?.replace(/\/$/, "") ?? "";
+const localDataMode = (import.meta.env.VITE_FLUXRH_DATA_MODE as string | undefined) !== "remote";
 
 async function request<T>(url: string, schema: { parse: (value: unknown) => T }, options?: RequestInit): Promise<T> {
   if (localDataMode) return schema.parse(await localDataRequest(url, options));
   const session = isSupabaseConfigured ? (await supabase.auth.getSession()).data.session : null;
-  const response = await fetch(url, { headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}), ...options?.headers }, ...options });
+  if (!apiBaseUrl) throw new Error("A URL da API persistente não está configurada.");
+  const response = await fetch(`${apiBaseUrl}${url}`, { headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}), ...options?.headers }, ...options });
   if (!response.ok) throw new Error(`A operação falhou (${response.status}).`);
   const payload = await response.json() as ApiResponse<unknown>;
   return schema.parse(payload.data);
@@ -87,4 +88,5 @@ export const getGovernance=():Promise<GovernanceOverview>=>request("/api/v1/gove
 export const inviteGovernanceUser=(input:InviteGovernanceUserInput):Promise<GovernanceUser>=>request("/api/v1/governance/users/invite",governanceUserSchema,{method:"POST",body:JSON.stringify(input)});
 export const updateRolePermission=(role:string,input:UpdateRolePermissionsInput)=>request(`/api/v1/governance/roles/${role}/permissions`,permissionMatrixEntrySchema,{method:"PUT",body:JSON.stringify(input)});
 export const revokeGovernanceSession=(id:string)=>request(`/api/v1/governance/sessions/${id}/revoke`,governanceSessionSchema,{method:"POST",body:JSON.stringify({justification:"Sessão encerrada pelo administrador por segurança."})});
+
 

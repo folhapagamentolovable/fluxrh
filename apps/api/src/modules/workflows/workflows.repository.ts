@@ -4,7 +4,7 @@ import { admissionSteps, stepNames, WorkflowEngine } from "./workflow.engine.js"
 const engine = new WorkflowEngine();
 const daysFromNow = (days: number) => new Date(Date.now() + days * 86_400_000).toISOString();
 
-function makeAdmission(id: string, candidateName: string, currentStep: WorkflowStepKey, companyName: string, position: string, status: Admission["status"] = "running"): Admission {
+export function makeAdmission(id: string, candidateName: string, currentStep: WorkflowStepKey, companyName: string, position: string, status: Admission["status"] = "running"): Admission {
   const index = admissionSteps.indexOf(currentStep);
   const tasks = admissionSteps.slice(0, index + 1).flatMap(step => engine.createTasks(step, daysFromNow(5))).map(task => task.stepKey === currentStep ? task : { ...task, status: "completed" as const, completedAt: daysFromNow(-1) });
   if (status === "completed") tasks.forEach(task => { task.status = "completed"; task.completedAt = daysFromNow(-1); });
@@ -42,8 +42,9 @@ export class InMemoryWorkflowsRepository implements WorkflowsRepository {
   async list() { return structuredClone(admissions); }
   async find(id: string) { const value = admissions.find(x => x.id === id); return value ? structuredClone(value) : undefined; }
   async create(input: CreateAdmissionInput) {
-    const admission = makeAdmission(`adm_${crypto.randomUUID()}`, input.candidateName, "digital_admission", input.companyName, input.position);
+    const admission = makeAdmission(crypto.randomUUID(), input.candidateName, "digital_admission", input.companyName, input.position);
     Object.assign(admission, input, { progress: 0, startedAt: new Date().toISOString(), dueAt: daysFromNow(10) }); admissions.unshift(admission); return structuredClone(admission);
   }
   async advance(id: string, note?: string) { const admission = admissions.find(x => x.id === id); return admission ? structuredClone(engine.advance(admission, "Marina Alves", note)) : undefined; }
 }
+
