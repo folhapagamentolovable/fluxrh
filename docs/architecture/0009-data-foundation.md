@@ -35,7 +35,8 @@ Documentos serão adicionados à primeira jornada quando a fundação estiver va
 
 - `auth.users` representa identidade, não perfil de negócio.
 - `organization_members` define acesso e papel no tenant.
-- Papéis iniciais: `owner`, `admin`, `hr`, `payroll`, `manager`, `employee`, `auditor`.
+- Papéis: `super_admin`, `owner`, `admin`, `hr`, `payroll`, `manager`, `employee`, `auditor`.
+- `super_admin` é reservado à administração da plataforma e, quando ativo em uma organização, supera as verificações de papel daquela organização. Sua concessão ocorre apenas por operação administrativa auditável, nunca por autoatendimento.
 - Permissões sensíveis serão verificadas na API e reforçadas por RLS.
 - Service roles nunca serão expostas no frontend.
 
@@ -53,7 +54,10 @@ Documentos serão adicionados à primeira jornada quando a fundação estiver va
 - IDs UUID gerados no banco ou na camada de aplicação.
 - Datas em `timestamptz`; datas civis em `date`.
 - Valores monetários em `numeric`, nunca ponto flutuante.
-- CPF/CNPJ normalizados e protegidos; respostas podem usar máscara.
+- CPF, CNPJ e telefone são persistidos somente com dígitos, sem pontuação. Máscaras pertencem à camada de apresentação.
+- Todo novo campo de CPF, CNPJ ou telefone deve usar os formatadores e validadores compartilhados; formulários não podem ser enviados com valores inválidos.
+- CPF é exibido como `000.000.000-00`; CNPJ como `00.000.000/0000-00`; telefone como `(00) 0000-0000` ou `(00) 00000-0000`.
+- A API deve normalizar novamente esses valores na fronteira de entrada antes de qualquer persistência, sem confiar apenas no frontend.
 - `created_at`, `updated_at` e versão otimista nas entidades mutáveis.
 - Exclusão lógica apenas quando exigida pelo domínio; auditoria não é apagada.
 
@@ -73,3 +77,4 @@ Documentos serão adicionados à primeira jornada quando a fundação estiver va
 A seleção do adaptador será feita por configuração. Os contratos públicos permanecem iguais, permitindo que Lovable e testes continuem usando dados locais enquanto o ambiente integrado usa a persistência.
 
 O modo padrão é `FLUXRH_PERSISTENCE=memory`. Para usar os adaptadores persistentes no projeto externo, a API exige `FLUXRH_PERSISTENCE=supabase`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` e o token Bearer da sessão autenticada. A API usa a chave publicável e preserva o contexto do usuário para que o RLS permaneça efetivo; não utiliza `service_role`. O modo em memória serve apenas para demonstração e testes da aplicação, não representa um banco Supabase local.
+

@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Modal } from "@/components/ui/Modal";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { createEmployee, getEmployees, getOrganizations } from "@/lib/api";
+import { formatCpf, formatPhone, isValidCpf, isValidPhone, normalizeDigits } from "@/lib/cnpj";
 
 const statusMap = { active: ["Ativo", "green"], vacation: ["Em férias", "blue"], leave: ["Afastado", "amber"], onboarding: ["Onboarding", "purple"], terminated: ["Desligado", "gray"] } as const;
 const initialForm = { fullName: "", cpf: "", email: "", phone: "", birthDate: "", hireDate: "2026-08-25", companyId: "company_flux", establishmentId: "est_sp", departmentId: "dept_people", costCenterId: "cc_people", position: "", salary: 0, workSchedule: "Seg–Sex · 08:00–17:48", managerName: "Marina Alves" };
@@ -18,7 +19,7 @@ export function EmployeesPage() {
   const mutation = useMutation({ mutationFn: createEmployee, onSuccess: employee => { queryClient.invalidateQueries({ queryKey: ["employees"] }); setModalOpen(false); setForm(initialForm); navigate(`/pessoas/${employee.id}`); } });
   const filtered = useMemo(() => employees.filter(employee => (status === "all" || employee.status === status) && `${employee.fullName} ${employee.position} ${employee.registration}`.toLowerCase().includes(query.toLowerCase())), [employees, query, status]);
   const selectedUnits = organization?.units.filter(unit => unit.companyId === form.companyId) ?? [];
-  const submit = (event: FormEvent) => { event.preventDefault(); mutation.mutate(form); };
+  const submit = (event: FormEvent) => { event.preventDefault(); if (isValidCpf(form.cpf) && isValidPhone(form.phone)) mutation.mutate({ ...form, cpf: normalizeDigits(form.cpf), phone: normalizeDigits(form.phone) }); };
 
   return <div className="page">
     <section className="simple-heading"><div><span className="eyebrow"><UsersRound size={15} /> Gestão de pessoas</span><h1>Colaboradores</h1><p>Cadastros, vínculos e prontuários em uma única visão.</p></div><button className="primary-button" onClick={() => setModalOpen(true)}><Plus size={17} /> Novo colaborador</button></section>
@@ -30,8 +31,8 @@ export function EmployeesPage() {
     <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Novo colaborador" description="Crie o prontuário inicial e prepare o workflow de admissão.">
       <form className="form-grid employee-form" onSubmit={submit}>
         <label className="span-2">Nome completo<input required value={form.fullName} onChange={e => setForm({...form,fullName:e.target.value})} /></label>
-        <label>CPF<input required value={form.cpf} onChange={e => setForm({...form,cpf:e.target.value})} /></label><label>Data de nascimento<input type="date" required value={form.birthDate} onChange={e => setForm({...form,birthDate:e.target.value})} /></label>
-        <label>E-mail<input type="email" required value={form.email} onChange={e => setForm({...form,email:e.target.value})} /></label><label>Telefone<input required value={form.phone} onChange={e => setForm({...form,phone:e.target.value})} /></label>
+        <label>CPF<input required inputMode="numeric" maxLength={14} value={form.cpf} onChange={e => setForm({...form,cpf:formatCpf(e.target.value)})} placeholder="000.000.000-00" /></label><label>Data de nascimento<input type="date" required value={form.birthDate} onChange={e => setForm({...form,birthDate:e.target.value})} /></label>
+        <label>E-mail<input type="email" required value={form.email} onChange={e => setForm({...form,email:e.target.value})} /></label><label>Telefone<input required inputMode="tel" maxLength={15} value={form.phone} onChange={e => setForm({...form,phone:formatPhone(e.target.value)})} placeholder="(00) 00000-0000" /></label>
         <div className="form-separator span-2">Vínculo e lotação</div>
         <label>Empresa<select value={form.companyId} onChange={e => setForm({...form,companyId:e.target.value})}>{organization?.companies.map(x => <option key={x.id} value={x.id}>{x.tradeName}</option>)}</select></label>
         <label>Estabelecimento<select value={form.establishmentId} onChange={e => setForm({...form,establishmentId:e.target.value})}>{selectedUnits.filter(x => x.type === "establishment").map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</select></label>
@@ -40,8 +41,9 @@ export function EmployeesPage() {
         <label>Cargo<input required value={form.position} onChange={e => setForm({...form,position:e.target.value})} /></label><label>Gestor<input required value={form.managerName} onChange={e => setForm({...form,managerName:e.target.value})} /></label>
         <label>Salário<input type="number" min="1" required value={form.salary || ""} onChange={e => setForm({...form,salary:Number(e.target.value)})} /></label><label>Data de admissão<input type="date" required value={form.hireDate} onChange={e => setForm({...form,hireDate:e.target.value})} /></label>
         {mutation.error && <p className="form-error span-2">Não foi possível cadastrar. Verifique todos os campos.</p>}
-        <footer className="form-actions span-2"><button type="button" className="secondary-button" onClick={() => setModalOpen(false)}>Cancelar</button><button className="primary-button" disabled={mutation.isPending}>{mutation.isPending ? "Criando prontuário..." : "Criar e iniciar admissão"}</button></footer>
+        <footer className="form-actions span-2"><button type="button" className="secondary-button" onClick={() => setModalOpen(false)}>Cancelar</button><button className="primary-button" disabled={mutation.isPending || !isValidCpf(form.cpf) || !isValidPhone(form.phone)}>{mutation.isPending ? "Criando prontuário..." : "Criar e iniciar admissão"}</button></footer>
       </form>
     </Modal>
   </div>;
 }
+

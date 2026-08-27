@@ -2,6 +2,7 @@ import { createCompanySchema } from "@fluxrh/contracts";
 import type { FastifyInstance } from "fastify";
 import { sendData } from "../../shared/http.js";
 import { createRequestSupabaseClient, getPersistenceMode } from "../../shared/supabase.js";
+import { normalizePersonalData } from "../../shared/personal-data.js";
 import { InMemoryOrganizationsRepository, type OrganizationsRepository } from "./organizations.repository.js";
 import { SupabaseOrganizationsRepository } from "./organizations.supabase-repository.js";
 
@@ -18,6 +19,7 @@ export async function organizationsRoutes(app: FastifyInstance) {
   app.post("/companies", async (request, reply) => {
     const parsed = createCompanySchema.safeParse(request.body);
     if (!parsed.success) return reply.code(400).send({ error: "validation_error", issues: parsed.error.issues });
-    return sendData(reply, await repositoryFor(request.headers.authorization).createCompany(parsed.data), 201);
+    return sendData(reply, await repositoryFor(request.headers.authorization).createCompany(normalizePersonalData(parsed.data)), 201);
   });
 }
+

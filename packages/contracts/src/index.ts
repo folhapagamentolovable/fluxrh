@@ -341,7 +341,7 @@ export const createPatrolOccurrenceSchema=z.object({pointId:z.string().optional(
 export const resolvePatrolOccurrenceSchema=z.object({note:z.string().min(3).max(500)});
 export type PatrolOverview=z.infer<typeof patrolOverviewSchema>;export type Patrol=z.infer<typeof patrolSchema>;export type PatrolVisit=z.infer<typeof patrolVisitSchema>;export type PatrolOccurrence=z.infer<typeof patrolOccurrenceSchema>;export type StartPatrolInput=z.infer<typeof startPatrolSchema>;export type RegisterPatrolVisitInput=z.infer<typeof registerPatrolVisitSchema>;export type CreatePatrolOccurrenceInput=z.infer<typeof createPatrolOccurrenceSchema>;
 
-export const governanceRoleSchema=z.enum(["owner","admin","hr","payroll","manager","finance","supervisor","employee","auditor"]);
+export const governanceRoleSchema=z.enum(["super_admin","owner","admin","hr","payroll","manager","finance","supervisor","employee","auditor"]);
 export const governanceActionSchema=z.enum(["view","create","edit","approve","complete","export","administer"]);
 export const governanceModuleSchema=z.enum(["organization","people","documents","time","absence","benefits","payroll","workflows","terminations","occupational_health","patrols","analytics","communications","audit","settings"]);
 export const governanceUserSchema=z.object({id:z.string(),name:z.string(),email:z.string().email(),role:governanceRoleSchema,status:z.enum(["active","invited","suspended"]),organizationId:z.string(),organizationName:z.string(),scope:z.object({companyIds:z.array(z.string()),departmentIds:z.array(z.string()),teamOnly:z.boolean()}),lastAccessAt:z.string().optional(),mfaEnabled:z.boolean(),invitedAt:z.string().optional()});
@@ -353,3 +353,4 @@ export const inviteGovernanceUserSchema=z.object({name:z.string().min(3),email:z
 export const updateRolePermissionsSchema=z.object({module:governanceModuleSchema,actions:z.array(governanceActionSchema),dataAccess:z.enum(["none","own","team","scope","organization"]),sensitiveData:z.enum(["hidden","masked","visible"])});
 export const revokeSessionSchema=z.object({justification:z.string().min(3).max(500)});
 export type GovernanceOverview=z.infer<typeof governanceOverviewSchema>;export type GovernanceUser=z.infer<typeof governanceUserSchema>;export type AuditEvent=z.infer<typeof auditEventSchema>;export type InviteGovernanceUserInput=z.infer<typeof inviteGovernanceUserSchema>;export type UpdateRolePermissionsInput=z.infer<typeof updateRolePermissionsSchema>;
+
