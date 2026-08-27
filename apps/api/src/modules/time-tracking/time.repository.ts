@@ -29,9 +29,11 @@ const employees:EmployeeTimeSummary[]=[
 ];
 const station={id:"station_sp_01",name:"Recepção · Matriz São Paulo",token:"FLUXRH-SP-20260825-2045",rotatesAt:new Date(Date.now()+5*60_000).toISOString(),active:true};
 
-export class InMemoryTimeRepository{
+export type RegisterTimeInput={employeeId:string;employeeName:string;type:TimePunch["type"];token:string;deviceId:string;locationName:string};
+export interface TimeRepository{overview():Promise<TimeOverview>;register(input:RegisterTimeInput):Promise<{data:TimePunch}|{error:string}>;resolve(id:string,note:string):Promise<TimeException|undefined>;approveEmployee(id:string):Promise<EmployeeTimeSummary|undefined>}
+export class InMemoryTimeRepository implements TimeRepository{
  async overview():Promise<TimeOverview>{return{summary:{presentToday:3,expectedToday:4,openExceptions:exceptions.filter(x=>x.status!=="resolved").length,overtimeHours:18.6,positiveBankMinutes:742,closingProgress:68},qrStation:structuredClone(station),schedules:structuredClone(schedules),punches:structuredClone(rawPunches),exceptions:structuredClone(exceptions),employees:structuredClone(employees)}}
- async register(input:{employeeId:string;employeeName:string;type:TimePunch["type"];token:string;deviceId:string;locationName:string}){if(input.token!==station.token)return{error:"invalid_token" as const};const value:TimePunch={id:`p_${crypto.randomUUID()}`,employeeId:input.employeeId,employeeName:input.employeeName,type:input.type,recordedAt:new Date().toISOString(),source:"qr_code",locationName:input.locationName,deviceId:input.deviceId};rawPunches.unshift(value);return{data:structuredClone(value)}}
+ async register(input:RegisterTimeInput){if(input.token!==station.token)return{error:"invalid_token" as const};const value:TimePunch={id:`p_${crypto.randomUUID()}`,employeeId:input.employeeId,employeeName:input.employeeName,type:input.type,recordedAt:new Date().toISOString(),source:"qr_code",locationName:input.locationName,deviceId:input.deviceId};rawPunches.unshift(value);return{data:structuredClone(value)}}
  async resolve(id:string,note:string){const value=exceptions.find(x=>x.id===id);if(!value)return undefined;value.status="resolved";value.resolutionNote=note;return structuredClone(value)}
  async approveEmployee(id:string){const value=employees.find(x=>x.employeeId===id);if(!value)return undefined;value.status="approved";return structuredClone(value)}
 }
