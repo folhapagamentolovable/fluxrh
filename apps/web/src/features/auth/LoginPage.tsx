@@ -23,7 +23,14 @@ export function LoginPage() {
     setMessage("");
     const result = mode === "login"
       ? await supabase.auth.signInWithPassword({ email, password })
-      : await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName } } });
+      : await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName },
+          emailRedirectTo: `${window.location.origin}/entrar`,
+        },
+      });
     setPending(false);
     if (result.error) {
       setMessage(result.error.message);
