@@ -17,6 +17,7 @@ Atualizado em 26 de agosto de 2026.
 - Indicadores gerenciais, análises por departamento, insights e geração rastreável de relatórios.
 - Saúde ocupacional com agenda de exames, ASOs, riscos funcionais, programas e exceções.
 - Rondas por QR Code com rotas, pontos, leituras offline, ocorrências e cobertura operacional.
+- Governança com RBAC, escopos organizacionais, segregação de funções, auditoria e sessões.
 
 ## Limitações conhecidas
 

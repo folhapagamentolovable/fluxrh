@@ -30,6 +30,8 @@ import type { CompleteOccupationalExamInput, CreateOccupationalExamInput } from 
 import { InMemoryOccupationalRepository } from "../../../api/src/modules/occupational-health/occupational.repository";
 import { InMemoryPatrolsRepository } from "../../../api/src/modules/patrols/patrols.repository";
 import type { CreatePatrolOccurrenceInput, RegisterPatrolVisitInput, StartPatrolInput } from "@fluxrh/contracts";
+import type { InviteGovernanceUserInput, UpdateRolePermissionsInput } from "@fluxrh/contracts";
+import { InMemoryGovernanceRepository } from "../../../api/src/modules/governance/governance.repository";
 import { InMemoryWorkflowsRepository } from "../../../api/src/modules/workflows/workflows.repository";
 
 const operations = new InMemoryOperationsRepository();
@@ -48,6 +50,7 @@ const communications = new InMemoryCommunicationsRepository();
 const analytics = new InMemoryAnalyticsRepository();
 const occupational = new InMemoryOccupationalRepository();
 const patrols = new InMemoryPatrolsRepository();
+const governance = new InMemoryGovernanceRepository();
 
 function body<T>(options?: RequestInit): T {
   return JSON.parse(String(options?.body ?? "{}")) as T;
@@ -136,6 +139,11 @@ export async function localDataRequest(url: string, options?: RequestInit): Prom
   if (method === "POST" && (match=url.match(/^\/api\/v1\/patrols\/patrols\/([^/]+)\/visits$/))) { const result=await patrols.visit(match[1],body<RegisterPatrolVisitInput>(options)); if("error"in result)throw new Error(result.error);return result.data; }
   if (method === "POST" && (match=url.match(/^\/api\/v1\/patrols\/patrols\/([^/]+)\/occurrences$/))) return required(await patrols.occurrence(match[1],body<CreatePatrolOccurrenceInput>(options)),"Ronda não encontrada.");
   if (method === "POST" && (match=url.match(/^\/api\/v1\/patrols\/occurrences\/([^/]+)\/resolve$/))) return required(await patrols.resolveOccurrence(match[1],body<{note:string}>(options).note),"Ocorrência não encontrada.");
+
+  if (method === "GET" && url === "/api/v1/governance/overview") return governance.overview();
+  if (method === "POST" && url === "/api/v1/governance/users/invite") return governance.invite(body<InviteGovernanceUserInput>(options));
+  if (method === "PUT" && (match=url.match(/^\/api\/v1\/governance\/roles\/([^/]+)\/permissions$/))) return required(await governance.updatePermission(match[1],body<UpdateRolePermissionsInput>(options)),"Permissão não encontrada.");
+  if (method === "POST" && (match=url.match(/^\/api\/v1\/governance\/sessions\/([^/]+)\/revoke$/))) return required(await governance.revokeSession(match[1],body<{justification:string}>(options).justification),"Sessão atual ou inexistente.");
 
   throw new Error(`Operação local não implementada: ${method} ${url}`);
 }

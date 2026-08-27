@@ -3,6 +3,7 @@ import { localDataRequest } from "./local-data";
 import { analyticsOverviewSchema,reportRunSchema,type AnalyticsFilter,type AnalyticsOverview,type GenerateReportInput,type ReportRun } from "@fluxrh/contracts";
 import { occupationalExamSchema,occupationalHealthOverviewSchema,occupationalExceptionSchema,type CompleteOccupationalExamInput,type CreateOccupationalExamInput,type OccupationalExam,type OccupationalHealthOverview } from "@fluxrh/contracts";
 import { patrolOccurrenceSchema,patrolOverviewSchema,patrolSchema,patrolVisitSchema,type CreatePatrolOccurrenceInput,type Patrol,type PatrolOccurrence,type PatrolOverview,type PatrolVisit,type RegisterPatrolVisitInput,type StartPatrolInput } from "@fluxrh/contracts";
+import { governanceOverviewSchema,governanceSessionSchema,governanceUserSchema,permissionMatrixEntrySchema,type GovernanceOverview,type GovernanceUser,type InviteGovernanceUserInput,type UpdateRolePermissionsInput } from "@fluxrh/contracts";
 
 const localDataMode = typeof window !== "undefined"
   && !["localhost", "127.0.0.1"].includes(window.location.hostname);
@@ -79,3 +80,7 @@ export const startPatrol=(routeId:string,input:StartPatrolInput):Promise<Patrol>
 export const registerPatrolVisit=(id:string,input:RegisterPatrolVisitInput):Promise<PatrolVisit>=>request(`/api/v1/patrols/patrols/${id}/visits`,patrolVisitSchema,{method:"POST",body:JSON.stringify(input)});
 export const createPatrolOccurrence=(id:string,input:CreatePatrolOccurrenceInput):Promise<PatrolOccurrence>=>request(`/api/v1/patrols/patrols/${id}/occurrences`,patrolOccurrenceSchema,{method:"POST",body:JSON.stringify(input)});
 export const resolvePatrolOccurrence=(id:string,note:string):Promise<PatrolOccurrence>=>request(`/api/v1/patrols/occurrences/${id}/resolve`,patrolOccurrenceSchema,{method:"POST",body:JSON.stringify({note})});
+export const getGovernance=():Promise<GovernanceOverview>=>request("/api/v1/governance/overview",governanceOverviewSchema);
+export const inviteGovernanceUser=(input:InviteGovernanceUserInput):Promise<GovernanceUser>=>request("/api/v1/governance/users/invite",governanceUserSchema,{method:"POST",body:JSON.stringify(input)});
+export const updateRolePermission=(role:string,input:UpdateRolePermissionsInput)=>request(`/api/v1/governance/roles/${role}/permissions`,permissionMatrixEntrySchema,{method:"PUT",body:JSON.stringify(input)});
+export const revokeGovernanceSession=(id:string)=>request(`/api/v1/governance/sessions/${id}/revoke`,governanceSessionSchema,{method:"POST",body:JSON.stringify({justification:"Sessão encerrada pelo administrador por segurança."})});

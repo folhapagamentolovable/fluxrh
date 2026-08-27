@@ -13,6 +13,7 @@ import "./communications.css";
 import "./analytics.css";
 import "./occupational-health.css";
 import "./patrols.css";
+import "./governance.css";
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: 1, staleTime: 30_000 } } });
 
