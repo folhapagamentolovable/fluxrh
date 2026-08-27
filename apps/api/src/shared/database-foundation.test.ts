@@ -11,6 +11,10 @@ const employeeRpcMigration = readFileSync(fileURLToPath(new URL(
   "../../../../supabase/migrations/20260826190000_create_employee_rpc.sql",
   import.meta.url,
 )), "utf8");
+const hardeningMigration = readFileSync(fileURLToPath(new URL(
+  "../../../../supabase/migrations/20260827022817_harden_external_database_functions.sql",
+  import.meta.url,
+)), "utf8");
 
 const tenantTables = [
   "organizations",
@@ -56,10 +60,16 @@ describe("versioned database foundation", () => {
 
   it("creates employees and employment links atomically with explicit authorization", () => {
     expect(employeeRpcMigration).toContain("create or replace function public.create_employee");
-    expect(employeeRpcMigration).toContain("private.has_organization_role");
+    expect(employeeRpcMigration).toContain("security invoker");
+    expect(employeeRpcMigration).toContain("from public.organization_members");
     expect(employeeRpcMigration).toContain("pg_advisory_xact_lock");
     expect(employeeRpcMigration).toContain("set search_path = ''");
     expect(employeeRpcMigration).toContain("revoke all on function public.create_employee");
     expect(employeeRpcMigration).toContain("to authenticated;");
+  });
+
+  it("prevents the Data API roles from executing the RLS event trigger", () => {
+    expect(hardeningMigration).toContain("revoke execute on function public.rls_auto_enable()");
+    expect(hardeningMigration).toContain("from public, anon, authenticated");
   });
 });

@@ -17,7 +17,7 @@ create or replace function public.create_employee(
 )
 returns uuid
 language plpgsql
-security definer
+security invoker
 set search_path = ''
 as $$
 declare
@@ -25,7 +25,14 @@ declare
   next_registration text;
   resolved_manager_id uuid;
 begin
-  if auth.uid() is null or not private.has_organization_role(target_organization_id, array['owner', 'admin', 'hr']::public.organization_role[]) then
+  if (select auth.uid()) is null or not exists (
+    select 1
+      from public.organization_members member
+     where member.organization_id = target_organization_id
+       and member.user_id = (select auth.uid())
+       and member.status = 'active'
+       and member.role in ('owner', 'admin', 'hr')
+  ) then
     raise exception 'not_authorized';
   end if;
 

@@ -21,19 +21,21 @@ Atualizado em 26 de agosto de 2026.
 - Adaptadores Supabase para organizações, empresas, unidades e prontuário básico de colaboradores.
 - Criação transacional de colaborador e vínculo empregatício por função protegida por papel e RLS.
 - Seleção explícita entre persistência em memória e Supabase, mantendo o modo demonstrativo como padrão.
+- Fundação persistente e criação transacional de colaboradores implantadas no projeto Supabase externo `akdmobvbombhqvvglayn`.
+- RLS externo validado nas tabelas principais e execução pública da função automática de RLS removida.
 
 ## Limitações conhecidas
 
 - Os módulos ainda não migrados continuam reiniciando ao recarregar o ambiente ou reiniciar a API.
-- A persistência Supabase depende da aplicação das migrations e da configuração explícita do ambiente.
-- A validação integrada das migrations será feita diretamente no projeto externo de desenvolvimento do Supabase, sem banco local ou Docker.
+- A persistência Supabase depende da configuração explícita das variáveis da aplicação e da seleção do adaptador persistente.
+- O projeto externo ainda não possui usuários, organizações ou dados; a jornada autenticada será validada após o primeiro cadastro.
 - Documentos, dependentes e linha do tempo do prontuário ainda retornam vazios no adaptador persistente.
 - Algumas áreas do menu continuam como módulos planejados.
 - O preview do Lovable precisa ser verificado após cada publicação relevante.
 
 ## Próximo marco
 
-Revisar e aplicar as migrations no projeto externo de desenvolvimento do Supabase, validar o RLS nesse ambiente e depois persistir admissão, tarefas e transições do workflow.
+Configurar a aplicação para o Supabase externo, validar o primeiro acesso e a criação da organização e, em seguida, persistir admissão, tarefas e transições do workflow.
 
 ## Regras de transição
 

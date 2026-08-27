@@ -2,7 +2,7 @@
 
 ## Status
 
-Aceito e parcialmente implementado. O banco de dados será implantado exclusivamente em projeto externo hospedado no Supabase, sem stack local com Docker.
+Aceito e parcialmente implementado. A fundação e o primeiro adaptador transacional estão implantados no projeto externo `akdmobvbombhqvvglayn`, sem stack local com Docker.
 
 ## Decisão
 
@@ -66,7 +66,7 @@ Documentos serão adicionados à primeira jornada quando a fundação estiver va
 5. Persistir admissão, tarefas e transições do workflow.
 6. Persistir exceções e auditoria.
 7. Executar testes de isolamento e da jornada vertical.
-8. Aplicar no projeto externo de desenvolvimento somente após revisão explícita.
+8. Aplicar no projeto externo de desenvolvimento somente após revisão explícita. **Concluído para a fundação e o cadastro de colaboradores.**
 
 ## Compatibilidade com o modo de demonstração
 
