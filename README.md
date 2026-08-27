@@ -70,7 +70,9 @@ os pacotes de contratos e API, execute `npm run build:full`.
 
 ## Supabase externo
 
-O FluxRH utiliza exclusivamente projetos externos hospedados no Supabase. Não faz parte do fluxo do projeto executar ou implantar um banco Supabase local com Docker. As migrations, seeds e testes de RLS versionados estão em `supabase/` e devem ser revisados antes da aplicação no projeto externo autorizado. As migrations versionadas até `20260827022817` estão aplicadas ao projeto Supabase DEV `akdmobvbombhqvvglayn`; o seed permanece opt-in e não foi aplicado.
+O FluxRH utiliza exclusivamente projetos externos hospedados no Supabase. Não faz parte do fluxo do projeto executar ou implantar um banco Supabase local com Docker. As migrations, seeds e testes de RLS versionados estão em `supabase/` e devem ser revisados antes da aplicação no projeto externo autorizado. As migrations versionadas até `20260827220044` estão aplicadas ao projeto Supabase DEV `akdmobvbombhqvvglayn`; o seed permanece opt-in e não foi aplicado.
+
+O bucket privado `fluxrh-private` armazena documentos, atestados, contratos, holerites, relatórios e evidências. A API expõe `/api/v1/files` para preparar uploads por URL assinada, confirmar o arquivo, listar metadados, gerar downloads temporários e remover objetos. As políticas validam organização, usuário, categoria e papel; o frontend não recebe chave privilegiada.
 
 O frontend exige `VITE_SUPABASE_URL`, `VITE_SUPABASE_PROJECT_ID` e `VITE_SUPABASE_PUBLISHABLE_KEY`. Use `.env.example` como referência e mantenha valores reais somente em `.env`/variáveis do ambiente de deploy. Nunca exponha uma chave `service_role` ou `sb_secret_` no frontend.
 

@@ -39,25 +39,26 @@ Todos os itens da Fase 1 possuem contrato, API, persistência Supabase, isolamen
 
 ## Fase 2 — operação essencial
 
-Estado: funcional em modo local; persistência por domínio será entregue incrementalmente, começando por Documentos.
+Estado: contratos, regras, interface e persistência Supabase concluídos para todos os domínios desta fase.
 
-- Documentos e aceite eletrônico. **Persistência Supabase implementada.**
-- Jornada, ponto, banco de horas e fechamento.
-- Férias, ausências, atestados e afastamentos.
-- Benefícios e movimentações.
-- Folha contínua, pré-fechamento e memória de cálculo.
+- Documentos e aceite eletrônico. **Persistência e Storage Supabase implementados.**
+- Jornada, ponto, banco de horas e fechamento. **Persistência Supabase implementada e validada remotamente.**
+- Férias, ausências, atestados e afastamentos. **Persistência Supabase implementada.**
+- Benefícios e movimentações. **Persistência Supabase implementada.**
+- Folha contínua, pré-fechamento e memória de cálculo. **Persistência Supabase implementada.**
 
 ## Fase 3 — experiência e integração
 
-Estado: experiência demonstrável em modo local. Itens sem marcação explícita permanecem planejados e não estão atrasados enquanto a persistência da Fase 2 estiver em andamento.
+Estado: experiência demonstrável e estado persistente por organização no Supabase.
 
-- Portal do colaborador e do gestor. **Implementado em modo local.**
-- Central universal de solicitações. **Implementada em modo local.**
-- Comunicação orientada a eventos. **Implementada em modo local.**
-- Relatórios, indicadores e dashboards gerenciais. **Implementados em modo local.**
-- Saúde ocupacional, exames, riscos e vencimentos. **Implementados em modo local.**
-- Controle de rondas e postos por QR Code. **Implementado em modo local.**
-- Auditoria, perfis, permissões e governança. **Implementados em modo local.**
+- Portal do colaborador e do gestor. **Persistência Supabase implementada.**
+- Central universal de solicitações. **Persistência Supabase implementada.**
+- Comunicação orientada a eventos. **Persistência Supabase implementada.**
+- Relatórios, indicadores e dashboards gerenciais. **Persistência Supabase implementada.**
+- Saúde ocupacional, exames, riscos e vencimentos. **Persistência Supabase implementada.**
+- Controle de rondas e postos por QR Code. **Persistência Supabase implementada.**
+- Auditoria, perfis, permissões e governança. **Persistência Supabase implementada.**
+- Storage privado para documentos, atestados, contratos, holerites, relatórios e evidências. **Implementado e validado remotamente.**
 - Integrações contábeis, bancárias e governamentais.
 - Observabilidade, exportações e operação assistida.
 

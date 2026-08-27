@@ -17,6 +17,7 @@ import { analyticsRoutes } from "./modules/analytics/analytics.routes.js";
 import { occupationalHealthRoutes } from "./modules/occupational-health/occupational.routes.js";
 import { patrolsRoutes } from "./modules/patrols/patrols.routes.js";
 import { governanceRoutes } from "./modules/governance/governance.routes.js";
+import { filesRoutes } from "./modules/files/files.routes.js";
 
 export function buildApp() {
   const app = Fastify({ logger: true });
@@ -31,13 +32,18 @@ export function buildApp() {
   app.register(absencesRoutes, { prefix: "/api/v1/absences" });
   app.register(payrollRoutes, { prefix: "/api/v1/payroll" });
   app.register(benefitsRoutes, { prefix: "/api/v1/benefits" });
-  app.register(specialCalculationRoutes, { prefix: "/api/v1/special-calculations" });
+  app.register(specialCalculationRoutes, {
+    prefix: "/api/v1/special-calculations",
+  });
   app.register(terminationRoutes, { prefix: "/api/v1/terminations" });
   app.register(portalRoutes, { prefix: "/api/v1/portal" });
   app.register(communicationsRoutes, { prefix: "/api/v1/communications" });
   app.register(analyticsRoutes, { prefix: "/api/v1/analytics" });
-  app.register(occupationalHealthRoutes, { prefix: "/api/v1/occupational-health" });
+  app.register(occupationalHealthRoutes, {
+    prefix: "/api/v1/occupational-health",
+  });
   app.register(patrolsRoutes, { prefix: "/api/v1/patrols" });
   app.register(governanceRoutes, { prefix: "/api/v1/governance" });
+  app.register(filesRoutes, { prefix: "/api/v1/files" });
   return app;
 }

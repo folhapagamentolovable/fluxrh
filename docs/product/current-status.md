@@ -30,18 +30,26 @@ Atualizado em 27 de agosto de 2026.
 - Histórico da admissão reconstruído a partir da auditoria persistente.
 - Documentos, dependentes e linha do tempo do prontuário possuem tabelas isoladas por organização e leitura pelo adaptador persistente.
 - Documentos, modelos, validações, eventos e evidências de aceite eletrônico possuem persistência Supabase, RLS e hash SHA-256 calculado no banco.
-- Jornada e Ponto: adaptador Supabase, contratos transacionais e migration local preparados; aplicação da migration e validação remota ficam como primeiro passo da retomada.
+- Jornada e Ponto persistidos no Supabase, com RLS ativo e fluxo remoto validado para marcação por QR, bloqueio de aprovação por exceção aberta, resolução auditável e aprovação de competência.
+- Smoke test remoto transacional de Jornada/Ponto versionado em `supabase/tests/002_time_tracking_remote_smoke.sql`; ele sempre termina com `ROLLBACK` e não deixa dados artificiais no projeto.
+- Férias, ausências, benefícios, folha, cálculos especiais, SST, rondas, comunicações, portal, desligamentos, análises e governança com estado persistente versionado por organização no Supabase.
+- Controle otimista de concorrência, RLS por domínio e papel, auditoria de versões e nova tentativa automática em conflitos transitórios.
+- Smoke test remoto transacional dos onze domínios versionado em `supabase/tests/003_remaining_modules_remote_smoke.sql`.
+- Storage privado implantado para documentos, atestados, contratos, holerites, relatórios e evidências de ronda, com metadados relacionais e isolamento por organização e usuário.
+- Upload direto por URL assinada, confirmação de integridade, download temporário, substituição versionada e remoção física pela API REST.
+- Smoke test remoto transacional das políticas de Storage versionado em `supabase/tests/004_secure_storage_remote_smoke.sql`, sem deixar arquivos ou metadados artificiais no projeto.
 
 ## Limitações conhecidas
 
-- Os módulos ainda não migrados continuam reiniciando ao recarregar o ambiente ou reiniciar a API.
 - A persistência Supabase depende da configuração explícita das variáveis da aplicação e da seleção do adaptador persistente.
-- Módulos das fases 2 e 3 que ainda usam memória reiniciam junto com a API; isso é trabalho futuro planejado, não pendência da Fase 1.
+- O modo em memória continua reiniciando com a API por definição; o modo Supabase preserva o estado dos módulos migrados.
+- Estados versionados por domínio ainda não oferecem projeções relacionais próprias para consultas analíticas SQL; elas serão adicionadas quando um caso de uso exigir.
+- A quarentena e a análise antivírus dos arquivos permanecem como evolução futura; o modelo já prevê o estado `quarantined`.
 - O preview do Lovable precisa ser verificado após cada publicação relevante.
 
 ## Próximo marco
 
-Aplicar e validar `20260827162000_persist_time_tracking.sql`, exercitar marcação QR, resolução de exceção e aprovação de competência com usuário autenticado; então avançar para Férias e Ausências.
+Executar a Fase 22 de segurança e robustez, começando pelos testes de uploads, permissões e isolamento multiempresa.
 
 ## Regras de transição
 
