@@ -2,6 +2,7 @@ import { absenceOverviewSchema, admissionListSchema, admissionSchema, announceme
 import { localDataRequest } from "./local-data";
 import { analyticsOverviewSchema,reportRunSchema,type AnalyticsFilter,type AnalyticsOverview,type GenerateReportInput,type ReportRun } from "@fluxrh/contracts";
 import { occupationalExamSchema,occupationalHealthOverviewSchema,occupationalExceptionSchema,type CompleteOccupationalExamInput,type CreateOccupationalExamInput,type OccupationalExam,type OccupationalHealthOverview } from "@fluxrh/contracts";
+import { patrolOccurrenceSchema,patrolOverviewSchema,patrolSchema,patrolVisitSchema,type CreatePatrolOccurrenceInput,type Patrol,type PatrolOccurrence,type PatrolOverview,type PatrolVisit,type RegisterPatrolVisitInput,type StartPatrolInput } from "@fluxrh/contracts";
 
 const localDataMode = typeof window !== "undefined"
   && !["localhost", "127.0.0.1"].includes(window.location.hostname);
@@ -73,3 +74,8 @@ export const getOccupationalHealth=():Promise<OccupationalHealthOverview>=>reque
 export const createOccupationalExam=(input:CreateOccupationalExamInput):Promise<OccupationalExam>=>request("/api/v1/occupational-health/exams",occupationalExamSchema,{method:"POST",body:JSON.stringify(input)});
 export const completeOccupationalExam=(id:string,input:CompleteOccupationalExamInput):Promise<OccupationalExam>=>request(`/api/v1/occupational-health/exams/${id}/complete`,occupationalExamSchema,{method:"POST",body:JSON.stringify(input)});
 export const resolveOccupationalException=(id:string,note:string)=>request(`/api/v1/occupational-health/exceptions/${id}/resolve`,occupationalExceptionSchema,{method:"POST",body:JSON.stringify({note})});
+export const getPatrols=():Promise<PatrolOverview>=>request("/api/v1/patrols/overview",patrolOverviewSchema);
+export const startPatrol=(routeId:string,input:StartPatrolInput):Promise<Patrol>=>request(`/api/v1/patrols/routes/${routeId}/start`,patrolSchema,{method:"POST",body:JSON.stringify(input)});
+export const registerPatrolVisit=(id:string,input:RegisterPatrolVisitInput):Promise<PatrolVisit>=>request(`/api/v1/patrols/patrols/${id}/visits`,patrolVisitSchema,{method:"POST",body:JSON.stringify(input)});
+export const createPatrolOccurrence=(id:string,input:CreatePatrolOccurrenceInput):Promise<PatrolOccurrence>=>request(`/api/v1/patrols/patrols/${id}/occurrences`,patrolOccurrenceSchema,{method:"POST",body:JSON.stringify(input)});
+export const resolvePatrolOccurrence=(id:string,note:string):Promise<PatrolOccurrence>=>request(`/api/v1/patrols/occurrences/${id}/resolve`,patrolOccurrenceSchema,{method:"POST",body:JSON.stringify({note})});

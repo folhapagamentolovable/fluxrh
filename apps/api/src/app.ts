@@ -15,6 +15,7 @@ import { portalRoutes } from "./modules/portal/portal.routes.js";
 import { communicationsRoutes } from "./modules/communications/communications.routes.js";
 import { analyticsRoutes } from "./modules/analytics/analytics.routes.js";
 import { occupationalHealthRoutes } from "./modules/occupational-health/occupational.routes.js";
+import { patrolsRoutes } from "./modules/patrols/patrols.routes.js";
 
 export function buildApp() {
   const app = Fastify({ logger: true });
@@ -35,5 +36,6 @@ export function buildApp() {
   app.register(communicationsRoutes, { prefix: "/api/v1/communications" });
   app.register(analyticsRoutes, { prefix: "/api/v1/analytics" });
   app.register(occupationalHealthRoutes, { prefix: "/api/v1/occupational-health" });
+  app.register(patrolsRoutes, { prefix: "/api/v1/patrols" });
   return app;
 }

@@ -28,6 +28,8 @@ import { InMemoryAnalyticsRepository } from "../../../api/src/modules/analytics/
 import type { GenerateReportInput } from "@fluxrh/contracts";
 import type { CompleteOccupationalExamInput, CreateOccupationalExamInput } from "@fluxrh/contracts";
 import { InMemoryOccupationalRepository } from "../../../api/src/modules/occupational-health/occupational.repository";
+import { InMemoryPatrolsRepository } from "../../../api/src/modules/patrols/patrols.repository";
+import type { CreatePatrolOccurrenceInput, RegisterPatrolVisitInput, StartPatrolInput } from "@fluxrh/contracts";
 import { InMemoryWorkflowsRepository } from "../../../api/src/modules/workflows/workflows.repository";
 
 const operations = new InMemoryOperationsRepository();
@@ -45,6 +47,7 @@ const portal = new InMemoryPortalRepository();
 const communications = new InMemoryCommunicationsRepository();
 const analytics = new InMemoryAnalyticsRepository();
 const occupational = new InMemoryOccupationalRepository();
+const patrols = new InMemoryPatrolsRepository();
 
 function body<T>(options?: RequestInit): T {
   return JSON.parse(String(options?.body ?? "{}")) as T;
@@ -127,6 +130,12 @@ export async function localDataRequest(url: string, options?: RequestInit): Prom
   if (method === "POST" && url === "/api/v1/occupational-health/exams") return occupational.create(body<CreateOccupationalExamInput>(options));
   if (method === "POST" && (match=url.match(/^\/api\/v1\/occupational-health\/exams\/([^/]+)\/complete$/))) return required(await occupational.complete(match[1],body<CompleteOccupationalExamInput>(options)),"Exame não encontrado.");
   if (method === "POST" && (match=url.match(/^\/api\/v1\/occupational-health\/exceptions\/([^/]+)\/resolve$/))) return required(await occupational.resolveException(match[1],body<{note:string}>(options).note),"Exceção não encontrada.");
+
+  if (method === "GET" && url === "/api/v1/patrols/overview") return patrols.overview();
+  if (method === "POST" && (match=url.match(/^\/api\/v1\/patrols\/routes\/([^/]+)\/start$/))) return required(await patrols.start(match[1],body<StartPatrolInput>(options)),"Rota não encontrada.");
+  if (method === "POST" && (match=url.match(/^\/api\/v1\/patrols\/patrols\/([^/]+)\/visits$/))) { const result=await patrols.visit(match[1],body<RegisterPatrolVisitInput>(options)); if("error"in result)throw new Error(result.error);return result.data; }
+  if (method === "POST" && (match=url.match(/^\/api\/v1\/patrols\/patrols\/([^/]+)\/occurrences$/))) return required(await patrols.occurrence(match[1],body<CreatePatrolOccurrenceInput>(options)),"Ronda não encontrada.");
+  if (method === "POST" && (match=url.match(/^\/api\/v1\/patrols\/occurrences\/([^/]+)\/resolve$/))) return required(await patrols.resolveOccurrence(match[1],body<{note:string}>(options).note),"Ocorrência não encontrada.");
 
   throw new Error(`Operação local não implementada: ${method} ${url}`);
 }

@@ -50,6 +50,7 @@
 - Comunicação orientada a eventos. **Implementada em modo local.**
 - Relatórios, indicadores e dashboards gerenciais. **Implementados em modo local.**
 - Saúde ocupacional, exames, riscos e vencimentos. **Implementados em modo local.**
+- Controle de rondas e postos por QR Code. **Implementado em modo local.**
 - Integrações contábeis, bancárias e governamentais.
 - Observabilidade, exportações e operação assistida.
 
