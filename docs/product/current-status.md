@@ -25,19 +25,21 @@ Atualizado em 27 de agosto de 2026.
 - Primeiro acesso e organização reais validados; usuário administrador promovido a `super_admin`.
 - Adaptador Supabase de admissões iniciado, com criação e transição transacionais de instância e tarefas, evento de domínio e auditoria.
 - RLS externo validado nas tabelas principais e execução pública da função automática de RLS removida.
+- Central de Exceções conectada à API, com busca, filtros e resolução auditável.
+- Exceções podem ser abertas a partir de admissões, pausam o workflow e o liberam após a resolução da última pendência.
+- Histórico da admissão reconstruído a partir da auditoria persistente.
+- Documentos, dependentes e linha do tempo do prontuário possuem tabelas isoladas por organização e leitura pelo adaptador persistente.
 
 ## Limitações conhecidas
 
 - Os módulos ainda não migrados continuam reiniciando ao recarregar o ambiente ou reiniciar a API.
 - A persistência Supabase depende da configuração explícita das variáveis da aplicação e da seleção do adaptador persistente.
-- A migration de persistência das admissões está preparada localmente, mas ainda não foi aplicada ao Supabase externo.
-- Documentos, dependentes e linha do tempo do prontuário ainda retornam vazios no adaptador persistente.
-- Algumas áreas do menu continuam como módulos planejados.
+- Módulos das fases 2 e 3 que ainda usam memória reiniciam junto com a API; isso é trabalho futuro planejado, não pendência da Fase 1.
 - O preview do Lovable precisa ser verificado após cada publicação relevante.
 
 ## Próximo marco
 
-Aplicar e validar a migration de admissões no Supabase externo, testar criação e avanço com o usuário autenticado e então implementar exceções operacionais e auditoria consultável.
+Iniciar a persistência incremental da Fase 2 pelo domínio de Documentos e aceite eletrônico, reutilizando tenancy, eventos e auditoria já consolidados.
 
 ## Regras de transição
 

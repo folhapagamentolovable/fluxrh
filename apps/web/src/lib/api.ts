@@ -4,6 +4,7 @@ import { analyticsOverviewSchema,reportRunSchema,type AnalyticsFilter,type Analy
 import { occupationalExamSchema,occupationalHealthOverviewSchema,occupationalExceptionSchema,type CompleteOccupationalExamInput,type CreateOccupationalExamInput,type OccupationalExam,type OccupationalHealthOverview } from "@fluxrh/contracts";
 import { patrolOccurrenceSchema,patrolOverviewSchema,patrolSchema,patrolVisitSchema,type CreatePatrolOccurrenceInput,type Patrol,type PatrolOccurrence,type PatrolOverview,type PatrolVisit,type RegisterPatrolVisitInput,type StartPatrolInput } from "@fluxrh/contracts";
 import { governanceOverviewSchema,governanceSessionSchema,governanceUserSchema,permissionMatrixEntrySchema,type GovernanceOverview,type GovernanceUser,type InviteGovernanceUserInput,type UpdateRolePermissionsInput } from "@fluxrh/contracts";
+import { operationalExceptionSchema,workflowAuditEventSchema,type OperationalException,type WorkflowAuditEvent } from "@fluxrh/contracts";
 import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 import { normalizeDigits } from "./cnpj";
 
@@ -34,6 +35,10 @@ export const getAdmissions = (): Promise<Admission[]> => request("/api/v1/workfl
 export const getAdmission = (id: string): Promise<Admission> => request(`/api/v1/workflows/admissions/${id}`, admissionSchema);
 export const createAdmission = (input: CreateAdmissionInput): Promise<Admission> => request("/api/v1/workflows/admissions", admissionSchema, { method: "POST", body: JSON.stringify({ ...input, cpf: normalizeDigits(input.cpf), phone: normalizeDigits(input.phone) }) });
 export const advanceAdmission = (id: string, note?: string): Promise<Admission> => request(`/api/v1/workflows/admissions/${id}/advance`, admissionSchema, { method: "POST", body: JSON.stringify({ note }) });
+export const getWorkflowExceptions=():Promise<OperationalException[]>=>request("/api/v1/workflows/exceptions",operationalExceptionSchema.array());
+export const resolveWorkflowException=(id:string,note:string):Promise<OperationalException>=>request(`/api/v1/workflows/exceptions/${id}/resolve`,operationalExceptionSchema,{method:"POST",body:JSON.stringify({note})});
+export const createWorkflowException=(id:string,input:{title:string;description:string;priority:"critical"|"high"|"medium"|"low"}):Promise<OperationalException>=>request(`/api/v1/workflows/admissions/${id}/exceptions`,operationalExceptionSchema,{method:"POST",body:JSON.stringify(input)});
+export const getWorkflowAudit=(workflowId?:string):Promise<WorkflowAuditEvent[]>=>request(`/api/v1/workflows/audit${workflowId?`?workflowId=${encodeURIComponent(workflowId)}`:""}`,workflowAuditEventSchema.array());
 export const getDocumentOverview = (): Promise<DocumentOverview> => request("/api/v1/documents/overview", documentOverviewSchema);
 export const getDocument = (id: string): Promise<DocumentRecord> => request(`/api/v1/documents/${id}`, documentRecordSchema);
 export const createDocumentRequest = (input: CreateDocumentRequestInput): Promise<DocumentRecord> => request("/api/v1/documents/requests", documentRecordSchema, { method: "POST", body: JSON.stringify(input) });

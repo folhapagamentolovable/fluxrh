@@ -1,6 +1,6 @@
 # Roadmap do FluxRH
 
-## Estado atual — protótipo operacional
+## Estado atual — Fase 1 concluída tecnicamente
 
 - Interface Lovable/Vite com navegação dos módulos principais.
 - API REST e contratos TypeScript compartilhados.
@@ -17,7 +17,7 @@
 - Registro de decisões arquiteturais.
 - Modelo conceitual de dados.
 
-### 1.2 Fundação de dados — próxima implementação técnica
+### 1.2 Fundação de dados — concluída
 
 - Autenticação e identidade.
 - Organizações, usuários, papéis e permissões.
@@ -26,7 +26,7 @@
 - Eventos, tarefas, exceções e auditoria.
 - Migrations, seeds e políticas de isolamento por organização.
 
-### 1.3 Primeira jornada vertical
+### 1.3 Primeira jornada vertical — concluída
 
 - Persistir organização e empresa.
 - Cadastrar colaborador.
@@ -35,7 +35,11 @@
 - Gerar e resolver exceções.
 - Auditar todas as transições.
 
+Todos os itens da Fase 1 possuem contrato, API, persistência Supabase, isolamento organizacional e interface exercitável. A validação publicada continua sendo repetida a cada release, não constitui uma fase separada.
+
 ## Fase 2 — operação essencial
+
+Estado: funcional em modo local; persistência por domínio será entregue incrementalmente, começando por Documentos.
 
 - Documentos e aceite eletrônico.
 - Jornada, ponto, banco de horas e fechamento.
@@ -44,6 +48,8 @@
 - Folha contínua, pré-fechamento e memória de cálculo.
 
 ## Fase 3 — experiência e integração
+
+Estado: experiência demonstrável em modo local. Itens sem marcação explícita permanecem planejados e não estão atrasados enquanto a persistência da Fase 2 estiver em andamento.
 
 - Portal do colaborador e do gestor. **Implementado em modo local.**
 - Central universal de solicitações. **Implementada em modo local.**

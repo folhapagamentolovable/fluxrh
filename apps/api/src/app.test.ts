@@ -57,6 +57,15 @@ describe("FluxRH API", () => {
     expect(result.json().data.onboarding.checklistCompleted).toBe(result.json().data.onboarding.checklistTotal);
   });
 
+  it("creates, lists, resolves and audits workflow exceptions", async () => {
+    const created=await app.inject({method:"POST",url:"/api/v1/workflows/admissions/adm_lucas/exceptions",payload:{title:"Divergência cadastral",description:"O CPF precisa de conferência humana.",priority:"high"}});
+    expect(created.statusCode).toBe(201);expect(created.json().data.status).toBe("open");
+    const listed=await app.inject({method:"GET",url:"/api/v1/workflows/exceptions"});expect(listed.json().data.some((item:{id:string})=>item.id===created.json().data.id)).toBe(true);
+    const resolved=await app.inject({method:"POST",url:`/api/v1/workflows/exceptions/${created.json().data.id}/resolve`,payload:{note:"CPF conferido no documento original."}});
+    expect(resolved.json().data.status).toBe("resolved");
+    const audit=await app.inject({method:"GET",url:"/api/v1/workflows/audit"});expect(audit.json().data.some((item:{action:string})=>item.action==="exception.resolved")).toBe(true);
+  });
+
   it("validates documents and registers an electronic acceptance with evidence", async () => {
     const overview = await app.inject({ method: "GET", url: "/api/v1/documents/overview" });
     expect(overview.statusCode).toBe(200);

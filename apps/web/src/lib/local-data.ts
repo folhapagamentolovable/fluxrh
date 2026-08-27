@@ -73,6 +73,10 @@ export async function localDataRequest(url: string, options?: RequestInit): Prom
   if (method === "POST" && url === "/api/v1/employees") return employees.create(body<CreateEmployeeInput>(options));
 
   if (method === "GET" && url === "/api/v1/workflows/overview") return workflows.overview();
+  if (method === "GET" && url === "/api/v1/workflows/exceptions") return workflows.exceptions();
+  if (method === "GET" && url.startsWith("/api/v1/workflows/audit")) { const params=new URL(url,"http://local").searchParams; return workflows.audit(params.get("workflowId")??undefined); }
+  if (method === "POST" && (match = url.match(/^\/api\/v1\/workflows\/exceptions\/([^/]+)\/resolve$/))) return required(await workflows.resolveException(match[1],body<{note:string}>(options).note),"Exceção não encontrada.");
+  if (method === "POST" && (match = url.match(/^\/api\/v1\/workflows\/admissions\/([^/]+)\/exceptions$/))) {const input=body<{title:string;description:string;priority:"critical"|"high"|"medium"|"low"}>(options);return required(await workflows.createException(match[1],input.title,input.description,input.priority),"Admissão não encontrada.");}
   if (method === "GET" && url === "/api/v1/workflows/admissions") return workflows.list();
   if (method === "GET" && (match = url.match(/^\/api\/v1\/workflows\/admissions\/([^/]+)$/))) return required(await workflows.find(match[1]), "Admissão não encontrada.");
   if (method === "POST" && url === "/api/v1/workflows/admissions") return workflows.create(body<CreateAdmissionInput>(options));

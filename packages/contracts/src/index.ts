@@ -13,6 +13,19 @@ export const operationalExceptionSchema = z.object({
   status: exceptionStatusSchema,
   dueAt: z.string(),
   createdAt: z.string(),
+  sourceType: z.string().optional(),
+  sourceId: z.string().nullable().optional(),
+  recommendation: z.string().nullable().optional(),
+  resolvedAt: z.string().nullable().optional(),
+  resolutionNote: z.string().nullable().optional(),
+});
+
+export const resolveOperationalExceptionSchema = z.object({ note: z.string().min(3).max(500) });
+export const createOperationalExceptionSchema = z.object({ title:z.string().min(3).max(120),description:z.string().min(3).max(1000),priority:exceptionPrioritySchema.default("medium") });
+export const workflowAuditEventSchema = z.object({
+  id: z.string(), action: z.string(), resourceType: z.string(), resourceId: z.string(),
+  actorType: z.enum(["user", "system", "integration"]), actorId: z.string().nullable(),
+  occurredAt: z.string(), beforeData: z.record(z.string(), z.unknown()).nullable(), afterData: z.record(z.string(), z.unknown()).nullable()
 });
 
 export const dashboardSnapshotSchema = z.object({
@@ -34,6 +47,7 @@ export const dashboardSnapshotSchema = z.object({
 });
 
 export type OperationalException = z.infer<typeof operationalExceptionSchema>;
+export type WorkflowAuditEvent = z.infer<typeof workflowAuditEventSchema>;
 export type DashboardSnapshot = z.infer<typeof dashboardSnapshotSchema>;
 
 export type ApiResponse<T> = {
@@ -353,5 +367,3 @@ export const inviteGovernanceUserSchema=z.object({name:z.string().min(3),email:z
 export const updateRolePermissionsSchema=z.object({module:governanceModuleSchema,actions:z.array(governanceActionSchema),dataAccess:z.enum(["none","own","team","scope","organization"]),sensitiveData:z.enum(["hidden","masked","visible"])});
 export const revokeSessionSchema=z.object({justification:z.string().min(3).max(500)});
 export type GovernanceOverview=z.infer<typeof governanceOverviewSchema>;export type GovernanceUser=z.infer<typeof governanceUserSchema>;export type AuditEvent=z.infer<typeof auditEventSchema>;export type InviteGovernanceUserInput=z.infer<typeof inviteGovernanceUserSchema>;export type UpdateRolePermissionsInput=z.infer<typeof updateRolePermissionsSchema>;
-
-

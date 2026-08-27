@@ -1,4 +1,4 @@
-import type { Admission, CreateAdmissionInput, WorkflowOverview, WorkflowStepKey } from "@fluxrh/contracts";
+import type { Admission, CreateAdmissionInput, OperationalException, WorkflowAuditEvent, WorkflowOverview, WorkflowStepKey } from "@fluxrh/contracts";
 import { admissionSteps, stepNames, WorkflowEngine } from "./workflow.engine.js";
 
 const engine = new WorkflowEngine();
@@ -32,9 +32,23 @@ export interface WorkflowsRepository {
   find(id: string): Promise<Admission | undefined>;
   create(input: CreateAdmissionInput): Promise<Admission>;
   advance(id: string, note?: string): Promise<Admission | undefined>;
+  exceptions(): Promise<OperationalException[]>;
+  resolveException(id: string, note: string): Promise<OperationalException | undefined>;
+  audit(workflowId?: string): Promise<WorkflowAuditEvent[]>;
+  createException(id: string, title: string, description: string, priority: OperationalException["priority"]): Promise<OperationalException | undefined>;
 }
 
+const workflowExceptions: OperationalException[] = [
+  { id:"00000000-0000-4000-8000-000000000101",title:"Documento de admissão ilegível",description:"O comprovante de residência precisa ser reenviado.",employeeName:"Marina Souza",area:"Admissão",priority:"high",status:"open",dueAt:daysFromNow(1),createdAt:daysFromNow(-1),sourceType:"admission",sourceId:"adm_marina",recommendation:"Solicitar um novo arquivo em formato PDF." },
+  { id:"00000000-0000-4000-8000-000000000102",title:"Validação cadastral pendente",description:"Os dados informados precisam de conferência humana.",employeeName:"Lucas Ferreira",area:"Admissão",priority:"medium",status:"in_review",dueAt:daysFromNow(2),createdAt:daysFromNow(-2),sourceType:"admission",sourceId:"adm_lucas" }
+];
+const workflowAudit: WorkflowAuditEvent[] = [];
+
 export class InMemoryWorkflowsRepository implements WorkflowsRepository {
+  async exceptions() { return structuredClone(workflowExceptions); }
+  async resolveException(id: string, note: string) { const item=workflowExceptions.find(x=>x.id===id); if(!item)return; item.status="resolved"; item.resolutionNote=note; item.resolvedAt=new Date().toISOString(); workflowAudit.unshift({id:crypto.randomUUID(),action:"exception.resolved",resourceType:"operational_exception",resourceId:id,actorType:"user",actorId:null,occurredAt:item.resolvedAt,beforeData:null,afterData:{status:"resolved",resolutionNote:note}}); return structuredClone(item); }
+  async audit(workflowId?: string) { return structuredClone(workflowAudit.filter(x=>!workflowId||x.resourceId===workflowId)); }
+  async createException(id:string,title:string,description:string,priority:OperationalException["priority"]){const admission=admissions.find(x=>x.id===id);if(!admission)return;const value:OperationalException={id:crypto.randomUUID(),title,description,employeeName:admission.candidateName,area:"Admissão",priority,status:"open",createdAt:new Date().toISOString(),dueAt:daysFromNow(priority==="critical"?1:3),sourceType:"admission",sourceId:id};workflowExceptions.unshift(value);admission.status="exception";admission.history.unshift({id:crypto.randomUUID(),title:"Exceção criada",description,actor:"FluxRH",occurredAt:value.createdAt,type:"exception"});return structuredClone(value);}
   async overview(): Promise<WorkflowOverview> {
     const tasks = admissions.flatMap(instance => instance.tasks.filter(task => task.status !== "completed").map(task => ({ ...task, workflowId: instance.id, subject: instance.candidateName })));
     return { summary: { running: admissions.filter(x => x.status === "running").length, pendingTasks: tasks.length, automatedToday: 34, exceptions: admissions.filter(x => x.status === "exception").length }, definition: { id: "admission_v1", name: "Admissão completa", version: 1, active: true, steps: admissionSteps.map((key, index) => ({ key, name: stepNames[key], description: ["Coleta de dados e aprovação da solicitação", "Solicitação e recebimento dos documentos", "Conferências automáticas e tratamento de divergências", "Geração, envio e aceite do contrato", "Tarefas do primeiro dia e período de experiência"][index], automationCount: [3, 5, 6, 4, 7][index] })) }, tasks, instances: structuredClone(admissions) };

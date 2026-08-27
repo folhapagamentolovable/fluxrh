@@ -5,6 +5,9 @@ import type { EmployeesRepository } from "./employees.repository.js";
 
 type EmployeeRow = { id:string; registration:string; full_name:string; social_name:string|null; cpf:string; email:string|null; phone:string|null; birth_date:string|null; status:Employee["status"]; company_id:string };
 type LinkRow = { employee_id:string; establishment_id:string|null; department_id:string|null; cost_center_id:string|null; position:string; contract_type:string; salary:number|string; work_schedule:string|null; manager_employee_id:string|null; hire_date:string };
+type DocumentRow={id:string;employee_id:string;name:string;status:"valid"|"pending"|"expired";expires_at:string|null};
+type DependentRow={id:string;employee_id:string;name:string;relationship:string;birth_date:string};
+type TimelineRow={id:string;employee_id:string;title:string;description:string;category:string;occurred_at:string};
 
 export class SupabaseEmployeesRepository implements EmployeesRepository {
   constructor(private readonly client: SupabaseClient) {}
@@ -13,13 +16,16 @@ export class SupabaseEmployeesRepository implements EmployeesRepository {
     const organizationId = await getCurrentOrganizationId(this.client);
     let employeeQuery = this.client.from("employees").select("id,registration,full_name,social_name,cpf,email,phone,birth_date,status,company_id").eq("organization_id", organizationId).order("full_name");
     if (id) employeeQuery = employeeQuery.eq("id", id);
-    const [employeesResult, linksResult, companiesResult, unitsResult] = await Promise.all([
+    const [employeesResult, linksResult, companiesResult, unitsResult,documentsResult,dependentsResult,timelineResult] = await Promise.all([
       employeeQuery,
       this.client.from("employment_links").select("employee_id,establishment_id,department_id,cost_center_id,position,contract_type,salary,work_schedule,manager_employee_id,hire_date").eq("organization_id", organizationId).eq("active", true),
       this.client.from("companies").select("id,trade_name").eq("organization_id", organizationId),
       this.client.from("organization_units").select("id,name").eq("organization_id", organizationId),
+      id?this.client.from("employee_documents").select("id,employee_id,name,status,expires_at").eq("organization_id",organizationId).eq("employee_id",id):Promise.resolve({data:[],error:null}),
+      id?this.client.from("employee_dependents").select("id,employee_id,name,relationship,birth_date").eq("organization_id",organizationId).eq("employee_id",id):Promise.resolve({data:[],error:null}),
+      id?this.client.from("employee_timeline").select("id,employee_id,title,description,category,occurred_at").eq("organization_id",organizationId).eq("employee_id",id).order("occurred_at",{ascending:false}):Promise.resolve({data:[],error:null}),
     ]);
-    for (const result of [employeesResult, linksResult, companiesResult, unitsResult]) if (result.error) throw new Error(`employees_load_failed:${result.error.message}`);
+    for (const result of [employeesResult, linksResult, companiesResult, unitsResult,documentsResult,dependentsResult,timelineResult]) if (result.error) throw new Error(`employees_load_failed:${result.error.message}`);
     const rows = (employeesResult.data ?? []) as EmployeeRow[];
     const links = (linksResult.data ?? []) as LinkRow[];
     const companyNames = new Map((companiesResult.data ?? []).map(row => [row.id, row.trade_name]));
@@ -37,7 +43,10 @@ export class SupabaseEmployeesRepository implements EmployeesRepository {
         costCenterId: link.cost_center_id, costCenterName: unitNames.get(link.cost_center_id) ?? "Centro de custo",
         position: link.position, contractType: link.contract_type, salary: Number(link.salary), workSchedule: link.work_schedule ?? "Não informada",
         managerName: link.manager_employee_id ? employeeNames.get(link.manager_employee_id) ?? "Não informado" : "Não informado",
-        avatarColor: "#155eef", documents: [], dependents: [], timeline: [],
+        avatarColor: "#155eef",
+        documents:((documentsResult.data??[]) as DocumentRow[]).filter(value=>value.employee_id===row.id).map(value=>({id:value.id,name:value.name,status:value.status,...(value.expires_at?{expiresAt:value.expires_at}:{})})),
+        dependents:((dependentsResult.data??[]) as DependentRow[]).filter(value=>value.employee_id===row.id).map(value=>({id:value.id,name:value.name,relationship:value.relationship,birthDate:value.birth_date})),
+        timeline:((timelineResult.data??[]) as TimelineRow[]).filter(value=>value.employee_id===row.id).map(value=>({id:value.id,title:value.title,description:value.description,occurredAt:value.occurred_at,category:value.category})),
       } satisfies Employee];
     });
   }

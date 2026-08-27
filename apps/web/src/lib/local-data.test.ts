@@ -7,6 +7,8 @@ const getRoutes = [
   "/api/v1/employees",
   "/api/v1/workflows/overview",
   "/api/v1/workflows/admissions",
+  "/api/v1/workflows/exceptions",
+  "/api/v1/workflows/audit",
   "/api/v1/documents/overview",
   "/api/v1/time/overview",
   "/api/v1/absences/overview",
@@ -38,4 +40,6 @@ describe("local data layer", () => {
 
     expect(accepted.acceptance?.documentHash).toMatch(/^[a-f0-9]{64}$/);
   });
+
+  it("keeps the local exception lifecycle consistent",async()=>{const created=await localDataRequest("/api/v1/workflows/admissions/adm_lucas/exceptions",{method:"POST",body:JSON.stringify({title:"Revisar cadastro",description:"Conferência manual necessária.",priority:"medium"})}) as {id:string};const resolved=await localDataRequest(`/api/v1/workflows/exceptions/${created.id}/resolve`,{method:"POST",body:JSON.stringify({note:"Cadastro conferido."})}) as {status:string};expect(resolved.status).toBe("resolved");});
 });
