@@ -2,8 +2,17 @@ alter table public.workflow_tasks add column if not exists assignee_label text n
 
 create or replace function public.save_admission_workflow(admission_payload jsonb)
 returns uuid language plpgsql security definer set search_path = '' as $$
-declare organization_id_value uuid; definition_id_value uuid; instance_id_value uuid; task jsonb; existing_id uuid; event_name text;
+declare organization_id_value uuid; definition_id_value uuid; instance_id_value uuid; task jsonb; existing_id uuid; event_name text; previous_step text; previous_status public.workflow_status;
 begin
+  if jsonb_typeof(admission_payload) <> 'object'
+    or jsonb_typeof(admission_payload->'tasks') <> 'array'
+    or jsonb_array_length(admission_payload->'tasks') = 0
+    or coalesce(admission_payload->>'candidateName','') = ''
+    or coalesce(admission_payload->>'dueAt','') = ''
+    or coalesce(admission_payload->>'startedAt','') = ''
+    or admission_payload->>'currentStep' not in ('digital_admission','documents','validation','contract','onboarding')
+    or admission_payload->>'status' not in ('running','waiting','exception','completed','cancelled')
+  then raise exception 'invalid_admission_payload' using errcode='22023'; end if;
   select organization_id into organization_id_value from public.organization_members
   where user_id=(select auth.uid()) and status='active' order by created_at limit 1;
   if organization_id_value is null or not private.has_organization_role(organization_id_value,array['owner','admin','hr']::public.organization_role[])
@@ -14,11 +23,25 @@ begin
   existing_id:=nullif(admission_payload->>'id','')::uuid;
   event_name:=case when existing_id is null then 'admission.created' else 'admission.transitioned' end;
   if existing_id is null then
+    if admission_payload->>'currentStep' <> 'digital_admission' or admission_payload->>'status' <> 'running'
+      then raise exception 'invalid_admission_initial_state' using errcode='22023'; end if;
     insert into public.workflow_instances(organization_id,definition_id,subject_type,subject_id,status,current_step,context,due_at,started_at)
     values(organization_id_value,definition_id_value,'candidate',gen_random_uuid(),(admission_payload->>'status')::public.workflow_status,
       admission_payload->>'currentStep',admission_payload-'id'-'tasks',(admission_payload->>'dueAt')::timestamptz,(admission_payload->>'startedAt')::timestamptz)
     returning id into instance_id_value;
   else
+    select current_step,status into previous_step,previous_status from public.workflow_instances
+    where id=existing_id and organization_id=organization_id_value for update;
+    if previous_step is null then raise exception 'admission_not_found'; end if;
+    if previous_status in ('completed','cancelled') then raise exception 'admission_is_final'; end if;
+    if not (
+      admission_payload->>'currentStep'=previous_step
+      or (previous_step='digital_admission' and admission_payload->>'currentStep'='documents')
+      or (previous_step='documents' and admission_payload->>'currentStep'='validation')
+      or (previous_step='validation' and admission_payload->>'currentStep'='contract')
+      or (previous_step='contract' and admission_payload->>'currentStep'='onboarding')
+      or (previous_step='onboarding' and admission_payload->>'currentStep'='onboarding' and admission_payload->>'status'='completed')
+    ) then raise exception 'invalid_admission_transition' using errcode='22023'; end if;
     update public.workflow_instances set status=(admission_payload->>'status')::public.workflow_status,current_step=admission_payload->>'currentStep',
       context=admission_payload-'id'-'tasks',completed_at=case when admission_payload->>'status'='completed' then now() else null end,updated_at=now()
     where id=existing_id and organization_id=organization_id_value returning id into instance_id_value;
@@ -26,6 +49,11 @@ begin
     delete from public.workflow_tasks where instance_id=instance_id_value and organization_id=organization_id_value;
   end if;
   for task in select value from jsonb_array_elements(admission_payload->'tasks') loop
+    if task->>'stepKey' not in ('digital_admission','documents','validation','contract','onboarding')
+      or task->>'kind' not in ('automatic','human','approval')
+      or task->>'status' not in ('pending','in_progress','completed','blocked')
+      or coalesce(task->>'title','')=''
+    then raise exception 'invalid_workflow_task' using errcode='22023'; end if;
     insert into public.workflow_tasks(id,organization_id,instance_id,step_key,title,description,kind,status,assignee_label,due_at,completed_at)
     values((task->>'id')::uuid,organization_id_value,instance_id_value,task->>'stepKey',task->>'title',task->>'description',
       (task->>'kind')::public.task_kind,(task->>'status')::public.task_status,task->>'assignee',(task->>'dueAt')::timestamptz,nullif(task->>'completedAt','')::timestamptz);

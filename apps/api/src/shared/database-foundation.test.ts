@@ -15,6 +15,10 @@ const hardeningMigration = readFileSync(fileURLToPath(new URL(
   "../../../../supabase/migrations/20260827022817_harden_external_database_functions.sql",
   import.meta.url,
 )), "utf8");
+const admissionMigration = readFileSync(fileURLToPath(new URL(
+  "../../../../supabase/migrations/20260827103000_persist_admission_workflows.sql",
+  import.meta.url,
+)), "utf8");
 
 const tenantTables = [
   "organizations",
@@ -71,5 +75,16 @@ describe("versioned database foundation", () => {
   it("prevents the Data API roles from executing the RLS event trigger", () => {
     expect(hardeningMigration).toContain("revoke execute on function public.rls_auto_enable()");
     expect(hardeningMigration).toContain("from public, anon, authenticated");
+  });
+
+  it("persists admission transitions atomically with authorization and audit", () => {
+    expect(admissionMigration).toContain("create or replace function public.save_admission_workflow");
+    expect(admissionMigration).toContain("security definer set search_path = ''");
+    expect(admissionMigration).toContain("private.has_organization_role");
+    expect(admissionMigration).toContain("invalid_admission_transition");
+    expect(admissionMigration).toContain("insert into public.domain_events");
+    expect(admissionMigration).toContain("insert into public.audit_events");
+    expect(admissionMigration).toContain("revoke all on function public.save_admission_workflow(jsonb) from public,anon");
+    expect(admissionMigration).toContain("grant execute on function public.save_admission_workflow(jsonb) to authenticated");
   });
 });
