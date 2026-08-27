@@ -41,7 +41,7 @@ Todos os itens da Fase 1 possuem contrato, API, persistência Supabase, isolamen
 
 Estado: funcional em modo local; persistência por domínio será entregue incrementalmente, começando por Documentos.
 
-- Documentos e aceite eletrônico.
+- Documentos e aceite eletrônico. **Persistência Supabase implementada.**
 - Jornada, ponto, banco de horas e fechamento.
 - Férias, ausências, atestados e afastamentos.
 - Benefícios e movimentações.

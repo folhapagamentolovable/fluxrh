@@ -29,6 +29,7 @@ Atualizado em 27 de agosto de 2026.
 - Exceções podem ser abertas a partir de admissões, pausam o workflow e o liberam após a resolução da última pendência.
 - Histórico da admissão reconstruído a partir da auditoria persistente.
 - Documentos, dependentes e linha do tempo do prontuário possuem tabelas isoladas por organização e leitura pelo adaptador persistente.
+- Documentos, modelos, validações, eventos e evidências de aceite eletrônico possuem persistência Supabase, RLS e hash SHA-256 calculado no banco.
 
 ## Limitações conhecidas
 
@@ -39,7 +40,7 @@ Atualizado em 27 de agosto de 2026.
 
 ## Próximo marco
 
-Iniciar a persistência incremental da Fase 2 pelo domínio de Documentos e aceite eletrônico, reutilizando tenancy, eventos e auditoria já consolidados.
+Persistir Jornada e Ponto, incluindo escalas, marcações, apuração, banco de horas e exceções, reutilizando tenancy, eventos e auditoria já consolidados.
 
 ## Regras de transição
 

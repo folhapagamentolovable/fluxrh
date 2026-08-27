@@ -19,6 +19,7 @@ const admissionMigration = readFileSync(fileURLToPath(new URL(
   "../../../../supabase/migrations/20260827103000_persist_admission_workflows.sql",
   import.meta.url,
 )), "utf8");
+const documentsMigration = readFileSync(fileURLToPath(new URL("../../../../supabase/migrations/20260827154000_persist_documents_and_acceptance.sql",import.meta.url)),"utf8");
 
 const tenantTables = [
   "organizations",
@@ -86,5 +87,15 @@ describe("versioned database foundation", () => {
     expect(admissionMigration).toContain("insert into public.audit_events");
     expect(admissionMigration).toContain("revoke all on function public.save_admission_workflow(jsonb) from public,anon");
     expect(admissionMigration).toContain("grant execute on function public.save_admission_workflow(jsonb) to authenticated");
+  });
+
+  it("persists immutable document acceptance evidence behind RLS",()=>{
+    for(const table of["document_templates","documents","document_acceptances","document_events"])expect(documentsMigration).toContain(`alter table public.${table} enable row level security`);
+    expect(documentsMigration).toContain("extensions.digest");
+    expect(documentsMigration).toContain("document_hash text not null check(length(document_hash)=64)");
+    expect(documentsMigration).toContain("revoke all on public.document_templates,public.documents,public.document_acceptances,public.document_events from anon,authenticated");
+    expect(documentsMigration).toContain("grant select on public.document_templates,public.documents,public.document_acceptances,public.document_events to authenticated");
+    expect(documentsMigration).toContain("create or replace function public.accept_document");
+    expect(documentsMigration).toContain("private.has_organization_role");
   });
 });
