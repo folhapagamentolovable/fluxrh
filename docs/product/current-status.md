@@ -18,19 +18,22 @@ Atualizado em 26 de agosto de 2026.
 - Saúde ocupacional com agenda de exames, ASOs, riscos funcionais, programas e exceções.
 - Rondas por QR Code com rotas, pontos, leituras offline, ocorrências e cobertura operacional.
 - Governança com RBAC, escopos organizacionais, segregação de funções, auditoria e sessões.
+- Adaptadores Supabase para organizações, empresas, unidades e prontuário básico de colaboradores.
+- Criação transacional de colaborador e vínculo empregatício por função protegida por papel e RLS.
+- Seleção explícita entre persistência em memória e Supabase, mantendo o modo demonstrativo como padrão.
 
 ## Limitações conhecidas
 
-- Dados reiniciam ao recarregar o ambiente ou reiniciar a API.
-- Não existe autenticação real nem autorização por papel.
-- Não existe isolamento persistente entre organizações.
-- O Supabase ainda não é fonte de dados da aplicação.
+- Os módulos ainda não migrados continuam reiniciando ao recarregar o ambiente ou reiniciar a API.
+- A persistência Supabase depende da aplicação das migrations e da configuração explícita do ambiente.
+- A stack local do Supabase não pôde ser executada nesta validação porque o Docker estava inativo.
+- Documentos, dependentes e linha do tempo do prontuário ainda retornam vazios no adaptador persistente.
 - Algumas áreas do menu continuam como módulos planejados.
 - O preview do Lovable precisa ser verificado após cada publicação relevante.
 
 ## Próximo marco
 
-Validar a fundação persistente na stack local do Supabase e implementar os adaptadores de repository da primeira jornada vertical, sem quebrar o modo local de demonstração.
+Com o Docker ativo, executar reset, lint e testes RLS da stack local; depois persistir admissão, tarefas e transições do workflow.
 
 ## Regras de transição
 

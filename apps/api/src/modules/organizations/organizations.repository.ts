@@ -1,5 +1,10 @@
 import type { Company, CreateCompanyInput, OrganizationSnapshot, OrganizationUnit } from "@fluxrh/contracts";
 
+export interface OrganizationsRepository {
+  getSnapshot(): Promise<OrganizationSnapshot>;
+  createCompany(input: CreateCompanyInput): Promise<Company>;
+}
+
 const companies: Company[] = [
   { id: "company_flux", legalName: "Flux Serviços Empresariais Ltda.", tradeName: "Grupo Flux", document: "12.345.678/0001-90", status: "active", city: "São Paulo", state: "SP", employeesCount: 96, establishmentsCount: 2 },
   { id: "company_norte", legalName: "Norte Facilities e Serviços Ltda.", tradeName: "Norte Facilities", document: "45.821.930/0001-18", status: "active", city: "Campinas", state: "SP", employeesCount: 52, establishmentsCount: 1 },
@@ -18,7 +23,7 @@ const units: OrganizationUnit[] = [
   { id: "cc_field", companyId: "company_norte", parentId: "dept_field", type: "cost_center", code: "CC-310", name: "Facilities Campinas", managerName: "Luciana Prado", employeesCount: 44, status: "active" },
 ];
 
-export class InMemoryOrganizationsRepository {
+export class InMemoryOrganizationsRepository implements OrganizationsRepository {
   async getSnapshot(): Promise<OrganizationSnapshot> {
     return { summary: { companies: companies.length, establishments: units.filter(x => x.type === "establishment").length, departments: units.filter(x => x.type === "department").length, costCenters: units.filter(x => x.type === "cost_center").length }, companies: structuredClone(companies), units: structuredClone(units) };
   }

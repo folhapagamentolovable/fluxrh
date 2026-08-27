@@ -1,5 +1,11 @@
 import type { CreateEmployeeInput, Employee, EmployeeListItem } from "@fluxrh/contracts";
 
+export interface EmployeesRepository {
+  list(): Promise<EmployeeListItem[]>;
+  findById(id: string): Promise<Employee | undefined>;
+  create(input: CreateEmployeeInput): Promise<Employee>;
+}
+
 const employees: Employee[] = [
   { id: "emp_marina", registration: "000148", fullName: "Marina Souza", cpf: "***.482.***-09", email: "marina.souza@fluxrh.local", phone: "(11) 98742-1020", birthDate: "1993-04-18", hireDate: "2026-08-19", status: "onboarding", companyId: "company_flux", companyName: "Grupo Flux", establishmentId: "est_sp", establishmentName: "Matriz São Paulo", departmentId: "dept_people", departmentName: "Pessoas e Cultura", costCenterId: "cc_people", costCenterName: "RH Corporativo", position: "Analista de RH", contractType: "CLT", salary: 4850, workSchedule: "Seg–Sex · 08:00–17:48", managerName: "Marina Alves", avatarColor: "#6c5ce7", documents: [{ id: "doc_1", name: "CPF", status: "valid" }, { id: "doc_2", name: "Comprovante de residência", status: "pending" }, { id: "doc_3", name: "Contrato de trabalho", status: "valid" }], dependents: [], timeline: [{ id: "tl_1", title: "Admissão iniciada", description: "Workflow iniciado automaticamente.", occurredAt: "2026-08-19T12:00:00.000Z", category: "Admissão" }, { id: "tl_2", title: "Contrato aceito", description: "Aceite eletrônico registrado.", occurredAt: "2026-08-22T15:30:00.000Z", category: "Documentos" }] },
   { id: "emp_carlos", registration: "000104", fullName: "Carlos Mendes", cpf: "***.193.***-42", email: "carlos.mendes@fluxrh.local", phone: "(11) 97735-4602", birthDate: "1988-11-02", hireDate: "2023-02-06", status: "active", companyId: "company_flux", companyName: "Grupo Flux", establishmentId: "est_sp", establishmentName: "Matriz São Paulo", departmentId: "dept_ops", departmentName: "Operações", costCenterId: "cc_ops", costCenterName: "Operação Matriz", position: "Supervisor Operacional", contractType: "CLT", salary: 6200, workSchedule: "12×36 · 07:00–19:00", managerName: "Daniel Costa", avatarColor: "#2473e8", documents: [{ id: "doc_4", name: "CNH", status: "valid", expiresAt: "2028-04-20" }, { id: "doc_5", name: "ASO periódico", status: "valid", expiresAt: "2027-02-15" }], dependents: [{ id: "dep_1", name: "Luiza Mendes", relationship: "Filha", birthDate: "2018-07-12" }], timeline: [{ id: "tl_3", title: "Alteração salarial", description: "Reajuste anual aplicado.", occurredAt: "2026-05-01T12:00:00.000Z", category: "Remuneração" }] },
@@ -8,7 +14,7 @@ const employees: Employee[] = [
   { id: "emp_rafael", registration: "000063", fullName: "Rafael Alves", cpf: "***.908.***-31", email: "rafael.alves@fluxrh.local", phone: "(13) 99710-1140", birthDate: "1985-01-31", hireDate: "2020-03-02", status: "vacation", companyId: "company_flux", companyName: "Grupo Flux", establishmentId: "est_santos", establishmentName: "Unidade Santos", departmentId: "dept_ops", departmentName: "Operações", costCenterId: "cc_ops", costCenterName: "Operação Matriz", position: "Gerente de Unidade", contractType: "CLT", salary: 9400, workSchedule: "Seg–Sex · 08:00–17:48", managerName: "Daniel Costa", avatarColor: "#d28b16", documents: [{ id: "doc_10", name: "ASO periódico", status: "valid", expiresAt: "2027-03-21" }], dependents: [], timeline: [{ id: "tl_6", title: "Férias iniciadas", description: "Período de 15 dias iniciado.", occurredAt: "2026-08-18T12:00:00.000Z", category: "Férias" }] }
 ];
 
-export class InMemoryEmployeesRepository {
+export class InMemoryEmployeesRepository implements EmployeesRepository {
   async list(): Promise<EmployeeListItem[]> { return structuredClone(employees.map(({ documents: _d, dependents: _p, timeline: _t, ...employee }) => employee)); }
   async findById(id: string): Promise<Employee | undefined> { const value = employees.find(employee => employee.id === id); return value ? structuredClone(value) : undefined; }
   async create(input: CreateEmployeeInput): Promise<Employee> {

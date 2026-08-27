@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposto para a próxima implementação técnica. Este ADR não cria nem altera banco de dados.
+Aceito e parcialmente implementado localmente. Nenhuma migration desta etapa foi aplicada remotamente.
 
 ## Decisão
 
@@ -62,7 +62,7 @@ Documentos serão adicionados à primeira jornada quando a fundação estiver va
 1. Aprovar este modelo e os limites de acesso.
 2. Criar migrations locais e seeds demonstrativos.
 3. Implementar autenticação e seleção de organização.
-4. Criar adaptadores persistentes para organizações e colaboradores.
+4. Criar adaptadores persistentes para organizações e colaboradores. **Concluído localmente.**
 5. Persistir admissão, tarefas e transições do workflow.
 6. Persistir exceções e auditoria.
 7. Executar testes de isolamento e da jornada vertical.
@@ -71,3 +71,5 @@ Documentos serão adicionados à primeira jornada quando a fundação estiver va
 ## Compatibilidade com o modo local
 
 A seleção do adaptador será feita por configuração. Os contratos públicos permanecem iguais, permitindo que Lovable e testes continuem usando dados locais enquanto o ambiente integrado usa a persistência.
+
+O modo padrão é `FLUXRH_PERSISTENCE=memory`. Para usar os adaptadores persistentes, a API exige `FLUXRH_PERSISTENCE=supabase`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` e o token Bearer da sessão autenticada. A API usa a chave publicável e preserva o contexto do usuário para que o RLS permaneça efetivo; não utiliza `service_role`.

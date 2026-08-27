@@ -4,13 +4,15 @@ import { analyticsOverviewSchema,reportRunSchema,type AnalyticsFilter,type Analy
 import { occupationalExamSchema,occupationalHealthOverviewSchema,occupationalExceptionSchema,type CompleteOccupationalExamInput,type CreateOccupationalExamInput,type OccupationalExam,type OccupationalHealthOverview } from "@fluxrh/contracts";
 import { patrolOccurrenceSchema,patrolOverviewSchema,patrolSchema,patrolVisitSchema,type CreatePatrolOccurrenceInput,type Patrol,type PatrolOccurrence,type PatrolOverview,type PatrolVisit,type RegisterPatrolVisitInput,type StartPatrolInput } from "@fluxrh/contracts";
 import { governanceOverviewSchema,governanceSessionSchema,governanceUserSchema,permissionMatrixEntrySchema,type GovernanceOverview,type GovernanceUser,type InviteGovernanceUserInput,type UpdateRolePermissionsInput } from "@fluxrh/contracts";
+import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 
 const localDataMode = typeof window !== "undefined"
   && !["localhost", "127.0.0.1"].includes(window.location.hostname);
 
 async function request<T>(url: string, schema: { parse: (value: unknown) => T }, options?: RequestInit): Promise<T> {
   if (localDataMode) return schema.parse(await localDataRequest(url, options));
-  const response = await fetch(url, { headers: { "Content-Type": "application/json", ...options?.headers }, ...options });
+  const session = isSupabaseConfigured ? (await supabase.auth.getSession()).data.session : null;
+  const response = await fetch(url, { headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}), ...options?.headers }, ...options });
   if (!response.ok) throw new Error(`A operação falhou (${response.status}).`);
   const payload = await response.json() as ApiResponse<unknown>;
   return schema.parse(payload.data);

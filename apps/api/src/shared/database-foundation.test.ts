@@ -7,6 +7,10 @@ const migrationPath = fileURLToPath(new URL(
   import.meta.url,
 ));
 const migration = readFileSync(migrationPath, "utf8");
+const employeeRpcMigration = readFileSync(fileURLToPath(new URL(
+  "../../../../supabase/migrations/20260826190000_create_employee_rpc.sql",
+  import.meta.url,
+)), "utf8");
 
 const tenantTables = [
   "organizations",
@@ -47,6 +51,15 @@ describe("local database foundation", () => {
   });
 
   it("contains no command that can target a remote Supabase project", () => {
-    expect(migration).not.toMatch(/supabase\s+(link|db\s+push|db\s+reset\s+--linked)/i);
+    expect(`${migration}\n${employeeRpcMigration}`).not.toMatch(/supabase\s+(link|db\s+push|db\s+reset\s+--linked)/i);
+  });
+
+  it("creates employees and employment links atomically with explicit authorization", () => {
+    expect(employeeRpcMigration).toContain("create or replace function public.create_employee");
+    expect(employeeRpcMigration).toContain("private.has_organization_role");
+    expect(employeeRpcMigration).toContain("pg_advisory_xact_lock");
+    expect(employeeRpcMigration).toContain("set search_path = ''");
+    expect(employeeRpcMigration).toContain("revoke all on function public.create_employee");
+    expect(employeeRpcMigration).toContain("to authenticated;");
   });
 });
