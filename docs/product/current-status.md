@@ -50,6 +50,7 @@ Atualizado em 28 de agosto de 2026.
 - Fase 25 executada em modo sintético no Supabase externo: 24 incrementos graduais concluídos, com rollback testado, backups e recuperação verificados, monitoramento verde e operações oficiais tecnicamente bloqueadas.
 - Fase 26 validada em modo sintético: onboarding padronizado, SLA interno, monitoramento contínuo, revisões trimestrais de conformidade e roadmap orientado a métricas para as três organizações fictícias; liberação comercial real segue bloqueada.
 - Ambiente remoto integrado entre frontend Lovable, API Render e Supabase externo, com a origem publicada autorizada por CORS e endpoint de prontidão para validar o modo persistente sem expor credenciais.
+- Ambiente operacional externo liberado para operações reais exclusivamente por sessões com vínculo ativo `super_admin`; todas as mutações passam por um gate persistido no Supabase e pela barreira global da API, enquanto os demais papéis permanecem em modo somente leitura.
 
 ## Limitações conhecidas
 
@@ -61,7 +62,7 @@ Atualizado em 28 de agosto de 2026.
 
 ## Próximo marco
 
-Manter a evolução contínua do ambiente sintético e realizar uma decisão humana separada antes de qualquer cliente, contrato, cobrança, folha ou operação comercial real.
+Executar o primeiro ciclo real controlado pelo `super_admin`, com evidências de auditoria, conferência humana e plano de rollback, antes de ampliar permissões operacionais para qualquer outro papel.
 
 ## Regras de transição
 

@@ -69,6 +69,16 @@ Estado: experiência demonstrável e estado persistente por organização no Sup
 - Simulações e previsão de riscos.
 - Automação configurável com níveis de autonomia.
 
+## Marco 27 — liberação operacional externa restrita
+
+Estado: **concluído**.
+
+- Gate persistido de ativação real no Supabase.
+- Mutações externas restritas a sessões autenticadas com vínculo ativo `super_admin`.
+- Demais papéis mantidos em modo somente leitura.
+- API com bloqueio global e falha segura quando o gate não pode ser verificado.
+- Migration remota `20260828160000` aplicada e validada.
+
 ## Critério de conclusão de cada incremento
 
 Um incremento só é considerado concluído quando possui contrato validado, regra testada, interface utilizável, auditoria prevista, build aprovado e comportamento verificado no ambiente publicado.

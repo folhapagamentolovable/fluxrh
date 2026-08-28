@@ -24,6 +24,7 @@ import {
   type ApiSecurityOptions,
 } from "./shared/security.js";
 import { getPersistenceMode } from "./shared/supabase.js";
+import { registerOperationalGate } from "./shared/operational-gate.js";
 
 export function buildApp(securityOptions: ApiSecurityOptions = {}) {
   const app = Fastify({
@@ -53,6 +54,7 @@ export function buildApp(securityOptions: ApiSecurityOptions = {}) {
     },
   });
   registerApiSecurity(app, securityOptions);
+  registerOperationalGate(app);
   app.get("/health", async () => ({ status: "ok", service: "fluxrh-api" }));
   app.get("/ready", async (_request, reply) => {
     const persistence = getPersistenceMode();
