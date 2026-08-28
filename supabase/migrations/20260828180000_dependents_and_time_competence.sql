@@ -18,8 +18,8 @@ alter table public.employee_dependents enable row level security;
 revoke all on public.employee_dependents from anon, authenticated;
 grant select, insert, update on public.employee_dependents to authenticated;
 create policy employee_dependents_org_access on public.employee_dependents for all to authenticated
-using (private.has_organization_role(organization_id, array['owner','admin','hr_manager','auditor']::public.organization_role[]))
-with check (private.has_organization_role(organization_id, array['owner','admin','hr_manager']::public.organization_role[]));
+using (private.has_organization_role(organization_id, array['owner','admin','hr','auditor']::public.organization_role[]))
+with check (private.has_organization_role(organization_id, array['owner','admin','hr']::public.organization_role[]));
 
 create table if not exists public.time_competence_closures (
   id uuid primary key default gen_random_uuid(),
@@ -38,8 +38,8 @@ alter table public.time_competence_closures enable row level security;
 revoke all on public.time_competence_closures from anon, authenticated;
 grant select, insert, update on public.time_competence_closures to authenticated;
 create policy time_competence_org_access on public.time_competence_closures for all to authenticated
-using (private.has_organization_role(organization_id, array['owner','admin','hr_manager','auditor']::public.organization_role[]))
-with check (private.has_organization_role(organization_id, array['owner','admin','hr_manager']::public.organization_role[]));
+using (private.has_organization_role(organization_id, array['owner','admin','hr','auditor']::public.organization_role[]))
+with check (private.has_organization_role(organization_id, array['owner','admin','hr']::public.organization_role[]));
 
 create or replace function public.close_time_competence(p_id uuid, p_notes text default null)
 returns public.time_competence_closures
@@ -49,7 +49,7 @@ declare result public.time_competence_closures;
 begin
   update public.time_competence_closures c set status='closed', closing_progress=100, closed_at=now(), closed_by=auth.uid(), notes=coalesce(p_notes,c.notes)
   where c.id=p_id and c.status in ('open','in_review')
-    and private.has_organization_role(c.organization_id, array['owner','admin','hr_manager']::public.organization_role[])
+    and private.has_organization_role(c.organization_id, array['owner','admin','hr']::public.organization_role[])
     and c.closing_progress=100
   returning c.* into result;
   if result.id is null then raise exception 'competence_not_ready_or_not_authorized'; end if;
