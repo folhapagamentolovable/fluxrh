@@ -1056,54 +1056,119 @@ Desempenho
 - ✅ Processamento assíncrono com fila interna
 - ✅ Geração de relatórios em background com estados `processing` e `ready`
 - ✅ Testes com volume representativo de 10.000 colaboradores
-  Fase 23 — Piloto e entrada em produção 🟡
-  Piloto interno
-  - ✅ Empresa fictícia completa
-  - ✅ Pelo menos 100 colaboradores simulados (120 no Grupo Flux)
-  - ✅ Dois estabelecimentos
-  - ✅ Três postos
-  - ✅ Diferentes escalas (5×2, 12×36 e 6×1)
-  - 🟡 Ciclo completo de uma competência
-- Admissões
-- Férias
-- Atestados
-- Desligamentos
-- Exceções propositais
-  Piloto com clientes
-  Recomendação:
-- Uma empresa pequena
-- Uma empresa com múltiplos postos
-- Um escritório de RH ou DP como usuário consultivo
-- Execução paralela ao processo atual
-- Sem substituir a folha oficial no primeiro ciclo
-- Comparação de resultados
-- Correção das divergências
-- Registro das decisões
-  Entrada gradual
 
-1. Cadastro e documentos
-2. Admissão
-3. Portal do colaborador
-4. Ponto
-5. Férias e ausências
-6. Prévia da folha
-7. Folha oficial
-8. Demais módulos
-   Marcos comerciais recomendados
-   Marco Produto utilizável
-   M1 Protótipo navegável e design system
-   M2 Empresas, colaboradores e central de exceções
-   M3 Admissão e onboarding autônomos
-   M4 Ponto, escalas, férias e atestados
-   M5 Benefícios, documentos e portal
-   M6 Motor de folha e holerites
-   M7 Desligamento, SST e rondas
-   M8 Supabase, segurança e persistência
-   M9 Piloto operacional
-   M10 Produção comercial
+---
 
-Priorização sugerida
-MVP
+## Fase 23 — Piloto interno 🟡
+
+### Massa operacional
+
+- ✅ Empresa fictícia completa
+- ✅ Pelo menos 100 colaboradores simulados (120 no Grupo Flux)
+- ✅ Dois estabelecimentos
+- ✅ Três postos
+- ✅ Diferentes escalas (5×2, 12×36 e 6×1)
+- 🟡 Ciclo completo de uma competência
+
+### Jornadas do piloto
+
+- ⬜ Admissões
+- ⬜ Férias
+- ⬜ Atestados
+- ⬜ Desligamentos
+- ⬜ Exceções propositais
+- ⬜ Fechamento de ponto
+- ⬜ Prévia e fechamento da folha
+- ⬜ Holerites, relatórios e evidências
+- ⬜ Relatório final de divergências e decisões
+
+### Critérios de saída
+
+- ⬜ Toda jornada crítica executada com os dados do piloto
+- ⬜ Exceções detectadas, tratadas e auditadas
+- ⬜ Competência fechada e reconciliada
+- ⬜ Nenhum defeito crítico ou alto em aberto
+- ⬜ Evidências do piloto anexadas ao repositório
+
+---
+
+## Fase 24 — Piloto assistido com clientes ⬜
+
+### Perfis recomendados
+
+- ⬜ Uma empresa pequena
+- ⬜ Uma empresa com múltiplos postos
+- ⬜ Um escritório de RH ou DP como usuário consultivo
+
+### Operação assistida
+
+- ⬜ Termos, escopo, responsáveis e calendário definidos
+- ⬜ Execução paralela ao processo atual
+- ⬜ Sem substituir a folha oficial no primeiro ciclo
+- ⬜ Comparação de resultados
+- ⬜ Correção das divergências
+- ⬜ Registro das decisões e aceite dos participantes
+- ⬜ Plano de suporte e resposta a incidentes validado
+
+### Critérios de saída
+
+- ⬜ Pelo menos dois ciclos paralelos concluídos
+- ⬜ Divergências críticas zeradas
+- ⬜ Aprovação formal dos clientes-piloto
+- ⬜ Backlog de produção priorizado
+
+---
+
+## Fase 25 — Entrada gradual em produção ⬜
+
+1. ⬜ Cadastro e documentos
+2. ⬜ Admissão
+3. ⬜ Portal do colaborador
+4. ⬜ Ponto
+5. ⬜ Férias e ausências
+6. ⬜ Prévia da folha
+7. ⬜ Folha oficial
+8. ⬜ Demais módulos
+
+### Controles de entrada
+
+- ⬜ Plano de rollback por incremento
+- ⬜ Monitoramento, alertas e responsáveis de plantão
+- ⬜ Backups e recuperação reconfirmados antes de cada avanço
+- ⬜ Métricas de adoção, erros e tempo operacional acompanhadas
+- ⬜ Aprovação explícita antes de ativar a folha oficial
+
+---
+
+## Fase 26 — Produção comercial e evolução contínua ⬜
+
+- ⬜ Operação comercial liberada
+- ⬜ Onboarding padronizado de novos clientes
+- ⬜ SLA de suporte e incidentes publicado
+- ⬜ Monitoramento de segurança e desempenho contínuo
+- ⬜ Revisões periódicas de LGPD, acessos e retenção
+- ⬜ Roadmap trimestral orientado por métricas e feedback
+
+---
+
+## Marcos comerciais recomendados
+
+| Marco | Produto utilizável |
+|---|---|
+| M1 | Protótipo navegável e design system |
+| M2 | Empresas, colaboradores e central de exceções |
+| M3 | Admissão e onboarding autônomos |
+| M4 | Ponto, escalas, férias e atestados |
+| M5 | Benefícios, documentos e portal |
+| M6 | Motor de folha e holerites |
+| M7 | Desligamento, SST e rondas |
+| M8 | Supabase, segurança e persistência |
+| M9 | Piloto operacional |
+| M10 | Produção comercial |
+
+## Priorização sugerida
+
+### MVP
 
 - Fundação técnica
 - Design system
@@ -1118,7 +1183,9 @@ MVP
 - Férias e atestados
 - Portal do colaborador
 - Auditoria básica
-  Versão 1.0
+
+### Versão 1.0
+
 - Folha completa
 - Benefícios
 - Desligamento
@@ -1128,7 +1195,9 @@ MVP
 - Supabase
 - Segurança e LGPD
 - Piloto validado
-  Versão 1.5
+
+### Versão 1.5
+
 - Rondas
 - Desempenho
 - Cargos e salários
@@ -1136,7 +1205,8 @@ MVP
 - Analytics avançado
 - Construtor visual de workflows
 - Relatórios configuráveis
-  Princípios que devem permanecer durante toda a construção
+
+## Princípios que devem permanecer durante toda a construção
 
 1. Toda entidade pertence a uma empresa ou possui escopo explicitamente global.
 2. Toda regra possui vigência e versão.
@@ -1150,4 +1220,4 @@ MVP
 10. Importação, exportação e operação manual são caminhos oficiais.
 11. Registros históricos não são sobrescritos.
 12. Persistência é uma implementação do domínio, não o próprio domínio.
-    Essa ordem permite validar o produto inteiro com dados simulados, evitando cristalizar prematuramente uma modelagem de banco. Quando o Supabase entrar, o domínio, os contratos REST, as permissões e os workflows já terão sido testados na prática — reduzindo bastante o risco de migrations destrutivas e reformulações profundas.
+Essa ordem permite validar o produto inteiro com dados simulados, evitando cristalizar prematuramente uma modelagem de banco. Quando o Supabase entrar, o domínio, os contratos REST, as permissões e os workflows já terão sido testados na prática — reduzindo bastante o risco de migrations destrutivas e reformulações profundas.
