@@ -23,6 +23,7 @@ import {
   resolveAllowedOrigins,
   type ApiSecurityOptions,
 } from "./shared/security.js";
+import { getPersistenceMode } from "./shared/supabase.js";
 
 export function buildApp(securityOptions: ApiSecurityOptions = {}) {
   const app = Fastify({
@@ -53,6 +54,20 @@ export function buildApp(securityOptions: ApiSecurityOptions = {}) {
   });
   registerApiSecurity(app, securityOptions);
   app.get("/health", async () => ({ status: "ok", service: "fluxrh-api" }));
+  app.get("/ready", async (_request, reply) => {
+    const persistence = getPersistenceMode();
+    const supabaseConfigured = Boolean(
+      process.env.SUPABASE_URL && process.env.SUPABASE_PUBLISHABLE_KEY,
+    );
+    const ready = persistence === "supabase" && supabaseConfigured;
+
+    return reply.code(ready ? 200 : 503).send({
+      status: ready ? "ready" : "not_ready",
+      service: "fluxrh-api",
+      persistence,
+      supabaseConfigured,
+    });
+  });
   app.register(operationsRoutes, { prefix: "/api/v1/operations" });
   app.register(organizationsRoutes, { prefix: "/api/v1/organizations" });
   app.register(employeesRoutes, { prefix: "/api/v1/employees" });

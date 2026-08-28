@@ -1,6 +1,6 @@
 # Estado atual
 
-Atualizado em 27 de agosto de 2026.
+Atualizado em 28 de agosto de 2026.
 
 ## Entregue
 
@@ -49,6 +49,7 @@ Atualizado em 27 de agosto de 2026.
 - Fase 24 executada e validada dentro do PostgreSQL externo com três organizações inteiramente fictícias, 168 colaboradores artificiais, seis ciclos paralelos reconciliados, divergências resolvidas e evidências sintéticas; nenhuma folha oficial foi substituída.
 - Fase 25 executada em modo sintético no Supabase externo: 24 incrementos graduais concluídos, com rollback testado, backups e recuperação verificados, monitoramento verde e operações oficiais tecnicamente bloqueadas.
 - Fase 26 validada em modo sintético: onboarding padronizado, SLA interno, monitoramento contínuo, revisões trimestrais de conformidade e roadmap orientado a métricas para as três organizações fictícias; liberação comercial real segue bloqueada.
+- Ambiente remoto integrado entre frontend Lovable, API Render e Supabase externo, com a origem publicada autorizada por CORS e endpoint de prontidão para validar o modo persistente sem expor credenciais.
 
 ## Limitações conhecidas
 

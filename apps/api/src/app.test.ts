@@ -12,6 +12,32 @@ describe("FluxRH API", () => {
     expect(response.json()).toMatchObject({ status: "ok" });
   });
 
+  it("reports persistent-environment readiness", async () => {
+    const previousPersistence = process.env.FLUXRH_PERSISTENCE;
+    const previousUrl = process.env.SUPABASE_URL;
+    const previousKey = process.env.SUPABASE_PUBLISHABLE_KEY;
+    process.env.FLUXRH_PERSISTENCE = "supabase";
+    process.env.SUPABASE_URL = "https://example.supabase.co";
+    process.env.SUPABASE_PUBLISHABLE_KEY = "publishable-test-key";
+
+    try {
+      const response = await app.inject({ method: "GET", url: "/ready" });
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toMatchObject({
+        status: "ready",
+        persistence: "supabase",
+        supabaseConfigured: true,
+      });
+    } finally {
+      if (previousPersistence === undefined) delete process.env.FLUXRH_PERSISTENCE;
+      else process.env.FLUXRH_PERSISTENCE = previousPersistence;
+      if (previousUrl === undefined) delete process.env.SUPABASE_URL;
+      else process.env.SUPABASE_URL = previousUrl;
+      if (previousKey === undefined) delete process.env.SUPABASE_PUBLISHABLE_KEY;
+      else process.env.SUPABASE_PUBLISHABLE_KEY = previousKey;
+    }
+  });
+
   it("returns the operational dashboard", async () => {
     const response = await app.inject({ method: "GET", url: "/api/v1/operations/dashboard" });
     expect(response.statusCode).toBe(200);

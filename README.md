@@ -40,6 +40,7 @@ npm run dev:full
 
 - API: `http://localhost:3333`
 - Health check: `http://localhost:3333/health`
+- Readiness remota: `http://localhost:3333/ready`
 
 ## Validar
 
@@ -70,7 +71,7 @@ os pacotes de contratos e API, execute `npm run build:full`.
 
 ## Supabase externo
 
-O FluxRH utiliza exclusivamente projetos externos hospedados no Supabase. Não faz parte do fluxo do projeto executar ou implantar um banco Supabase local com Docker. As migrations, seeds e testes de RLS versionados estão em `supabase/` e devem ser revisados antes da aplicação no projeto externo autorizado. As migrations versionadas até `20260827221732` estão aplicadas ao projeto Supabase DEV `akdmobvbombhqvvglayn`; o seed permanece opt-in e não foi aplicado.
+O FluxRH utiliza exclusivamente projetos externos hospedados no Supabase. Não faz parte do fluxo do projeto executar ou implantar um banco Supabase local com Docker. As migrations, seeds e testes de RLS versionados estão em `supabase/` e devem ser revisados antes da aplicação no projeto externo autorizado. As migrations versionadas até `20260828144500` estão aplicadas ao projeto Supabase DEV `akdmobvbombhqvvglayn`; o seed permanece opt-in e não foi aplicado.
 
 O bucket privado `fluxrh-private` armazena documentos, atestados, contratos, holerites, relatórios e evidências. A API expõe `/api/v1/files` para preparar uploads por URL assinada, confirmar o arquivo, listar metadados, gerar downloads temporários e remover objetos. As políticas validam organização, usuário, categoria e papel; o frontend não recebe chave privilegiada.
 
@@ -78,7 +79,9 @@ A API aplica uma base de segurança configurável por `CORS_ALLOWED_ORIGINS`, `R
 
 Sessões administrativas usam os registros reais do Supabase Auth e podem ser revogadas remotamente com auditoria. Arquivos recebem prazo de retenção por organização/categoria e podem ser preservados por “legal hold”. O procedimento de recuperação está em `docs/operations/backup-restore-runbook.md`.
 
-O frontend exige `VITE_SUPABASE_URL`, `VITE_SUPABASE_PROJECT_ID` e `VITE_SUPABASE_PUBLISHABLE_KEY`. Use `.env.example` como referência e mantenha valores reais somente em `.env`/variáveis do ambiente de deploy. Nunca exponha uma chave `service_role` ou `sb_secret_` no frontend.
+O frontend exige `VITE_SUPABASE_URL`, `VITE_SUPABASE_PROJECT_ID`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_FLUXRH_DATA_MODE=remote` e `VITE_FLUXRH_API_URL`. A API remota deve usar `FLUXRH_PERSISTENCE=supabase`, as credenciais publicáveis do mesmo projeto e incluir a origem publicada do frontend em `CORS_ALLOWED_ORIGINS`. Use `.env.example` como referência e mantenha valores reais somente em `.env`/variáveis do ambiente de deploy. Nunca exponha uma chave `service_role` ou `sb_secret_` no frontend.
+
+Em deploy, `/health` confirma que o processo da API está respondendo e `/ready` confirma, sem revelar credenciais, que o modo persistente Supabase está selecionado e configurado.
 
 O primeiro acesso cria uma conta pelo Supabase Auth. Após autenticar, um usuário sem vínculo é direcionado à criação da organização e se torna `owner` por meio da função segura `create_organization`.
 
