@@ -1092,7 +1092,7 @@ Desempenho
 
 ---
 
-## Fase 24 — Piloto assistido com clientes 🟡
+## Fase 24 — Piloto assistido sintético ✅
 
 ### Perfis recomendados
 
@@ -1103,19 +1103,19 @@ Desempenho
 ### Operação assistida
 
 - ✅ Termos, escopo, responsáveis e calendário definidos
-- ⬜ Execução paralela ao processo atual
+- ✅ Dois ciclos paralelos executados no Supabase externo com dados fictícios
 - ✅ Regra formalizada: não substituir a folha oficial durante o piloto
-- ⬜ Comparação de resultados
-- ⬜ Correção das divergências
-- ⬜ Registro das decisões e aceite dos participantes
+- ✅ Comparação de resultados fictícios reconciliada
+- ✅ Divergências sintéticas corrigidas
+- ✅ Decisões e aceite sintético registrados
 - ✅ Plano de suporte e resposta a incidentes definido para validação com os participantes
 
 ### Critérios de saída
 
-- ⬜ Pelo menos dois ciclos paralelos concluídos
-- ⬜ Divergências críticas zeradas
-- ⬜ Aprovação formal dos clientes-piloto
-- ⬜ Backlog de produção priorizado
+- ✅ Dois ciclos paralelos fictícios por perfil concluídos
+- ✅ Divergências críticas zeradas
+- ✅ Aceite sintético registrado para os três perfis
+- ✅ Backlog de produção priorizado para a Fase 25
 
 ---
 

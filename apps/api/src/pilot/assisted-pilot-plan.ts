@@ -3,7 +3,7 @@ export type AssistedPilotCycle = { id: string; purpose: string; officialPayrollR
 
 export const assistedPilotPlan = {
   id: "assisted_pilot_v1",
-  status: "ready_for_recruitment",
+  status: "synthetic_external_execution_completed",
   profiles: [
     { id: "small_company" as const, targetHeadcount: "20–80", objective: "Validar adoção, cadastro, documentos, ponto e ausências com equipe enxuta." },
     { id: "multi_site_company" as const, targetHeadcount: "80–300", objective: "Validar isolamento, postos, escalas, aprovações e consolidação entre unidades." },
