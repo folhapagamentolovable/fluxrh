@@ -1068,27 +1068,27 @@ Desempenho
 - ✅ Dois estabelecimentos
 - ✅ Três postos
 - ✅ Diferentes escalas (5×2, 12×36 e 6×1)
-- 🟡 Ciclo completo de uma competência
+- ✅ Ciclo completo de uma competência
 
 ### Jornadas do piloto
 
-- ⬜ Admissões
-- ⬜ Férias
-- ⬜ Atestados
-- ⬜ Desligamentos
-- ⬜ Exceções propositais
-- ⬜ Fechamento de ponto
-- ⬜ Prévia e fechamento da folha
-- ⬜ Holerites, relatórios e evidências
-- ⬜ Relatório final de divergências e decisões
+- ✅ Admissões
+- ✅ Férias
+- ✅ Atestados
+- ✅ Desligamentos
+- ✅ Exceções propositais
+- ✅ Fechamento de ponto
+- ✅ Prévia e fechamento da folha
+- ✅ Holerites, relatórios e evidências
+- ✅ Relatório final de divergências e decisões
 
 ### Critérios de saída
 
-- ⬜ Toda jornada crítica executada com os dados do piloto
-- ⬜ Exceções detectadas, tratadas e auditadas
-- ⬜ Competência fechada e reconciliada
-- ⬜ Nenhum defeito crítico ou alto em aberto
-- ⬜ Evidências do piloto anexadas ao repositório
+- ✅ Toda jornada crítica executada com os dados do piloto
+- ✅ Exceções detectadas, tratadas e auditadas
+- ✅ Competência fechada e reconciliada
+- ✅ Nenhum defeito crítico ou alto em aberto
+- ✅ Evidências do piloto anexadas ao repositório
 
 ---
 

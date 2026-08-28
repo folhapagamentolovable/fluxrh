@@ -44,6 +44,7 @@ Atualizado em 27 de agosto de 2026.
 - Sessões reais do Supabase Auth integradas à governança, com revogação administrativa auditada e bloqueio imediato das autorizações vinculadas ao `session_id` removido.
 - Retenção de arquivos configurável por organização e categoria, prazo calculado no banco e preservação por “legal hold”.
 - Runbook de recuperação ajustado ao banco principal, com cópia separada dos objetos do Storage, conferência de WALG e migrations e rotina não destrutiva automatizada.
+- Piloto interno determinístico com 120 colaboradores, jornadas críticas, exceções propositais, fechamento de ponto e folha, artefatos e relatório reconciliado de divergências.
 
 ## Limitações conhecidas
 
@@ -55,7 +56,7 @@ Atualizado em 27 de agosto de 2026.
 
 ## Próximo marco
 
-Continuar a Fase 22 ampliando os fluxos completos, acessibilidade, responsividade e rotação coordenada de segredos. Não haverá projeto Supabase temporário; uma restauração destrutiva no banco principal exige incidente ou janela de manutenção e confirmação explícita.
+Preparar a Fase 24: definir escopo, responsáveis, calendário e operação paralela do piloto assistido com clientes, sem substituir a folha oficial no primeiro ciclo.
 
 ## Regras de transição
 
