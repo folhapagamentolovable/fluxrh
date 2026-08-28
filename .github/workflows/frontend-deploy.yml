@@ -1,0 +1,45 @@
+name: Frontend release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/web/**"
+      - "packages/contracts/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/frontend-deploy.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: frontend-production
+  cancel-in-progress: true
+
+jobs:
+  validate-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run security:check
+      - run: npm run typecheck -w '@fluxrh/contracts'
+      - run: npm run typecheck -w '@fluxrh/web'
+      - run: npm run test -w '@fluxrh/web'
+      - run: npm run build -w '@fluxrh/web'
+        env:
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fluxrh-web-${{ github.sha }}
+          path: apps/web/dist
+          if-no-files-found: error
+          retention-days: 14

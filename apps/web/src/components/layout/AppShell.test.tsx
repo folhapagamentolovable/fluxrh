@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import axe from "axe-core";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import { AppShellView } from "./AppShell";
@@ -8,7 +9,8 @@ import { AppShellView } from "./AppShell";
 const signOut = vi.fn(async () => undefined);
 
 function renderShell() {
-  return render(<MemoryRouter><Routes><Route element={<AppShellView displayName="RH Teste" signOut={signOut} />}><Route index element={<h1>Painel principal</h1>} /></Route></Routes></MemoryRouter>);
+  const queryClient = new QueryClient({defaultOptions:{queries:{retry:false}}});
+  return render(<QueryClientProvider client={queryClient}><MemoryRouter><Routes><Route element={<AppShellView displayName="RH Teste" signOut={signOut} />}><Route index element={<h1>Painel principal</h1>} /></Route></Routes></MemoryRouter></QueryClientProvider>);
 }
 
 describe("AppShell", () => {
