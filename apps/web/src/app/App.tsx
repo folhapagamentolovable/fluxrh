@@ -28,6 +28,7 @@ import { ProtectedRoute } from "@/auth/ProtectedRoute";
 import { LoginPage } from "@/features/auth/LoginPage";
 import { OrganizationGate } from "@/auth/OrganizationGate";
 import { UserManualPage } from "@/features/manual/UserManualPage";
+import { NotFoundPage } from "@/features/not-found/NotFoundPage";
 
 export function App() {
   return <Routes>
@@ -57,7 +58,7 @@ export function App() {
     <Route path="automacoes" element={<WorkflowsPage />} />
     <Route path="configuracoes" element={<GovernancePage />} />
     <Route path="manual" element={<UserManualPage />} />
-    <Route path="*" element={<Navigate to="/" replace />} />
+    <Route path="*" element={<NotFoundPage />} />
     </Route></Route></Route>
   </Routes>;
 }
