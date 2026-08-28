@@ -48,6 +48,7 @@ Atualizado em 27 de agosto de 2026.
 - Fase 24 preparada com coortes, responsabilidades, calendário de dois ciclos paralelos, gates, evidências, SLAs e playbook de resposta a incidentes.
 - Fase 24 executada e validada dentro do PostgreSQL externo com três organizações inteiramente fictícias, 168 colaboradores artificiais, seis ciclos paralelos reconciliados, divergências resolvidas e evidências sintéticas; nenhuma folha oficial foi substituída.
 - Fase 25 executada em modo sintético no Supabase externo: 24 incrementos graduais concluídos, com rollback testado, backups e recuperação verificados, monitoramento verde e operações oficiais tecnicamente bloqueadas.
+- Fase 26 validada em modo sintético: onboarding padronizado, SLA interno, monitoramento contínuo, revisões trimestrais de conformidade e roadmap orientado a métricas para as três organizações fictícias; liberação comercial real segue bloqueada.
 
 ## Limitações conhecidas
 
@@ -59,7 +60,7 @@ Atualizado em 27 de agosto de 2026.
 
 ## Próximo marco
 
-Preparar a Fase 26 sem liberar operação comercial real: padronizar onboarding, SLA, monitoramento contínuo, revisões de LGPD e cadência trimestral baseada em métricas fictícias.
+Manter a evolução contínua do ambiente sintético e realizar uma decisão humana separada antes de qualquer cliente, contrato, cobrança, folha ou operação comercial real.
 
 ## Regras de transição
 
