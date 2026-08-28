@@ -30,7 +30,8 @@ Atualizado em 27 de agosto de 2026.
 - Histórico da admissão reconstruído a partir da auditoria persistente.
 - Documentos, dependentes e linha do tempo do prontuário possuem tabelas isoladas por organização e leitura pelo adaptador persistente.
 - Documentos, modelos, validações, eventos e evidências de aceite eletrônico possuem persistência Supabase, RLS e hash SHA-256 calculado no banco.
-- Jornada e Ponto: adaptador Supabase, contratos transacionais e migration local preparados; aplicação da migration e validação remota ficam como primeiro passo da retomada.
+- Jornada e Ponto implantado e validado no Supabase externo.
+- Férias e Ausências: adaptador Supabase, RLS, solicitações transacionais, atestados e auditoria preparados para implantação.
 
 ## Limitações conhecidas
 
@@ -41,7 +42,7 @@ Atualizado em 27 de agosto de 2026.
 
 ## Próximo marco
 
-Aplicar e validar `20260827162000_persist_time_tracking.sql`, exercitar marcação QR, resolução de exceção e aprovação de competência com usuário autenticado; então avançar para Férias e Ausências.
+Aplicar e validar `20260828100000_persist_absences_vacations.sql`, exercitar solicitação e decisão de férias, recebimento e revisão de atestado com usuário autenticado; então avançar para Benefícios.
 
 ## Regras de transição
 

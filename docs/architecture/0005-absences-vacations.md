@@ -8,4 +8,4 @@ As regras de saldo e período são executadas no servidor. A interface apenas so
 
 ## Persistência
 
-Nesta fase os repositórios são em memória. Os contratos e limites da API foram definidos para permitir a troca futura por PostgreSQL/Supabase sem alterar as telas.
+O modo demonstrativo permanece em memória. Em modo persistente, períodos, solicitações, ocorrências, atestados e afastamentos usam PostgreSQL/Supabase com RLS; criação e decisões passam por funções transacionais que produzem eventos de domínio e auditoria sem acesso direto da interface ao banco.
