@@ -650,3 +650,5 @@ export const updateEmployee = (
     method: "PATCH",
     body: JSON.stringify(input),
   });
+export const sendExternalEmail = (input: { to: string[]; subject: string; text: string; idempotencyKey?: string }): Promise<string> =>
+  request("/api/v1/integrations/email/send", notificationSchema.shape.id, { method: "POST", body: JSON.stringify(input) });

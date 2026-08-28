@@ -19,6 +19,7 @@ import { patrolsRoutes } from "./modules/patrols/patrols.routes.js";
 import { governanceRoutes } from "./modules/governance/governance.routes.js";
 import { filesRoutes } from "./modules/files/files.routes.js";
 import { peopleRoutes } from "./modules/people/people.routes.js";
+import { integrationsRoutes } from "./modules/integrations/integrations.routes.js";
 import {
   registerApiSecurity,
   resolveAllowedOrigins,
@@ -94,5 +95,6 @@ export function buildApp(securityOptions: ApiSecurityOptions = {}) {
   app.register(governanceRoutes, { prefix: "/api/v1/governance" });
   app.register(filesRoutes, { prefix: "/api/v1/files" });
   app.register(peopleRoutes, { prefix: "/api/v1/people" });
+  app.register(integrationsRoutes, { prefix: "/api/v1/integrations" });
   return app;
 }
