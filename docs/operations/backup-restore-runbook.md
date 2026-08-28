@@ -12,17 +12,26 @@ Este procedimento cobre o banco PostgreSQL, Auth, migrations e os objetos do buc
 4. Registrar data, responsável, tamanho, quantidade de objetos e hash do manifesto da exportação.
 5. Nunca versionar dumps, objetos, senhas, tokens ou chaves S3 no Git.
 
-## Ensaio de restauração
+## Estratégia no banco principal
 
-O ensaio nunca deve usar o projeto DEV ou produção como destino. Criar um projeto Supabase temporário e isolado, restaurar o backup físico ou lógico nele e depois:
+O projeto `akdmobvbombhqvvglayn` é o único ambiente Supabase autorizado. A rotina periódica é, portanto, um ensaio **não destrutivo de prontidão de recuperação**: consulta backups, confere migrations e executa os testes remotos transacionais que terminam com rollback.
 
-1. conferir migrations e extensões;
-2. conferir usuários do Auth e vínculos organizacionais;
-3. conferir contagens das tabelas críticas;
-4. restaurar o bucket privado separadamente;
-5. validar RLS, sessões, downloads assinados e smoke tests;
-6. rotacionar credenciais do projeto temporário;
-7. destruir o projeto temporário somente após registrar as evidências do teste.
+```powershell
+./scripts/test-supabase-recovery-readiness.ps1
+# Com Docker disponível, também executar o pgTAP remoto:
+./scripts/test-supabase-recovery-readiness.ps1 -RunDatabaseTests
+```
+
+O procedimento nunca executa `pg_restore --clean`, `supabase db reset`, exclusão de objetos ou rollback da plataforma. Uma restauração real no banco principal somente pode ocorrer durante incidente ou janela de manutenção, depois de:
+
+1. bloquear novas escritas da aplicação;
+2. registrar o ponto de recuperação e o impacto esperado;
+3. obter uma exportação adicional quando o banco ainda estiver acessível;
+4. confirmar o backup gerenciado disponível no painel;
+5. obter confirmação humana explícita para a restauração irreversível;
+6. restaurar metadados e objetos do Storage conforme o manifesto;
+7. executar `scripts/verify-supabase-restore.sql` e os testes RLS após a recuperação;
+8. liberar escritas apenas após validar Auth, sessões, arquivos e contagens críticas.
 
 ## Critérios mínimos de aprovação
 
@@ -35,4 +44,4 @@ O ensaio nunca deve usar o projeto DEV ou produção como destino. Criar um proj
 
 ## Estado do ambiente
 
-Em 27 de agosto de 2026, o serviço gerenciado informou `WALG=true` e `PITR=false`. A CLI local não produziu dump lógico porque esse comando exige Docker, deliberadamente fora do fluxo deste repositório. O ensaio completo permanece pendente até existir um projeto Supabase temporário autorizado; nenhuma restauração destrutiva foi executada no DEV.
+Em 28 de agosto de 2026, o serviço gerenciado informou `WALG=true`, `PITR=false` e nenhum ponto temporal disponível pela CLI. As 15 migrations locais e remotas estão alinhadas. Os testes remotos 004–006 possuem execução anterior aprovada com rollback; uma nova execução via CLI requer Docker. Por decisão do projeto, não haverá ambiente Supabase temporário; nenhuma restauração destrutiva será simulada sobre dados ativos.

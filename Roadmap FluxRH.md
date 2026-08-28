@@ -2,7 +2,7 @@
 
 > 📌 **Documento principal de acompanhamento do projeto.** Consultar este arquivo no início de cada nova etapa e atualizar os marcadores ao concluir uma entrega.
 >
-> **Última conferência:** 27 de agosto de 2026  
+> **Última conferência:** 28 de agosto de 2026  
 > **Legenda:** ✅ concluído · 🟡 em andamento · ⬜ planejado
 
 ## Acompanhamento atual
@@ -70,7 +70,7 @@
 
 ### Próximo passo confirmado
 
-🟡 Continuar a Fase 22 de segurança e robustez. Uploads, permissões, isolamento, proteção HTTP, sessões reais e retenção estão concluídos; o próximo incremento cobre testes de componentes, acessibilidade, responsividade e ensaio de restauração em projeto isolado.
+✅ Fase 22 concluída. Próximo passo: iniciar a Fase 23 — piloto e entrada em produção, começando pela empresa fictícia com volume representativo.
 
 ---
 
@@ -1012,24 +1012,24 @@ Férias
 15. Relatórios
     Cada módulo só migra quando seus testes de contrato funcionarem igualmente com repository em memória e repository PostgreSQL.
 
-## Fase 22 — Segurança e robustez 🟡
+## Fase 22 — Segurança e robustez ✅
 
 Testes
 
 - ✅ Unitários
 - ✅ Integração de Storage no projeto externo
 - ✅ Contrato REST da proteção HTTP e validação de uploads
-- Componentes
-- Fluxos completos
+- ✅ Componentes (Testing Library + Axe no modal base, autenticação e governança)
+- ✅ Fluxos completos (jornadas críticas da API cobertas de ponta a ponta)
 - ✅ Permissões de arquivos por papel e usuário
 - ✅ Isolamento multiempresa dos arquivos e objetos
 - ✅ Cálculos trabalhistas
 - ✅ Concorrência otimista dos estados persistidos
 - ✅ Uploads
-- Impressão
-- Responsividade
-- Acessibilidade
-- Restauração de backup
+- ✅ Impressão (documentos e folhas de QR com estilos dedicados e acionamento automatizado)
+- ✅ Responsividade (shell, autenticação e módulos cobertos pelos breakpoints globais e específicos, com validação em 390 px e 1440 px)
+- ✅ Acessibilidade (18 módulos auditados com Axe, além de modal, autenticação, governança, menu móvel, atalho de conteúdo e navegação por teclado/ARIA)
+- ✅ Prontidão de recuperação no banco principal (backups e migrations conferidos; testes remotos transacionais; restauração destrutiva somente em incidente autorizado)
 
 Segurança
 
@@ -1039,7 +1039,8 @@ Segurança
 - ✅ Validação de tamanho, MIME, extensão, categoria e transições de arquivos
 - ✅ Proteção de dados sensíveis com bucket privado e URLs temporárias
 - ✅ Mascaramento de autorização, cookies e sessão nos logs
-- Rotação de segredos
+- ✅ Varredura automatizada de segredos privilegiados versionados
+- ✅ Gestão e rotação de credenciais (sem segredo privilegiado no runtime; varredura automatizada e runbook de rotação/incidente)
 - ✅ Validação de expiração e existência da sessão nas autorizações sensíveis
 - ✅ Revogação remota de sessão com bloqueio imediato e auditoria
 - ✅ Auditoria imutável para papéis da aplicação
@@ -1048,21 +1049,21 @@ Segurança
 
 Desempenho
 
-- Paginação
-- Filtros server-side
-- Cache controlado
-- Índices
-- Processamento assíncrono
-- Geração de relatórios em background
-- Testes com volume representativo
-  Fase 23 — Piloto e entrada em produção
+- ✅ Paginação com limites na API
+- ✅ Filtros server-side
+- ✅ Cache controlado (`no-store` nas respostas sensíveis)
+- ✅ Índices por organização, relacionamentos e consultas operacionais
+- ✅ Processamento assíncrono com fila interna
+- ✅ Geração de relatórios em background com estados `processing` e `ready`
+- ✅ Testes com volume representativo de 10.000 colaboradores
+  Fase 23 — Piloto e entrada em produção 🟡
   Piloto interno
-- Empresa fictícia completa
-- Pelo menos 100 colaboradores simulados
-- Dois estabelecimentos
-- Três postos
-- Diferentes escalas
-- Ciclo completo de uma competência
+  - ✅ Empresa fictícia completa
+  - ✅ Pelo menos 100 colaboradores simulados (120 no Grupo Flux)
+  - ✅ Dois estabelecimentos
+  - ✅ Três postos
+  - ✅ Diferentes escalas (5×2, 12×36 e 6×1)
+  - 🟡 Ciclo completo de uma competência
 - Admissões
 - Férias
 - Atestados

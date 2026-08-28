@@ -15,7 +15,14 @@ function repositoryFor(authorization?: string): EmployeesRepository {
 }
 
 export async function employeesRoutes(app: FastifyInstance) {
-  app.get("/", async (request, reply) => sendData(reply, await repositoryFor(request.headers.authorization).list()));
+  app.get<{ Querystring: { q?: string; status?: string; limit?: string; offset?: string } }>("/", async (request, reply) => {
+    const limit = Math.min(100, Math.max(1, Number(request.query.limit ?? 50)));
+    const offset = Math.max(0, Number(request.query.offset ?? 0));
+    const statuses = ["active", "vacation", "leave", "onboarding", "terminated"] as const;
+    if (!Number.isInteger(limit) || !Number.isInteger(offset) || (request.query.status && !statuses.includes(request.query.status as typeof statuses[number]))) return reply.code(400).send({ error: "validation_error" });
+    const status = request.query.status as typeof statuses[number] | undefined;
+    return sendData(reply, await repositoryFor(request.headers.authorization).list({ query: request.query.q?.slice(0, 100), status, limit, offset }));
+  });
   app.get<{ Params: { id: string } }>("/:id", async (request, reply) => {
     const employee = await repositoryFor(request.headers.authorization).findById(request.params.id);
     if (!employee) return reply.code(404).send({ error: "employee_not_found" });

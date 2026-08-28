@@ -8,14 +8,18 @@ describe("management analytics", () => {
     expect(filtered.departments).toHaveLength(1);
     expect(filtered.summary.headcount).toBeLessThan(all.summary.headcount);
   });
-  it("generates a traceable report run", async () => {
+  it("queues and completes a traceable report run in background", async () => {
     const repo = new InMemoryAnalyticsRepository();
     const run = await repo.generate({
       reportId: "rep_headcount",
       format: "csv",
       period: "6m",
     });
-    expect(run?.status).toBe("ready");
-    expect(run?.fileName).toMatch(/\.csv$/);
+    expect(run?.status).toBe("processing");
+    expect(run?.completedAt).toBeUndefined();
+    await new Promise<void>((resolve) => queueMicrotask(resolve));
+    const overview = await repo.overview();
+    expect(overview.runs[0]?.status).toBe("ready");
+    expect(overview.runs[0]?.fileName).toMatch(/\.csv$/);
   });
 });

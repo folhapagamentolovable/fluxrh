@@ -6,7 +6,7 @@ export interface OrganizationsRepository {
 }
 
 const companies: Company[] = [
-  { id: "company_flux", legalName: "Flux Serviços Empresariais Ltda.", tradeName: "Grupo Flux", document: "12.345.678/0001-90", status: "active", city: "São Paulo", state: "SP", employeesCount: 96, establishmentsCount: 2 },
+  { id: "company_flux", legalName: "Flux Serviços Empresariais Ltda.", tradeName: "Grupo Flux", document: "12.345.678/0001-90", status: "active", city: "São Paulo", state: "SP", employeesCount: 120, establishmentsCount: 2 },
   { id: "company_norte", legalName: "Norte Facilities e Serviços Ltda.", tradeName: "Norte Facilities", document: "45.821.930/0001-18", status: "active", city: "Campinas", state: "SP", employeesCount: 52, establishmentsCount: 1 },
 ];
 

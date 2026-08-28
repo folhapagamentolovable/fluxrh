@@ -43,7 +43,7 @@ Atualizado em 27 de agosto de 2026.
 - Metadados de arquivos endurecidos no banco contra divergência entre extensão e MIME, alteração da identidade do objeto e transições inválidas de estado.
 - Sessões reais do Supabase Auth integradas à governança, com revogação administrativa auditada e bloqueio imediato das autorizações vinculadas ao `session_id` removido.
 - Retenção de arquivos configurável por organização e categoria, prazo calculado no banco e preservação por “legal hold”.
-- Runbook de backup e restauração criado, incluindo a cópia separada dos objetos do Storage; o ensaio destrutivo permanece reservado a um projeto temporário isolado.
+- Runbook de recuperação ajustado ao banco principal, com cópia separada dos objetos do Storage, conferência de WALG e migrations e rotina não destrutiva automatizada.
 
 ## Limitações conhecidas
 
@@ -55,7 +55,7 @@ Atualizado em 27 de agosto de 2026.
 
 ## Próximo marco
 
-Continuar a Fase 22 com testes de componentes, acessibilidade e responsividade, rotação de segredos e ensaio de restauração em projeto Supabase temporário.
+Continuar a Fase 22 ampliando os fluxos completos, acessibilidade, responsividade e rotação coordenada de segredos. Não haverá projeto Supabase temporário; uma restauração destrutiva no banco principal exige incidente ou janela de manutenção e confirmação explícita.
 
 ## Regras de transição
 

@@ -271,14 +271,17 @@ export class InMemoryAnalyticsRepository {
       reportId: report.id,
       reportName: report.name,
       format: input.format,
-      status: "ready",
+      status: "processing",
       requestedAt: new Date().toISOString(),
-      completedAt: new Date().toISOString(),
-      fileName: `${report.id}-${input.period ?? "6m"}.${input.format}`,
-      rows: report.id === "rep_headcount" ? 84 : departments.length,
     };
     runs.unshift(value);
-    report.lastGeneratedAt = value.completedAt;
+    queueMicrotask(() => {
+      value.status = "ready";
+      value.completedAt = new Date().toISOString();
+      value.fileName = `${report.id}-${input.period ?? "6m"}.${input.format}`;
+      value.rows = report.id === "rep_headcount" ? 84 : departments.length;
+      report.lastGeneratedAt = value.completedAt;
+    });
     return structuredClone(value);
   }
 }

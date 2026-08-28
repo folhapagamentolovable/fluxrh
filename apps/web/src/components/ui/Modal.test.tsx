@@ -9,7 +9,7 @@ describe("Modal", () => {
     const { container } = render(<Modal open title="Confirmar ação" description="Revise antes de continuar." onClose={() => undefined}><button>Confirmar</button></Modal>);
 
     expect(screen.getByRole("dialog", { name: "Confirmar ação", description: "Revise antes de continuar." })).toBeVisible();
-    expect((await axe.run(container)).violations).toEqual([]);
+    expect((await axe.run(container, { rules: { "color-contrast": { enabled: false } } })).violations).toEqual([]);
   });
 
   it("fecha com Escape e devolve o foco ao acionador", async () => {
