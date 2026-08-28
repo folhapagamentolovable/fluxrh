@@ -1,1 +1,59 @@
-import{describe,expect,it}from"vitest";import{assertSegregation,isWithinScope,maskSensitive,type AuthContext}from"../../shared/authorization.js";import{InMemoryGovernanceRepository}from"./governance.repository.js";describe("governance",()=>{it("denies resources from another organization or scope",()=>{const context:AuthContext={userId:"u",organizationId:"org_1",role:"manager",companyIds:["company_1"],departmentIds:["dept_1"]};expect(isWithinScope(context,{organizationId:"org_2",companyId:"company_1"})).toBe(false);expect(isWithinScope(context,{organizationId:"org_1",companyId:"company_2"})).toBe(false);expect(isWithinScope(context,{organizationId:"org_1",companyId:"company_1",departmentId:"dept_1"})).toBe(true)});it("enforces segregation of duties",()=>expect(()=>assertSegregation("user_1","user_1")).toThrow("segregation_of_duties"));it("masks sensitive values",()=>{expect(maskSensitive("123.456.789-00",false)).toBe("***8900");expect(maskSensitive("pessoa@empresa.com",false)).toBe("pe***@empresa.com")});it("audits permission changes",async()=>{const repo=new InMemoryGovernanceRepository();await repo.updatePermission("manager",{module:"people",actions:["view"],dataAccess:"team",sensitiveData:"masked"});const overview=await repo.overview();expect(overview.audit[0].action).toBe("permission.update")})});
+import { describe, expect, it } from "vitest";
+import {
+  assertSegregation,
+  isWithinScope,
+  maskSensitive,
+  type AuthContext,
+} from "../../shared/authorization.js";
+import { InMemoryGovernanceRepository } from "./governance.repository.js";
+describe("governance", () => {
+  it("denies resources from another organization or scope", () => {
+    const context: AuthContext = {
+      userId: "u",
+      organizationId: "org_1",
+      role: "manager",
+      companyIds: ["company_1"],
+      departmentIds: ["dept_1"],
+    };
+    expect(
+      isWithinScope(context, {
+        organizationId: "org_2",
+        companyId: "company_1",
+      }),
+    ).toBe(false);
+    expect(
+      isWithinScope(context, {
+        organizationId: "org_1",
+        companyId: "company_2",
+      }),
+    ).toBe(false);
+    expect(
+      isWithinScope(context, {
+        organizationId: "org_1",
+        companyId: "company_1",
+        departmentId: "dept_1",
+      }),
+    ).toBe(true);
+  });
+  it("enforces segregation of duties", () =>
+    expect(() => assertSegregation("user_1", "user_1")).toThrow(
+      "segregation_of_duties",
+    ));
+  it("masks sensitive values", () => {
+    expect(maskSensitive("123.456.789-00", false)).toBe("***8900");
+    expect(maskSensitive("pessoa@empresa.com", false)).toBe(
+      "pe***@empresa.com",
+    );
+  });
+  it("audits permission changes", async () => {
+    const repo = new InMemoryGovernanceRepository();
+    await repo.updatePermission("manager", {
+      module: "people",
+      actions: ["view"],
+      dataAccess: "team",
+      sensitiveData: "masked",
+    });
+    const overview = await repo.overview();
+    expect(overview.audit[0].action).toBe("permission.update");
+  });
+});

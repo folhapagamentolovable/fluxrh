@@ -28,10 +28,22 @@ describe("FluxRH API", () => {
   it("returns employees and a complete profile", async () => {
     const list = await app.inject({ method: "GET", url: "/api/v1/employees" });
     expect(list.statusCode).toBe(200);
-    expect(list.json().data).toHaveLength(5);
+    expect(list.json().data).toHaveLength(50);
+    const finalPilotPage = await app.inject({ method: "GET", url: "/api/v1/employees?limit=50&offset=100" });
+    expect(finalPilotPage.statusCode).toBe(200);
+    expect(finalPilotPage.json().data.length).toBeGreaterThanOrEqual(20);
     const profile = await app.inject({ method: "GET", url: "/api/v1/employees/emp_carlos" });
     expect(profile.statusCode).toBe(200);
     expect(profile.json().data.documents.length).toBeGreaterThan(0);
+  });
+
+  it("filters and paginates employees server-side with bounded input", async () => {
+    const filtered = await app.inject({ method: "GET", url: "/api/v1/employees?q=Carlos&status=active&limit=1&offset=0" });
+    expect(filtered.statusCode).toBe(200);
+    expect(filtered.json().data).toHaveLength(1);
+    expect(filtered.json().data[0].fullName).toBe("Carlos Mendes");
+    const invalid = await app.inject({ method: "GET", url: "/api/v1/employees?status=unknown" });
+    expect(invalid.statusCode).toBe(400);
   });
 
   it("creates an employee in onboarding", async () => {

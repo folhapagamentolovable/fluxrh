@@ -1,6 +1,366 @@
-import type{AuditEvent,GovernanceOverview,GovernanceUser,InviteGovernanceUserInput,UpdateRolePermissionsInput}from"@fluxrh/contracts";
-const users:GovernanceUser[]=[{id:"usr_marina",name:"Marina Souza",email:"marina@fluxrh.local",role:"owner",status:"active",organizationId:"org_flux",organizationName:"Grupo Flux",scope:{companyIds:["company_flux","company_guard"],departmentIds:[],teamOnly:false},lastAccessAt:"2026-08-26T22:30:00.000Z",mfaEnabled:true},{id:"usr_renata",name:"Renata Alves",email:"renata@fluxrh.local",role:"payroll",status:"active",organizationId:"org_flux",organizationName:"Grupo Flux",scope:{companyIds:["company_flux"],departmentIds:[],teamOnly:false},lastAccessAt:"2026-08-26T18:10:00.000Z",mfaEnabled:true},{id:"usr_carlos",name:"Carlos Mendes",email:"carlos@fluxrh.local",role:"manager",status:"active",organizationId:"org_flux",organizationName:"Grupo Flux",scope:{companyIds:["company_flux"],departmentIds:["dept_ops"],teamOnly:true},lastAccessAt:"2026-08-26T19:42:00.000Z",mfaEnabled:false},{id:"usr_audit",name:"Laura Auditoria",email:"laura@auditoria.local",role:"auditor",status:"invited",organizationId:"org_flux",organizationName:"Grupo Flux",scope:{companyIds:["company_flux","company_guard"],departmentIds:[],teamOnly:false},mfaEnabled:false,invitedAt:"2026-08-25T13:00:00.000Z"}];
-const roles=["owner","admin","hr","payroll","manager","finance","supervisor","employee","auditor"]as const,modules=["people","documents","time","absence","benefits","payroll","workflows","terminations","occupational_health","patrols","analytics","communications","audit","settings"]as const;const permissions:GovernanceOverview["permissions"]=roles.flatMap(role=>modules.map(module=>({role,module,actions:role==="owner"?["view","create","edit","approve","complete","export","administer"]:role==="auditor"?["view","export"]:role==="employee"?["view"]:module==="payroll"&&!["payroll","finance","admin"].includes(role)?["view"]:["view","create","edit"],dataAccess:role==="owner"||role==="auditor"?"organization":role==="employee"?"own":role==="manager"||role==="supervisor"?"team":"scope",sensitiveData:role==="owner"||role==="payroll"?"visible":role==="auditor"?"masked":"hidden"}as GovernanceOverview["permissions"][number])));
-const audit:AuditEvent[]=[{id:"aud_1",organizationId:"org_flux",actorId:"usr_marina",actorName:"Marina Souza",actorType:"user",action:"payroll.close",module:"payroll",entityType:"payroll_run",entityId:"pay_2026_08",summary:"Folha 08/2026 encerrada",occurredAt:"2026-08-26T21:10:00.000Z",origin:"Web · Windows",ipAddress:"192.168.1.42",justification:"Conferência final concluída",risk:"critical"},{id:"aud_2",organizationId:"org_flux",actorId:"system",actorName:"FluxRH",actorType:"automation",action:"notification.escalate",module:"communications",entityType:"notification",entityId:"not_1",summary:"Exceção crítica escalonada para o RH",occurredAt:"2026-08-26T20:00:00.000Z",origin:"Motor de automações",ipAddress:"internal",risk:"sensitive"},{id:"aud_3",organizationId:"org_flux",actorId:"usr_carlos",actorName:"Carlos Mendes",actorType:"user",action:"employee.salary.read.denied",module:"people",entityType:"employee",entityId:"emp_ana",summary:"Tentativa de acesso fora do escopo da equipe",occurredAt:"2026-08-26T19:44:00.000Z",origin:"Web · Android",ipAddress:"10.0.0.18",risk:"critical"}];
-const sessions:GovernanceOverview["sessions"]=[{id:"ses_1",userId:"usr_marina",userName:"Marina Souza",device:"Notebook corporativo",browser:"Chrome 140",ipAddress:"192.168.1.42",location:"São Paulo, SP",createdAt:"2026-08-26T08:02:00.000Z",lastSeenAt:"2026-08-26T22:30:00.000Z",current:true,status:"active"},{id:"ses_2",userId:"usr_carlos",userName:"Carlos Mendes",device:"Samsung Galaxy",browser:"Chrome Mobile",ipAddress:"10.0.0.18",location:"São Paulo, SP",createdAt:"2026-08-26T18:30:00.000Z",lastSeenAt:"2026-08-26T19:44:00.000Z",current:false,status:"active"}];
-export class InMemoryGovernanceRepository{async overview():Promise<GovernanceOverview>{return structuredClone({summary:{activeUsers:users.filter(x=>x.status==="active").length,pendingInvites:users.filter(x=>x.status==="invited").length,activeSessions:sessions.filter(x=>x.status==="active").length,sensitiveActionsToday:audit.filter(x=>x.risk!=="normal").length,deniedAttempts:audit.filter(x=>x.action.endsWith("denied")).length,mfaCoverage:Math.round(users.filter(x=>x.status==="active"&&x.mfaEnabled).length/users.filter(x=>x.status==="active").length*100)},users,permissions,audit,sessions,policies:[{id:"pol_1",name:"Isolamento organizacional",description:"Toda entidade deve pertencer à organização ativa.",status:"active",coverage:100},{id:"pol_2",name:"Segregação de funções",description:"Solicitante não pode aprovar a própria operação crítica.",status:"active",coverage:100},{id:"pol_3",name:"Autenticação multifator",description:"Obrigatória para perfis administrativos e folha.",status:"attention",coverage:67},{id:"pol_4",name:"Mascaramento de dados",description:"Campos sensíveis respeitam papel e escopo.",status:"active",coverage:100}]})}async invite(input:InviteGovernanceUserInput){const value:GovernanceUser={id:`usr_${crypto.randomUUID()}`,...input,status:"invited",organizationId:"org_flux",organizationName:"Grupo Flux",scope:{companyIds:input.companyIds,departmentIds:input.departmentIds,teamOnly:input.teamOnly},mfaEnabled:false,invitedAt:new Date().toISOString()};users.unshift(value);audit.unshift(this.event("user.invite","settings",value.id,`Convite enviado para ${value.email}`,"sensitive"));return structuredClone(value)}async updatePermission(role:string,input:UpdateRolePermissionsInput){const value=permissions.find(x=>x.role===role&&x.module===input.module);if(!value)return;Object.assign(value,input);audit.unshift(this.event("permission.update","settings",`${role}:${input.module}`,`Permissões de ${role} atualizadas`,"critical"));return structuredClone(value)}async revokeSession(id:string,justification:string){const value=sessions.find(x=>x.id===id);if(!value||value.current)return;value.status="revoked";audit.unshift({...this.event("session.revoke","settings",id,"Sessão encerrada remotamente","critical"),justification});return structuredClone(value)}private event(action:string,module:AuditEvent["module"],entityId:string,summary:string,risk:AuditEvent["risk"]):AuditEvent{return{id:`aud_${crypto.randomUUID()}`,organizationId:"org_flux",actorId:"usr_marina",actorName:"Marina Souza",actorType:"user",action,module,entityType:"governance",entityId,summary,occurredAt:new Date().toISOString(),origin:"Web · Windows",ipAddress:"192.168.1.42",risk}}}
+import type {
+  AuditEvent,
+  GovernanceOverview,
+  GovernanceUser,
+  InviteGovernanceUserInput,
+  UpdateRolePermissionsInput,
+} from "@fluxrh/contracts";
+const users: GovernanceUser[] = [
+  {
+    id: "usr_marina",
+    name: "Marina Souza",
+    email: "marina@fluxrh.local",
+    role: "owner",
+    status: "active",
+    organizationId: "org_flux",
+    organizationName: "Grupo Flux",
+    scope: {
+      companyIds: ["company_flux", "company_guard"],
+      departmentIds: [],
+      teamOnly: false,
+    },
+    lastAccessAt: "2026-08-26T22:30:00.000Z",
+    mfaEnabled: true,
+  },
+  {
+    id: "usr_renata",
+    name: "Renata Alves",
+    email: "renata@fluxrh.local",
+    role: "payroll",
+    status: "active",
+    organizationId: "org_flux",
+    organizationName: "Grupo Flux",
+    scope: { companyIds: ["company_flux"], departmentIds: [], teamOnly: false },
+    lastAccessAt: "2026-08-26T18:10:00.000Z",
+    mfaEnabled: true,
+  },
+  {
+    id: "usr_carlos",
+    name: "Carlos Mendes",
+    email: "carlos@fluxrh.local",
+    role: "manager",
+    status: "active",
+    organizationId: "org_flux",
+    organizationName: "Grupo Flux",
+    scope: {
+      companyIds: ["company_flux"],
+      departmentIds: ["dept_ops"],
+      teamOnly: true,
+    },
+    lastAccessAt: "2026-08-26T19:42:00.000Z",
+    mfaEnabled: false,
+  },
+  {
+    id: "usr_audit",
+    name: "Laura Auditoria",
+    email: "laura@auditoria.local",
+    role: "auditor",
+    status: "invited",
+    organizationId: "org_flux",
+    organizationName: "Grupo Flux",
+    scope: {
+      companyIds: ["company_flux", "company_guard"],
+      departmentIds: [],
+      teamOnly: false,
+    },
+    mfaEnabled: false,
+    invitedAt: "2026-08-25T13:00:00.000Z",
+  },
+];
+const roles = [
+    "owner",
+    "admin",
+    "hr",
+    "payroll",
+    "manager",
+    "finance",
+    "supervisor",
+    "employee",
+    "auditor",
+  ] as const,
+  modules = [
+    "people",
+    "documents",
+    "time",
+    "absence",
+    "benefits",
+    "payroll",
+    "workflows",
+    "terminations",
+    "occupational_health",
+    "patrols",
+    "analytics",
+    "communications",
+    "audit",
+    "settings",
+  ] as const;
+const permissions: GovernanceOverview["permissions"] = roles.flatMap((role) =>
+  modules.map(
+    (module) =>
+      ({
+        role,
+        module,
+        actions:
+          role === "owner"
+            ? [
+                "view",
+                "create",
+                "edit",
+                "approve",
+                "complete",
+                "export",
+                "administer",
+              ]
+            : role === "auditor"
+              ? ["view", "export"]
+              : role === "employee"
+                ? ["view"]
+                : module === "payroll" &&
+                    !["payroll", "finance", "admin"].includes(role)
+                  ? ["view"]
+                  : ["view", "create", "edit"],
+        dataAccess:
+          role === "owner" || role === "auditor"
+            ? "organization"
+            : role === "employee"
+              ? "own"
+              : role === "manager" || role === "supervisor"
+                ? "team"
+                : "scope",
+        sensitiveData:
+          role === "owner" || role === "payroll"
+            ? "visible"
+            : role === "auditor"
+              ? "masked"
+              : "hidden",
+      }) as GovernanceOverview["permissions"][number],
+  ),
+);
+const audit: AuditEvent[] = [
+  {
+    id: "aud_1",
+    organizationId: "org_flux",
+    actorId: "usr_marina",
+    actorName: "Marina Souza",
+    actorType: "user",
+    action: "payroll.close",
+    module: "payroll",
+    entityType: "payroll_run",
+    entityId: "pay_2026_08",
+    summary: "Folha 08/2026 encerrada",
+    occurredAt: "2026-08-26T21:10:00.000Z",
+    origin: "Web · Windows",
+    ipAddress: "192.168.1.42",
+    justification: "Conferência final concluída",
+    risk: "critical",
+  },
+  {
+    id: "aud_2",
+    organizationId: "org_flux",
+    actorId: "system",
+    actorName: "FluxRH",
+    actorType: "automation",
+    action: "notification.escalate",
+    module: "communications",
+    entityType: "notification",
+    entityId: "not_1",
+    summary: "Exceção crítica escalonada para o RH",
+    occurredAt: "2026-08-26T20:00:00.000Z",
+    origin: "Motor de automações",
+    ipAddress: "internal",
+    risk: "sensitive",
+  },
+  {
+    id: "aud_3",
+    organizationId: "org_flux",
+    actorId: "usr_carlos",
+    actorName: "Carlos Mendes",
+    actorType: "user",
+    action: "employee.salary.read.denied",
+    module: "people",
+    entityType: "employee",
+    entityId: "emp_ana",
+    summary: "Tentativa de acesso fora do escopo da equipe",
+    occurredAt: "2026-08-26T19:44:00.000Z",
+    origin: "Web · Android",
+    ipAddress: "10.0.0.18",
+    risk: "critical",
+  },
+];
+const sessions: GovernanceOverview["sessions"] = [
+  {
+    id: "ses_1",
+    userId: "usr_marina",
+    userName: "Marina Souza",
+    device: "Notebook corporativo",
+    browser: "Chrome 140",
+    ipAddress: "192.168.1.42",
+    location: "São Paulo, SP",
+    createdAt: "2026-08-26T08:02:00.000Z",
+    lastSeenAt: "2026-08-26T22:30:00.000Z",
+    current: true,
+    status: "active",
+  },
+  {
+    id: "ses_2",
+    userId: "usr_carlos",
+    userName: "Carlos Mendes",
+    device: "Samsung Galaxy",
+    browser: "Chrome Mobile",
+    ipAddress: "10.0.0.18",
+    location: "São Paulo, SP",
+    createdAt: "2026-08-26T18:30:00.000Z",
+    lastSeenAt: "2026-08-26T19:44:00.000Z",
+    current: false,
+    status: "active",
+  },
+];
+export class InMemoryGovernanceRepository {
+  hydrate(state: Record<string, unknown>) {
+    const value = state as unknown as GovernanceOverview;
+    users.splice(0, users.length, ...structuredClone(value.users));
+    permissions.splice(
+      0,
+      permissions.length,
+      ...structuredClone(value.permissions),
+    );
+    audit.splice(0, audit.length, ...structuredClone(value.audit));
+    sessions.splice(0, sessions.length, ...structuredClone(value.sessions));
+  }
+
+  async overview(): Promise<GovernanceOverview> {
+    return structuredClone({
+      summary: {
+        activeUsers: users.filter((x) => x.status === "active").length,
+        pendingInvites: users.filter((x) => x.status === "invited").length,
+        activeSessions: sessions.filter((x) => x.status === "active").length,
+        sensitiveActionsToday: audit.filter((x) => x.risk !== "normal").length,
+        deniedAttempts: audit.filter((x) => x.action.endsWith("denied")).length,
+        mfaCoverage: Math.round(
+          (users.filter((x) => x.status === "active" && x.mfaEnabled).length /
+            users.filter((x) => x.status === "active").length) *
+            100,
+        ),
+      },
+      users,
+      permissions,
+      audit,
+      sessions,
+      policies: [
+        {
+          id: "pol_1",
+          name: "Isolamento organizacional",
+          description: "Toda entidade deve pertencer à organização ativa.",
+          status: "active",
+          coverage: 100,
+        },
+        {
+          id: "pol_2",
+          name: "Segregação de funções",
+          description:
+            "Solicitante não pode aprovar a própria operação crítica.",
+          status: "active",
+          coverage: 100,
+        },
+        {
+          id: "pol_3",
+          name: "Autenticação multifator",
+          description: "Obrigatória para perfis administrativos e folha.",
+          status: "attention",
+          coverage: 67,
+        },
+        {
+          id: "pol_4",
+          name: "Mascaramento de dados",
+          description: "Campos sensíveis respeitam papel e escopo.",
+          status: "active",
+          coverage: 100,
+        },
+      ],
+    });
+  }
+  async invite(input: InviteGovernanceUserInput) {
+    const value: GovernanceUser = {
+      id: `usr_${crypto.randomUUID()}`,
+      ...input,
+      status: "invited",
+      organizationId: "org_flux",
+      organizationName: "Grupo Flux",
+      scope: {
+        companyIds: input.companyIds,
+        departmentIds: input.departmentIds,
+        teamOnly: input.teamOnly,
+      },
+      mfaEnabled: false,
+      invitedAt: new Date().toISOString(),
+    };
+    users.unshift(value);
+    audit.unshift(
+      this.event(
+        "user.invite",
+        "settings",
+        value.id,
+        `Convite enviado para ${value.email}`,
+        "sensitive",
+      ),
+    );
+    return structuredClone(value);
+  }
+  async updatePermission(role: string, input: UpdateRolePermissionsInput) {
+    const value = permissions.find(
+      (x) => x.role === role && x.module === input.module,
+    );
+    if (!value) return;
+    Object.assign(value, input);
+    audit.unshift(
+      this.event(
+        "permission.update",
+        "settings",
+        `${role}:${input.module}`,
+        `Permissões de ${role} atualizadas`,
+        "critical",
+      ),
+    );
+    return structuredClone(value);
+  }
+  async revokeSession(id: string, justification: string) {
+    const value = sessions.find((x) => x.id === id);
+    if (!value || value.current) return;
+    value.status = "revoked";
+    audit.unshift({
+      ...this.event(
+        "session.revoke",
+        "settings",
+        id,
+        "Sessão encerrada remotamente",
+        "critical",
+      ),
+      justification,
+    });
+    return structuredClone(value);
+  }
+  private event(
+    action: string,
+    module: AuditEvent["module"],
+    entityId: string,
+    summary: string,
+    risk: AuditEvent["risk"],
+  ): AuditEvent {
+    return {
+      id: `aud_${crypto.randomUUID()}`,
+      organizationId: "org_flux",
+      actorId: "usr_marina",
+      actorName: "Marina Souza",
+      actorType: "user",
+      action,
+      module,
+      entityType: "governance",
+      entityId,
+      summary,
+      occurredAt: new Date().toISOString(),
+      origin: "Web · Windows",
+      ipAddress: "192.168.1.42",
+      risk,
+    };
+  }
+}

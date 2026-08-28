@@ -17,10 +17,41 @@ import { analyticsRoutes } from "./modules/analytics/analytics.routes.js";
 import { occupationalHealthRoutes } from "./modules/occupational-health/occupational.routes.js";
 import { patrolsRoutes } from "./modules/patrols/patrols.routes.js";
 import { governanceRoutes } from "./modules/governance/governance.routes.js";
+import { filesRoutes } from "./modules/files/files.routes.js";
+import {
+  registerApiSecurity,
+  resolveAllowedOrigins,
+  type ApiSecurityOptions,
+} from "./shared/security.js";
 
-export function buildApp() {
-  const app = Fastify({ logger: true });
-  app.register(cors, { origin: true });
+export function buildApp(securityOptions: ApiSecurityOptions = {}) {
+  const app = Fastify({
+    bodyLimit: 1_048_576,
+    logger: {
+      redact: {
+        paths: [
+          "req.headers.authorization",
+          "req.headers.cookie",
+          "res.headers.set-cookie",
+        ],
+        censor: "[REDACTED]",
+      },
+    },
+  });
+  const allowedOrigins = resolveAllowedOrigins(securityOptions.allowedOrigins);
+  app.register(cors, {
+    credentials: true,
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin))
+        return callback(null, true);
+      const error = new Error("origin_not_allowed") as Error & {
+        statusCode: number;
+      };
+      error.statusCode = 403;
+      return callback(error, false);
+    },
+  });
+  registerApiSecurity(app, securityOptions);
   app.get("/health", async () => ({ status: "ok", service: "fluxrh-api" }));
   app.register(operationsRoutes, { prefix: "/api/v1/operations" });
   app.register(organizationsRoutes, { prefix: "/api/v1/organizations" });
@@ -31,13 +62,18 @@ export function buildApp() {
   app.register(absencesRoutes, { prefix: "/api/v1/absences" });
   app.register(payrollRoutes, { prefix: "/api/v1/payroll" });
   app.register(benefitsRoutes, { prefix: "/api/v1/benefits" });
-  app.register(specialCalculationRoutes, { prefix: "/api/v1/special-calculations" });
+  app.register(specialCalculationRoutes, {
+    prefix: "/api/v1/special-calculations",
+  });
   app.register(terminationRoutes, { prefix: "/api/v1/terminations" });
   app.register(portalRoutes, { prefix: "/api/v1/portal" });
   app.register(communicationsRoutes, { prefix: "/api/v1/communications" });
   app.register(analyticsRoutes, { prefix: "/api/v1/analytics" });
-  app.register(occupationalHealthRoutes, { prefix: "/api/v1/occupational-health" });
+  app.register(occupationalHealthRoutes, {
+    prefix: "/api/v1/occupational-health",
+  });
   app.register(patrolsRoutes, { prefix: "/api/v1/patrols" });
   app.register(governanceRoutes, { prefix: "/api/v1/governance" });
+  app.register(filesRoutes, { prefix: "/api/v1/files" });
   return app;
 }

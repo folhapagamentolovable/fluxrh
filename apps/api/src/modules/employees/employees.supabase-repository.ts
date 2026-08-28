@@ -1,7 +1,7 @@
 import type { CreateEmployeeInput, Employee, EmployeeListItem } from "@fluxrh/contracts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getCurrentOrganizationId } from "../../shared/supabase.js";
-import type { EmployeesRepository } from "./employees.repository.js";
+import type { EmployeeListFilter, EmployeesRepository } from "./employees.repository.js";
 
 type EmployeeRow = { id:string; registration:string; full_name:string; social_name:string|null; cpf:string; email:string|null; phone:string|null; birth_date:string|null; status:Employee["status"]; company_id:string };
 type LinkRow = { employee_id:string; establishment_id:string|null; department_id:string|null; cost_center_id:string|null; position:string; contract_type:string; salary:number|string; work_schedule:string|null; manager_employee_id:string|null; hire_date:string };
@@ -12,10 +12,13 @@ type TimelineRow={id:string;employee_id:string;title:string;description:string;c
 export class SupabaseEmployeesRepository implements EmployeesRepository {
   constructor(private readonly client: SupabaseClient) {}
 
-  private async load(id?: string): Promise<Employee[]> {
+  private async load(id?: string, filter: EmployeeListFilter = {}): Promise<Employee[]> {
     const organizationId = await getCurrentOrganizationId(this.client);
     let employeeQuery = this.client.from("employees").select("id,registration,full_name,social_name,cpf,email,phone,birth_date,status,company_id").eq("organization_id", organizationId).order("full_name");
     if (id) employeeQuery = employeeQuery.eq("id", id);
+    if (filter.status) employeeQuery = employeeQuery.eq("status", filter.status);
+    if (filter.query) employeeQuery = employeeQuery.or(`full_name.ilike.%${filter.query.replace(/[%_,()]/g, "")}%,registration.ilike.%${filter.query.replace(/[%_,()]/g, "")}%`);
+    if (!id) employeeQuery = employeeQuery.range(filter.offset ?? 0, (filter.offset ?? 0) + (filter.limit ?? 50) - 1);
     const [employeesResult, linksResult, companiesResult, unitsResult,documentsResult,dependentsResult,timelineResult] = await Promise.all([
       employeeQuery,
       this.client.from("employment_links").select("employee_id,establishment_id,department_id,cost_center_id,position,contract_type,salary,work_schedule,manager_employee_id,hire_date").eq("organization_id", organizationId).eq("active", true),
@@ -51,8 +54,8 @@ export class SupabaseEmployeesRepository implements EmployeesRepository {
     });
   }
 
-  async list(): Promise<EmployeeListItem[]> {
-    return (await this.load()).map(({ documents: _documents, dependents: _dependents, timeline: _timeline, ...employee }) => employee);
+  async list(filter: EmployeeListFilter = {}): Promise<EmployeeListItem[]> {
+    return (await this.load(undefined, filter)).map(({ documents: _documents, dependents: _dependents, timeline: _timeline, ...employee }) => employee);
   }
   async findById(id: string): Promise<Employee | undefined> { return (await this.load(id))[0]; }
   async create(input: CreateEmployeeInput): Promise<Employee> {

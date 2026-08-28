@@ -30,19 +30,32 @@ Atualizado em 27 de agosto de 2026.
 - Histórico da admissão reconstruído a partir da auditoria persistente.
 - Documentos, dependentes e linha do tempo do prontuário possuem tabelas isoladas por organização e leitura pelo adaptador persistente.
 - Documentos, modelos, validações, eventos e evidências de aceite eletrônico possuem persistência Supabase, RLS e hash SHA-256 calculado no banco.
-- Jornada e Ponto implantado e validado no Supabase externo.
-- Férias e Ausências: adaptador Supabase, RLS, solicitações transacionais, atestados e auditoria preparados para implantação.
+- Jornada e Ponto persistidos no Supabase, com RLS ativo e fluxo remoto validado para marcação por QR, bloqueio de aprovação por exceção aberta, resolução auditável e aprovação de competência.
+- Smoke test remoto transacional de Jornada/Ponto versionado em `supabase/tests/002_time_tracking_remote_smoke.sql`; ele sempre termina com `ROLLBACK` e não deixa dados artificiais no projeto.
+- Férias, ausências, benefícios, folha, cálculos especiais, SST, rondas, comunicações, portal, desligamentos, análises e governança com estado persistente versionado por organização no Supabase.
+- Controle otimista de concorrência, RLS por domínio e papel, auditoria de versões e nova tentativa automática em conflitos transitórios.
+- Smoke test remoto transacional dos onze domínios versionado em `supabase/tests/003_remaining_modules_remote_smoke.sql`.
+- Storage privado implantado para documentos, atestados, contratos, holerites, relatórios e evidências de ronda, com metadados relacionais e isolamento por organização e usuário.
+- Upload direto por URL assinada, confirmação de integridade, download temporário, substituição versionada e remoção física pela API REST.
+- Smoke test remoto transacional das políticas de Storage versionado em `supabase/tests/004_secure_storage_remote_smoke.sql`, sem deixar arquivos ou metadados artificiais no projeto.
+- Primeira entrega da Fase 22 concluída: rate limiting, CORS restritivo, limite de payload, sanitização, cabeçalhos defensivos e mascaramento de credenciais nos logs da API.
+- Matriz remota de permissões de Storage validada para colaborador, gestor e organização externa em `supabase/tests/005_storage_permissions_isolation_remote.sql`.
+- Metadados de arquivos endurecidos no banco contra divergência entre extensão e MIME, alteração da identidade do objeto e transições inválidas de estado.
+- Sessões reais do Supabase Auth integradas à governança, com revogação administrativa auditada e bloqueio imediato das autorizações vinculadas ao `session_id` removido.
+- Retenção de arquivos configurável por organização e categoria, prazo calculado no banco e preservação por “legal hold”.
+- Runbook de recuperação ajustado ao banco principal, com cópia separada dos objetos do Storage, conferência de WALG e migrations e rotina não destrutiva automatizada.
 
 ## Limitações conhecidas
 
-- Os módulos ainda não migrados continuam reiniciando ao recarregar o ambiente ou reiniciar a API.
 - A persistência Supabase depende da configuração explícita das variáveis da aplicação e da seleção do adaptador persistente.
-- Módulos das fases 2 e 3 que ainda usam memória reiniciam junto com a API; isso é trabalho futuro planejado, não pendência da Fase 1.
+- O modo em memória continua reiniciando com a API por definição; o modo Supabase preserva o estado dos módulos migrados.
+- Estados versionados por domínio ainda não oferecem projeções relacionais próprias para consultas analíticas SQL; elas serão adicionadas quando um caso de uso exigir.
+- A quarentena e a análise antivírus dos arquivos permanecem como evolução futura; o modelo já prevê o estado `quarantined`.
 - O preview do Lovable precisa ser verificado após cada publicação relevante.
 
 ## Próximo marco
 
-Aplicar e validar `20260828100000_persist_absences_vacations.sql`, exercitar solicitação e decisão de férias, recebimento e revisão de atestado com usuário autenticado; então avançar para Benefícios.
+Continuar a Fase 22 ampliando os fluxos completos, acessibilidade, responsividade e rotação coordenada de segredos. Não haverá projeto Supabase temporário; uma restauração destrutiva no banco principal exige incidente ou janela de manutenção e confirmação explícita.
 
 ## Regras de transição
 

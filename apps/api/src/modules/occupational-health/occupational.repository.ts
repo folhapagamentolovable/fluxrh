@@ -1,6 +1,255 @@
-import type{CompleteOccupationalExamInput,CreateOccupationalExamInput,OccupationalExam,OccupationalHealthOverview}from"@fluxrh/contracts";
-const exams:OccupationalExam[]=[{id:"exam_1",employeeId:"emp_carlos",employeeName:"Carlos Mendes",registration:"FLX-101",companyName:"Flux Serviços Ltda.",departmentName:"Operações",position:"Supervisor de Operações",type:"periodic",scheduledDate:"2026-09-03",dueDate:"2026-09-08",status:"scheduled",result:"pending",clinicName:"Unidade Centro",workflowStatus:"waiting"},{id:"exam_2",employeeId:"emp_beatriz",employeeName:"Beatriz Lima",registration:"FLX-102",companyName:"Flux Serviços Ltda.",departmentName:"Operações",position:"Assistente operacional",type:"periodic",scheduledDate:"2026-08-20",dueDate:"2026-08-22",status:"overdue",result:"pending",workflowStatus:"exception"},{id:"exam_3",employeeId:"emp_ana",employeeName:"Ana Paula Rocha",registration:"FLX-103",companyName:"Flux Serviços Ltda.",departmentName:"Administrativo",position:"Analista sênior",type:"return_to_work",scheduledDate:"2026-08-25",dueDate:"2026-08-25",status:"completed",result:"fit_with_restrictions",clinicName:"Unidade Paulista",responsiblePhysician:"Dra. Helena Costa",asoDocumentId:"aso_ana_2026",validUntil:"2027-08-25",functionalRestriction:"Evitar levantamento manual de cargas acima de 10 kg por 30 dias.",workflowStatus:"released"},{id:"exam_4",employeeId:"emp_paulo",employeeName:"Paulo Ribeiro",registration:"FLX-105",companyName:"Guard Facilities Ltda.",departmentName:"Segurança",position:"Vigilante",type:"admission",scheduledDate:"2026-08-18",dueDate:"2026-08-18",status:"completed",result:"fit",clinicName:"Unidade Norte",responsiblePhysician:"Dr. André Lima",asoDocumentId:"aso_paulo_2026",validUntil:"2027-08-18",workflowStatus:"released"}];
-const risks:OccupationalHealthOverview["risks"]=[{id:"risk_1",position:"Assistente operacional",departmentName:"Operações",category:"ergonomic",agent:"Movimentos repetitivos e postura em pé",exposure:"medium",requiredExams:["Avaliação clínica","Avaliação osteomuscular"],controls:["Pausas programadas","Rodízio de atividade"],active:true},{id:"risk_2",position:"Vigilante",departmentName:"Segurança",category:"accident",agent:"Atividade de segurança patrimonial",exposure:"high",requiredExams:["Avaliação clínica","Acuidade visual","Avaliação psicossocial"],controls:["Treinamento periódico","Equipamentos de proteção"],active:true},{id:"risk_3",position:"Analista",departmentName:"Administrativo",category:"ergonomic",agent:"Trabalho prolongado em tela",exposure:"low",requiredExams:["Avaliação clínica"],controls:["Ajuste ergonômico","Pausas visuais"],active:true}];
-const programs:OccupationalHealthOverview["programs"]=[{id:"prog_1",type:"PCMSO",name:"Programa de Controle Médico de Saúde Ocupacional",companyName:"Flux Serviços Ltda.",effectiveFrom:"2026-01-01",validUntil:"2026-12-31",status:"valid",responsible:"Dra. Helena Costa",documentStatus:"available"},{id:"prog_2",type:"PGR",name:"Programa de Gerenciamento de Riscos",companyName:"Flux Serviços Ltda.",effectiveFrom:"2025-10-01",validUntil:"2026-09-30",status:"expiring",responsible:"Eng. Marcos Vieira",documentStatus:"available"},{id:"prog_3",type:"LTCAT",name:"Laudo Técnico das Condições Ambientais",companyName:"Guard Facilities Ltda.",effectiveFrom:"2025-09-01",validUntil:"2026-08-31",status:"expiring",responsible:"Eng. Marcos Vieira",documentStatus:"under_review"}];
-const exceptions:OccupationalHealthOverview["exceptions"]=[{id:"oex_1",examId:"exam_2",employeeName:"Beatriz Lima",title:"Exame periódico vencido",description:"O prazo expirou e ainda não existe ASO validado.",severity:"critical",status:"open",owner:"Marina Souza",dueAt:"2026-08-27"},{id:"oex_2",title:"LTCAT próximo do vencimento",description:"Documento da Guard Facilities vence em cinco dias.",severity:"high",status:"open",owner:"Equipe de SST",dueAt:"2026-08-29"}];
-export class InMemoryOccupationalRepository{async overview():Promise<OccupationalHealthOverview>{const completed=exams.filter(x=>x.status==="completed").length;return structuredClone({summary:{complianceRate:Math.round(completed/exams.length*100),examsDue30Days:exams.filter(x=>["required","scheduled"].includes(x.status)).length,overdueExams:exams.filter(x=>x.status==="overdue").length,restrictedEmployees:exams.filter(x=>x.result==="fit_with_restrictions").length,expiringPrograms:programs.filter(x=>x.status==="expiring").length,openExceptions:exceptions.filter(x=>x.status==="open").length},exams,risks,programs,exceptions,calendar:exams.filter(x=>x.status!=="completed").map(x=>({date:x.scheduledDate,examId:x.id,employeeName:x.employeeName,type:x.type,status:x.status}))})}async create(input:CreateOccupationalExamInput){const value:OccupationalExam={id:`exam_${crypto.randomUUID()}`,...input,status:"scheduled",result:"pending",workflowStatus:"waiting"};exams.unshift(value);return structuredClone(value)}async complete(id:string,input:CompleteOccupationalExamInput){const value=exams.find(x=>x.id===id);if(!value)return;Object.assign(value,input,{status:"completed",workflowStatus:input.result==="unfit"?"exception":"released"});if(input.result==="unfit")exceptions.unshift({id:`oex_${crypto.randomUUID()}`,examId:value.id,employeeName:value.employeeName,title:"Colaborador inapto",description:"A atividade permanece bloqueada até decisão responsável.",severity:"critical",status:"open",owner:"Equipe de SST",dueAt:value.dueDate});return structuredClone(value)}async resolveException(id:string,note:string){const value=exceptions.find(x=>x.id===id);if(!value)return;value.status="resolved";value.resolutionNote=note;return structuredClone(value)}}
+import type {
+  CompleteOccupationalExamInput,
+  CreateOccupationalExamInput,
+  OccupationalExam,
+  OccupationalHealthOverview,
+} from "@fluxrh/contracts";
+const exams: OccupationalExam[] = [
+  {
+    id: "exam_1",
+    employeeId: "emp_carlos",
+    employeeName: "Carlos Mendes",
+    registration: "FLX-101",
+    companyName: "Flux Serviços Ltda.",
+    departmentName: "Operações",
+    position: "Supervisor de Operações",
+    type: "periodic",
+    scheduledDate: "2026-09-03",
+    dueDate: "2026-09-08",
+    status: "scheduled",
+    result: "pending",
+    clinicName: "Unidade Centro",
+    workflowStatus: "waiting",
+  },
+  {
+    id: "exam_2",
+    employeeId: "emp_beatriz",
+    employeeName: "Beatriz Lima",
+    registration: "FLX-102",
+    companyName: "Flux Serviços Ltda.",
+    departmentName: "Operações",
+    position: "Assistente operacional",
+    type: "periodic",
+    scheduledDate: "2026-08-20",
+    dueDate: "2026-08-22",
+    status: "overdue",
+    result: "pending",
+    workflowStatus: "exception",
+  },
+  {
+    id: "exam_3",
+    employeeId: "emp_ana",
+    employeeName: "Ana Paula Rocha",
+    registration: "FLX-103",
+    companyName: "Flux Serviços Ltda.",
+    departmentName: "Administrativo",
+    position: "Analista sênior",
+    type: "return_to_work",
+    scheduledDate: "2026-08-25",
+    dueDate: "2026-08-25",
+    status: "completed",
+    result: "fit_with_restrictions",
+    clinicName: "Unidade Paulista",
+    responsiblePhysician: "Dra. Helena Costa",
+    asoDocumentId: "aso_ana_2026",
+    validUntil: "2027-08-25",
+    functionalRestriction:
+      "Evitar levantamento manual de cargas acima de 10 kg por 30 dias.",
+    workflowStatus: "released",
+  },
+  {
+    id: "exam_4",
+    employeeId: "emp_paulo",
+    employeeName: "Paulo Ribeiro",
+    registration: "FLX-105",
+    companyName: "Guard Facilities Ltda.",
+    departmentName: "Segurança",
+    position: "Vigilante",
+    type: "admission",
+    scheduledDate: "2026-08-18",
+    dueDate: "2026-08-18",
+    status: "completed",
+    result: "fit",
+    clinicName: "Unidade Norte",
+    responsiblePhysician: "Dr. André Lima",
+    asoDocumentId: "aso_paulo_2026",
+    validUntil: "2027-08-18",
+    workflowStatus: "released",
+  },
+];
+const risks: OccupationalHealthOverview["risks"] = [
+  {
+    id: "risk_1",
+    position: "Assistente operacional",
+    departmentName: "Operações",
+    category: "ergonomic",
+    agent: "Movimentos repetitivos e postura em pé",
+    exposure: "medium",
+    requiredExams: ["Avaliação clínica", "Avaliação osteomuscular"],
+    controls: ["Pausas programadas", "Rodízio de atividade"],
+    active: true,
+  },
+  {
+    id: "risk_2",
+    position: "Vigilante",
+    departmentName: "Segurança",
+    category: "accident",
+    agent: "Atividade de segurança patrimonial",
+    exposure: "high",
+    requiredExams: [
+      "Avaliação clínica",
+      "Acuidade visual",
+      "Avaliação psicossocial",
+    ],
+    controls: ["Treinamento periódico", "Equipamentos de proteção"],
+    active: true,
+  },
+  {
+    id: "risk_3",
+    position: "Analista",
+    departmentName: "Administrativo",
+    category: "ergonomic",
+    agent: "Trabalho prolongado em tela",
+    exposure: "low",
+    requiredExams: ["Avaliação clínica"],
+    controls: ["Ajuste ergonômico", "Pausas visuais"],
+    active: true,
+  },
+];
+const programs: OccupationalHealthOverview["programs"] = [
+  {
+    id: "prog_1",
+    type: "PCMSO",
+    name: "Programa de Controle Médico de Saúde Ocupacional",
+    companyName: "Flux Serviços Ltda.",
+    effectiveFrom: "2026-01-01",
+    validUntil: "2026-12-31",
+    status: "valid",
+    responsible: "Dra. Helena Costa",
+    documentStatus: "available",
+  },
+  {
+    id: "prog_2",
+    type: "PGR",
+    name: "Programa de Gerenciamento de Riscos",
+    companyName: "Flux Serviços Ltda.",
+    effectiveFrom: "2025-10-01",
+    validUntil: "2026-09-30",
+    status: "expiring",
+    responsible: "Eng. Marcos Vieira",
+    documentStatus: "available",
+  },
+  {
+    id: "prog_3",
+    type: "LTCAT",
+    name: "Laudo Técnico das Condições Ambientais",
+    companyName: "Guard Facilities Ltda.",
+    effectiveFrom: "2025-09-01",
+    validUntil: "2026-08-31",
+    status: "expiring",
+    responsible: "Eng. Marcos Vieira",
+    documentStatus: "under_review",
+  },
+];
+const exceptions: OccupationalHealthOverview["exceptions"] = [
+  {
+    id: "oex_1",
+    examId: "exam_2",
+    employeeName: "Beatriz Lima",
+    title: "Exame periódico vencido",
+    description: "O prazo expirou e ainda não existe ASO validado.",
+    severity: "critical",
+    status: "open",
+    owner: "Marina Souza",
+    dueAt: "2026-08-27",
+  },
+  {
+    id: "oex_2",
+    title: "LTCAT próximo do vencimento",
+    description: "Documento da Guard Facilities vence em cinco dias.",
+    severity: "high",
+    status: "open",
+    owner: "Equipe de SST",
+    dueAt: "2026-08-29",
+  },
+];
+export class InMemoryOccupationalRepository {
+  hydrate(state: Record<string, unknown>) {
+    const value = state as unknown as OccupationalHealthOverview;
+    exams.splice(0, exams.length, ...structuredClone(value.exams));
+    risks.splice(0, risks.length, ...structuredClone(value.risks));
+    programs.splice(0, programs.length, ...structuredClone(value.programs));
+    exceptions.splice(0, exceptions.length, ...structuredClone(value.exceptions));
+  }
+
+  async overview(): Promise<OccupationalHealthOverview> {
+    const completed = exams.filter((x) => x.status === "completed").length;
+    return structuredClone({
+      summary: {
+        complianceRate: Math.round((completed / exams.length) * 100),
+        examsDue30Days: exams.filter((x) =>
+          ["required", "scheduled"].includes(x.status),
+        ).length,
+        overdueExams: exams.filter((x) => x.status === "overdue").length,
+        restrictedEmployees: exams.filter(
+          (x) => x.result === "fit_with_restrictions",
+        ).length,
+        expiringPrograms: programs.filter((x) => x.status === "expiring")
+          .length,
+        openExceptions: exceptions.filter((x) => x.status === "open").length,
+      },
+      exams,
+      risks,
+      programs,
+      exceptions,
+      calendar: exams
+        .filter((x) => x.status !== "completed")
+        .map((x) => ({
+          date: x.scheduledDate,
+          examId: x.id,
+          employeeName: x.employeeName,
+          type: x.type,
+          status: x.status,
+        })),
+    });
+  }
+  async create(input: CreateOccupationalExamInput) {
+    const value: OccupationalExam = {
+      id: `exam_${crypto.randomUUID()}`,
+      ...input,
+      status: "scheduled",
+      result: "pending",
+      workflowStatus: "waiting",
+    };
+    exams.unshift(value);
+    return structuredClone(value);
+  }
+  async complete(id: string, input: CompleteOccupationalExamInput) {
+    const value = exams.find((x) => x.id === id);
+    if (!value) return;
+    Object.assign(value, input, {
+      status: "completed",
+      workflowStatus: input.result === "unfit" ? "exception" : "released",
+    });
+    if (input.result === "unfit")
+      exceptions.unshift({
+        id: `oex_${crypto.randomUUID()}`,
+        examId: value.id,
+        employeeName: value.employeeName,
+        title: "Colaborador inapto",
+        description: "A atividade permanece bloqueada até decisão responsável.",
+        severity: "critical",
+        status: "open",
+        owner: "Equipe de SST",
+        dueAt: value.dueDate,
+      });
+    return structuredClone(value);
+  }
+  async resolveException(id: string, note: string) {
+    const value = exceptions.find((x) => x.id === id);
+    if (!value) return;
+    value.status = "resolved";
+    value.resolutionNote = note;
+    return structuredClone(value);
+  }
+}

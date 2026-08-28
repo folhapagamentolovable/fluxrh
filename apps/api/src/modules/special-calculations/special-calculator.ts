@@ -1,3 +1,61 @@
-import { calculateInss,calculateIrrf } from "../payroll/payroll-calculator.js";const round=(n:number)=>Math.round(n*100)/100;
-export function calculateThirteenth(input:{salary:number;average:number;twelfths:number;installment:1|2;firstPaid?:number}){const base=round((input.salary+input.average)*input.twelfths/12);if(input.installment===1)return{base,gross:round(base/2),inss:0,irrf:0,firstDeduction:0,net:round(base/2)};const inss=calculateInss(base),irrf=calculateIrrf(Math.max(0,base-inss)),firstDeduction=input.firstPaid??round(base/2);return{base,gross:base,inss,irrf,firstDeduction,net:round(base-inss-irrf-firstDeduction)}}
-export function calculateVacation(input:{salary:number;average:number;days:number;soldDays:number;advanceThirteenth?:boolean}){const daily=(input.salary+input.average)/30,vacation=round(daily*input.days),oneThird=round(vacation/3),sold=round(daily*input.soldDays),soldThird=round(sold/3),thirteenthAdvance=input.advanceThirteenth?round((input.salary+input.average)/2):0;const taxable=vacation+oneThird, inss=calculateInss(taxable),irrf=calculateIrrf(Math.max(0,taxable-inss));return{vacation,oneThird,sold,soldThird,thirteenthAdvance,gross:round(taxable+sold+soldThird+thirteenthAdvance),inss,irrf,net:round(taxable+sold+soldThird+thirteenthAdvance-inss-irrf)}}
+import { calculateInss, calculateIrrf } from "../payroll/payroll-calculator.js";
+const round = (n: number) => Math.round(n * 100) / 100;
+export function calculateThirteenth(input: {
+  salary: number;
+  average: number;
+  twelfths: number;
+  installment: 1 | 2;
+  firstPaid?: number;
+}) {
+  const base = round(((input.salary + input.average) * input.twelfths) / 12);
+  if (input.installment === 1)
+    return {
+      base,
+      gross: round(base / 2),
+      inss: 0,
+      irrf: 0,
+      firstDeduction: 0,
+      net: round(base / 2),
+    };
+  const inss = calculateInss(base),
+    irrf = calculateIrrf(Math.max(0, base - inss)),
+    firstDeduction = input.firstPaid ?? round(base / 2);
+  return {
+    base,
+    gross: base,
+    inss,
+    irrf,
+    firstDeduction,
+    net: round(base - inss - irrf - firstDeduction),
+  };
+}
+export function calculateVacation(input: {
+  salary: number;
+  average: number;
+  days: number;
+  soldDays: number;
+  advanceThirteenth?: boolean;
+}) {
+  const daily = (input.salary + input.average) / 30,
+    vacation = round(daily * input.days),
+    oneThird = round(vacation / 3),
+    sold = round(daily * input.soldDays),
+    soldThird = round(sold / 3),
+    thirteenthAdvance = input.advanceThirteenth
+      ? round((input.salary + input.average) / 2)
+      : 0;
+  const taxable = vacation + oneThird,
+    inss = calculateInss(taxable),
+    irrf = calculateIrrf(Math.max(0, taxable - inss));
+  return {
+    vacation,
+    oneThird,
+    sold,
+    soldThird,
+    thirteenthAdvance,
+    gross: round(taxable + sold + soldThird + thirteenthAdvance),
+    inss,
+    irrf,
+    net: round(taxable + sold + soldThird + thirteenthAdvance - inss - irrf),
+  };
+}

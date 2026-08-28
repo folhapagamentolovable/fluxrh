@@ -14,11 +14,13 @@
     "build:full": "npm run build -w @fluxrh/contracts && npm run build -w @fluxrh/api && npm run build -w @fluxrh/web",
     "preview": "vite preview",
     "test": "npm run test -w @fluxrh/api && npm run test -w @fluxrh/web",
-    "typecheck": "npm run typecheck -w @fluxrh/contracts && npm run typecheck -w @fluxrh/api && npm run typecheck -w @fluxrh/web"
+    "typecheck": "npm run typecheck -w @fluxrh/contracts && npm run typecheck -w @fluxrh/api && npm run typecheck -w @fluxrh/web",
+    "security:check": "node scripts/check-secrets.mjs"
   },
   "devDependencies": {
     "@vitejs/plugin-react-swc": "4.3.3",
-    "concurrently": "10.0.5"
+    "concurrently": "10.0.5",
+    "jsdom": "29.0.0"
   },
   "engines": {
     "node": ">=22"
