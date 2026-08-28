@@ -47,6 +47,7 @@ Atualizado em 27 de agosto de 2026.
 - Piloto interno determinístico com 120 colaboradores, jornadas críticas, exceções propositais, fechamento de ponto e folha, artefatos e relatório reconciliado de divergências.
 - Fase 24 preparada com coortes, responsabilidades, calendário de dois ciclos paralelos, gates, evidências, SLAs e playbook de resposta a incidentes.
 - Fase 24 executada e validada dentro do PostgreSQL externo com três organizações inteiramente fictícias, 168 colaboradores artificiais, seis ciclos paralelos reconciliados, divergências resolvidas e evidências sintéticas; nenhuma folha oficial foi substituída.
+- Fase 25 executada em modo sintético no Supabase externo: 24 incrementos graduais concluídos, com rollback testado, backups e recuperação verificados, monitoramento verde e operações oficiais tecnicamente bloqueadas.
 
 ## Limitações conhecidas
 
@@ -58,7 +59,7 @@ Atualizado em 27 de agosto de 2026.
 
 ## Próximo marco
 
-Iniciar a Fase 25 com cadastro e documentos em entrada gradual sintética, adicionando rollback, monitoramento, alertas e gates explícitos antes de cada incremento.
+Preparar a Fase 26 sem liberar operação comercial real: padronizar onboarding, SLA, monitoramento contínuo, revisões de LGPD e cadência trimestral baseada em métricas fictícias.
 
 ## Regras de transição
 

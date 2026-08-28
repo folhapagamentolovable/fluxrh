@@ -1119,24 +1119,24 @@ Desempenho
 
 ---
 
-## Fase 25 — Entrada gradual em produção ⬜
+## Fase 25 — Entrada gradual sintética ✅
 
-1. ⬜ Cadastro e documentos
-2. ⬜ Admissão
-3. ⬜ Portal do colaborador
-4. ⬜ Ponto
-5. ⬜ Férias e ausências
-6. ⬜ Prévia da folha
-7. ⬜ Folha oficial
-8. ⬜ Demais módulos
+1. ✅ Cadastro e documentos
+2. ✅ Admissão
+3. ✅ Portal do colaborador
+4. ✅ Ponto
+5. ✅ Férias e ausências
+6. ✅ Prévia da folha
+7. ✅ Simulação isolada da folha oficial, sem efeito real
+8. ✅ Demais módulos
 
 ### Controles de entrada
 
-- ⬜ Plano de rollback por incremento
-- ⬜ Monitoramento, alertas e responsáveis de plantão
-- ⬜ Backups e recuperação reconfirmados antes de cada avanço
-- ⬜ Métricas de adoção, erros e tempo operacional acompanhadas
-- ⬜ Aprovação explícita antes de ativar a folha oficial
+- ✅ Plano de rollback por incremento
+- ✅ Monitoramento, alertas e responsável sintético de plantão
+- ✅ Backups e recuperação reconfirmados antes de cada avanço
+- ✅ Métricas de adoção, erros, latência e tempo operacional acompanhadas
+- ✅ Aprovação sintética explícita; ativação oficial permaneceu bloqueada
 
 ---
 
