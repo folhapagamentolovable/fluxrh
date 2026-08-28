@@ -46,7 +46,7 @@ Atualizado em 27 de agosto de 2026.
 - Runbook de recuperação ajustado ao banco principal, com cópia separada dos objetos do Storage, conferência de WALG e migrations e rotina não destrutiva automatizada.
 - Piloto interno determinístico com 120 colaboradores, jornadas críticas, exceções propositais, fechamento de ponto e folha, artefatos e relatório reconciliado de divergências.
 - Fase 24 preparada com coortes, responsabilidades, calendário de dois ciclos paralelos, gates, evidências, SLAs e playbook de resposta a incidentes.
-- Fase 24 executada no Supabase externo com três organizações inteiramente fictícias, 168 colaboradores artificiais, seis ciclos paralelos reconciliados, divergências resolvidas e evidências sintéticas; nenhuma folha oficial foi substituída.
+- Fase 24 executada e validada dentro do PostgreSQL externo com três organizações inteiramente fictícias, 168 colaboradores artificiais, seis ciclos paralelos reconciliados, divergências resolvidas e evidências sintéticas; nenhuma folha oficial foi substituída.
 
 ## Limitações conhecidas
 
