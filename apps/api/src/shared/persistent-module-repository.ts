@@ -88,7 +88,10 @@ export function createPersistentModuleRepository<T extends object>(
               method as (...values: unknown[]) => Promise<unknown>
             ).apply(repository, args);
 
-            if (property === "overview" && loaded.state) return result;
+            // A leitura de um módulo nunca deve criar ou atualizar estado. Além de
+            // evitar efeitos colaterais em GET, isso permite que perfis somente
+            // leitura consultem módulos ainda sem snapshot persistido.
+            if (property === "overview") return result;
 
             try {
               const snapshot = (await repository.overview()) as JsonObject;
