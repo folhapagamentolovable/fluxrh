@@ -27,6 +27,7 @@ import { GovernancePage } from "@/features/governance/GovernancePage";
 import { ProtectedRoute } from "@/auth/ProtectedRoute";
 import { LoginPage } from "@/features/auth/LoginPage";
 import { OrganizationGate } from "@/auth/OrganizationGate";
+import { UserManualPage } from "@/features/manual/UserManualPage";
 
 export function App() {
   return <Routes>
@@ -55,6 +56,7 @@ export function App() {
     <Route path="rondas" element={<PatrolsPage />} />
     <Route path="automacoes" element={<WorkflowsPage />} />
     <Route path="configuracoes" element={<GovernancePage />} />
+    <Route path="manual" element={<UserManualPage />} />
     <Route path="*" element={<Navigate to="/" replace />} />
     </Route></Route></Route>
   </Routes>;

@@ -1,4 +1,4 @@
-import { Activity, BarChart3, BellRing, Building2, CalendarDays, CircleDollarSign, Clock3, FileText, Gift, HeartHandshake, LayoutDashboard, MapPinned, Megaphone, Settings2, SquareUserRound, UserMinus, UserPlus, UsersRound, Workflow } from "lucide-react";
+import { Activity, BarChart3, BellRing, BookOpen, Building2, CalendarDays, CircleDollarSign, Clock3, FileText, Gift, HeartHandshake, LayoutDashboard, MapPinned, Megaphone, Settings2, SquareUserRound, UserMinus, UserPlus, UsersRound, Workflow } from "lucide-react";
 
 export const navigation = [
   { label: "Visão geral", path: "/", icon: LayoutDashboard },
@@ -20,4 +20,5 @@ export const navigation = [
   { label: "Rondas", path: "/rondas", icon: MapPinned },
   { label: "Automações", path: "/automacoes", icon: Workflow },
   { label: "Configurações", path: "/configuracoes", icon: Settings2 },
+  { label: "Manual do usuário", path: "/manual", icon: BookOpen },
 ] as const;
