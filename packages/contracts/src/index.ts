@@ -2147,25 +2147,53 @@ export type UpdateRolePermissionsInput = z.infer<
 >;
 
 export const employeeDependentSchema = z.object({
-  id: z.string(), organizationId: z.string(), employeeId: z.string(),
-  fullName: z.string().min(3), document: z.string().optional(),
-  birthDate: z.string(), relationship: z.string().min(2),
-  eligibleForBenefits: z.boolean(), status: z.enum(["active", "inactive"]),
-  createdAt: z.string(), updatedAt: z.string(),
+  id: z.string(),
+  organizationId: z.string(),
+  employeeId: z.string(),
+  fullName: z.string().min(3),
+  document: z.string().optional(),
+  birthDate: z.string(),
+  relationship: z.string().min(2),
+  eligibleForBenefits: z.boolean(),
+  status: z.enum(["active", "inactive"]),
+  createdAt: z.string(),
+  updatedAt: z.string(),
 });
 export const createEmployeeDependentSchema = employeeDependentSchema.pick({
-  employeeId: true, fullName: true, document: true, birthDate: true,
-  relationship: true, eligibleForBenefits: true,
+  employeeId: true,
+  fullName: true,
+  document: true,
+  birthDate: true,
+  relationship: true,
+  eligibleForBenefits: true,
 });
 export const timeCompetenceClosureSchema = z.object({
-  id: z.string(), organizationId: z.string(), competence: z.string(),
+  id: z.string(),
+  organizationId: z.string(),
+  competence: z.string(),
   status: z.enum(["open", "in_review", "closed", "reopened"]),
-  closingProgress: z.number().int().min(0).max(100), openedAt: z.string(),
-  closedAt: z.string().nullable().optional(), closedBy: z.string().nullable().optional(),
+  closingProgress: z.number().int().min(0).max(100),
+  openedAt: z.string(),
+  closedAt: z.string().nullable().optional(),
+  closedBy: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
 });
-export const closeTimeCompetenceSchema = z.object({ id: z.string(), notes: z.string().max(500).optional() });
+export const closeTimeCompetenceSchema = z.object({
+  id: z.string(),
+  notes: z.string().max(500).optional(),
+});
 export type EmployeeDependent = z.infer<typeof employeeDependentSchema>;
-export type CreateEmployeeDependentInput = z.infer<typeof createEmployeeDependentSchema>;
+export type CreateEmployeeDependentInput = z.infer<
+  typeof createEmployeeDependentSchema
+>;
 export type TimeCompetenceClosure = z.infer<typeof timeCompetenceClosureSchema>;
-export type CloseTimeCompetenceInput = z.infer<typeof closeTimeCompetenceSchema>;
+export type CloseTimeCompetenceInput = z.infer<
+  typeof closeTimeCompetenceSchema
+>;
+export const updateEmployeeSchema = z.object({
+  fullName: z.string().min(3),
+  email: z.string().email(),
+  phone: z.string().min(10),
+  birthDate: z.string(),
+});
+export type UpdateEmployeeInput = z.infer<typeof updateEmployeeSchema>;

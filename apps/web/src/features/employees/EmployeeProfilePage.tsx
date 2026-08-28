@@ -19,7 +19,13 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Modal } from "@/components/ui/Modal";
-import { createDocumentRequest, createEmployeeDependent, getEmployee, getEmployeeDependents } from "@/lib/api";
+import {
+  createDocumentRequest,
+  createEmployeeDependent,
+  getEmployee,
+  getEmployeeDependents,
+  updateEmployee,
+} from "@/lib/api";
 import { formatCpf, formatPhone, normalizeDigits } from "@/lib/cnpj";
 
 const money = new Intl.NumberFormat("pt-BR", {
@@ -37,20 +43,73 @@ const tabs = [
 
 export function EmployeeProfilePage() {
   const { id = "" } = useParams();
-  const client=useQueryClient();
+  const client = useQueryClient();
   const [tab, setTab] = useState("Visão geral");
-  const [documentOpen,setDocumentOpen]=useState(false);
-  const [dependentOpen,setDependentOpen]=useState(false);
-  const [documentTitle,setDocumentTitle]=useState("Comprovante de residência");
-  const [dependent,setDependent]=useState({fullName:"",birthDate:"",relationship:"Filho(a)",eligibleForBenefits:true});
+  const [documentOpen, setDocumentOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editForm, setEditForm] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    birthDate: "",
+  });
+  const [dependentOpen, setDependentOpen] = useState(false);
+  const [documentTitle, setDocumentTitle] = useState(
+    "Comprovante de residência",
+  );
+  const [dependent, setDependent] = useState({
+    fullName: "",
+    birthDate: "",
+    relationship: "Filho(a)",
+    eligibleForBenefits: true,
+  });
   const {
     data: employee,
     isLoading,
     error,
   } = useQuery({ queryKey: ["employee", id], queryFn: () => getEmployee(id) });
-  const {data: persistedDependents=[]}=useQuery({queryKey:["employee-dependents",id],queryFn:()=>getEmployeeDependents(id),enabled:Boolean(id)});
-  const documentMutation=useMutation({mutationFn:()=>createDocumentRequest({subjectName:employee!.fullName,subjectDocument:employee!.cpf,companyName:employee!.companyName,title:documentTitle,category:"personal",required:true}),onSuccess:()=>{setDocumentOpen(false);client.invalidateQueries({queryKey:["employee",id]});}});
-  const dependentMutation=useMutation({mutationFn:()=>createEmployeeDependent(id,{employeeId:id,...dependent}),onSuccess:()=>{setDependentOpen(false);setDependent({fullName:"",birthDate:"",relationship:"Filho(a)",eligibleForBenefits:true});client.invalidateQueries({queryKey:["employee-dependents",id]});}});
+  const { data: persistedDependents = [] } = useQuery({
+    queryKey: ["employee-dependents", id],
+    queryFn: () => getEmployeeDependents(id),
+    enabled: Boolean(id),
+  });
+  const documentMutation = useMutation({
+    mutationFn: () =>
+      createDocumentRequest({
+        subjectName: employee!.fullName,
+        subjectDocument: employee!.cpf,
+        companyName: employee!.companyName,
+        title: documentTitle,
+        category: "personal",
+        required: true,
+      }),
+    onSuccess: () => {
+      setDocumentOpen(false);
+      client.invalidateQueries({ queryKey: ["employee", id] });
+    },
+  });
+  const dependentMutation = useMutation({
+    mutationFn: () =>
+      createEmployeeDependent(id, { employeeId: id, ...dependent }),
+    onSuccess: () => {
+      setDependentOpen(false);
+      setDependent({
+        fullName: "",
+        birthDate: "",
+        relationship: "Filho(a)",
+        eligibleForBenefits: true,
+      });
+      client.invalidateQueries({ queryKey: ["employee-dependents", id] });
+    },
+  });
+  const editMutation = useMutation({
+    mutationFn: () => updateEmployee(id, editForm),
+    onSuccess: () => {
+      setEditOpen(false);
+      client.invalidateQueries({ queryKey: ["employee", id] });
+      client.invalidateQueries({ queryKey: ["employees"] });
+    },
+  });
   if (isLoading)
     return (
       <div className="page">
@@ -119,7 +178,18 @@ export function EmployeeProfilePage() {
             </div>
           </div>
         </div>
-        <button className="secondary-button" onClick={()=>setTab("Dados pessoais")}>
+        <button
+          className="secondary-button"
+          onClick={() => {
+            setEditForm({
+              fullName: employee.fullName,
+              email: employee.email,
+              phone: employee.phone,
+              birthDate: employee.birthDate,
+            });
+            setEditOpen(true);
+          }}
+        >
           <Pencil size={16} /> Editar cadastro
         </button>
       </section>
@@ -306,7 +376,12 @@ export function EmployeeProfilePage() {
         <section className="panel tab-content">
           <div className="panel-heading">
             <h2>Documentos do colaborador</h2>
-            <button className="primary-button" onClick={()=>setDocumentOpen(true)}>Solicitar documento</button>
+            <button
+              className="primary-button"
+              onClick={() => setDocumentOpen(true)}
+            >
+              Solicitar documento
+            </button>
           </div>
           <div className="document-list">
             {employee.documents.map((doc) => (
@@ -346,11 +421,31 @@ export function EmployeeProfilePage() {
         <section className="panel tab-content">
           <div className="panel-heading">
             <h2>Dependentes</h2>
-            <button className="primary-button" onClick={()=>setDependentOpen(true)}>Adicionar dependente</button>
+            <button
+              className="primary-button"
+              onClick={() => setDependentOpen(true)}
+            >
+              Adicionar dependente
+            </button>
           </div>
-          {(persistedDependents.length||employee.dependents.length) ? (
+          {persistedDependents.length || employee.dependents.length ? (
             <div className="document-list">
-              {persistedDependents.map((dep)=><div key={dep.id}><span className="doc-icon"><UserRound/></span><span><strong>{dep.fullName}</strong><small>{dep.relationship} · {new Date(`${dep.birthDate}T12:00:00`).toLocaleDateString("pt-BR")}</small></span></div>)}
+              {persistedDependents.map((dep) => (
+                <div key={dep.id}>
+                  <span className="doc-icon">
+                    <UserRound />
+                  </span>
+                  <span>
+                    <strong>{dep.fullName}</strong>
+                    <small>
+                      {dep.relationship} ·{" "}
+                      {new Date(`${dep.birthDate}T12:00:00`).toLocaleDateString(
+                        "pt-BR",
+                      )}
+                    </small>
+                  </span>
+                </div>
+              ))}
               {employee.dependents.map((dep) => (
                 <div key={dep.id}>
                   <span className="doc-icon">
@@ -390,8 +485,129 @@ export function EmployeeProfilePage() {
           ))}
         </section>
       )}
-      <Modal open={documentOpen} onClose={()=>setDocumentOpen(false)} title="Solicitar documento" description="A solicitação ficará disponível para acompanhamento."><div className="special-form"><label>Documento<input value={documentTitle} onChange={(event)=>setDocumentTitle(event.target.value)}/></label><footer className="form-actions"><button className="secondary-button" onClick={()=>setDocumentOpen(false)}>Cancelar</button><button className="primary-button" disabled={documentMutation.isPending||documentTitle.trim().length<3} onClick={()=>documentMutation.mutate()}>Enviar solicitação</button></footer></div></Modal>
-      <Modal open={dependentOpen} onClose={()=>setDependentOpen(false)} title="Adicionar dependente" description="O cadastro será vinculado ao colaborador."><div className="special-form"><label>Nome completo<input value={dependent.fullName} onChange={(event)=>setDependent({...dependent,fullName:event.target.value})}/></label><div className="form-grid"><label>Nascimento<input type="date" value={dependent.birthDate} onChange={(event)=>setDependent({...dependent,birthDate:event.target.value})}/></label><label>Parentesco<select value={dependent.relationship} onChange={(event)=>setDependent({...dependent,relationship:event.target.value})}><option>Filho(a)</option><option>Cônjuge</option><option>Enteado(a)</option><option>Outro</option></select></label></div><label><input type="checkbox" checked={dependent.eligibleForBenefits} onChange={(event)=>setDependent({...dependent,eligibleForBenefits:event.target.checked})}/> Elegível para benefícios</label><footer className="form-actions"><button className="secondary-button" onClick={()=>setDependentOpen(false)}>Cancelar</button><button className="primary-button" disabled={dependentMutation.isPending||dependent.fullName.trim().length<3||!dependent.birthDate} onClick={()=>dependentMutation.mutate()}>Cadastrar dependente</button></footer></div></Modal>
+      <Modal open={editOpen} onClose={() => setEditOpen(false)} title="Editar cadastro" description="Atualize os dados pessoais do colaborador.">
+        <form className="special-form" onSubmit={(event) => { event.preventDefault(); editMutation.mutate(); }}>
+          <label>Nome completo<input required minLength={3} value={editForm.fullName} onChange={(event) => setEditForm({ ...editForm, fullName: event.target.value })} /></label>
+          <div className="form-grid">
+            <label>E-mail<input required type="email" value={editForm.email} onChange={(event) => setEditForm({ ...editForm, email: event.target.value })} /></label>
+            <label>Telefone<input required value={editForm.phone} onChange={(event) => setEditForm({ ...editForm, phone: event.target.value })} /></label>
+            <label>Data de nascimento<input required type="date" value={editForm.birthDate} onChange={(event) => setEditForm({ ...editForm, birthDate: event.target.value })} /></label>
+          </div>
+          <footer className="form-actions"><button type="button" className="secondary-button" onClick={() => setEditOpen(false)}>Cancelar</button><button className="primary-button" disabled={editMutation.isPending}>{editMutation.isPending ? "Salvando..." : "Salvar alterações"}</button></footer>
+        </form>
+      </Modal>
+      <Modal
+        open={documentOpen}
+        onClose={() => setDocumentOpen(false)}
+        title="Solicitar documento"
+        description="A solicitação ficará disponível para acompanhamento."
+      >
+        <div className="special-form">
+          <label>
+            Documento
+            <input
+              value={documentTitle}
+              onChange={(event) => setDocumentTitle(event.target.value)}
+            />
+          </label>
+          <footer className="form-actions">
+            <button
+              className="secondary-button"
+              onClick={() => setDocumentOpen(false)}
+            >
+              Cancelar
+            </button>
+            <button
+              className="primary-button"
+              disabled={
+                documentMutation.isPending || documentTitle.trim().length < 3
+              }
+              onClick={() => documentMutation.mutate()}
+            >
+              Enviar solicitação
+            </button>
+          </footer>
+        </div>
+      </Modal>
+      <Modal
+        open={dependentOpen}
+        onClose={() => setDependentOpen(false)}
+        title="Adicionar dependente"
+        description="O cadastro será vinculado ao colaborador."
+      >
+        <div className="special-form">
+          <label>
+            Nome completo
+            <input
+              value={dependent.fullName}
+              onChange={(event) =>
+                setDependent({ ...dependent, fullName: event.target.value })
+              }
+            />
+          </label>
+          <div className="form-grid">
+            <label>
+              Nascimento
+              <input
+                type="date"
+                value={dependent.birthDate}
+                onChange={(event) =>
+                  setDependent({ ...dependent, birthDate: event.target.value })
+                }
+              />
+            </label>
+            <label>
+              Parentesco
+              <select
+                value={dependent.relationship}
+                onChange={(event) =>
+                  setDependent({
+                    ...dependent,
+                    relationship: event.target.value,
+                  })
+                }
+              >
+                <option>Filho(a)</option>
+                <option>Cônjuge</option>
+                <option>Enteado(a)</option>
+                <option>Outro</option>
+              </select>
+            </label>
+          </div>
+          <label>
+            <input
+              type="checkbox"
+              checked={dependent.eligibleForBenefits}
+              onChange={(event) =>
+                setDependent({
+                  ...dependent,
+                  eligibleForBenefits: event.target.checked,
+                })
+              }
+            />{" "}
+            Elegível para benefícios
+          </label>
+          <footer className="form-actions">
+            <button
+              className="secondary-button"
+              onClick={() => setDependentOpen(false)}
+            >
+              Cancelar
+            </button>
+            <button
+              className="primary-button"
+              disabled={
+                dependentMutation.isPending ||
+                dependent.fullName.trim().length < 3 ||
+                !dependent.birthDate
+              }
+              onClick={() => dependentMutation.mutate()}
+            >
+              Cadastrar dependente
+            </button>
+          </footer>
+        </div>
+      </Modal>
     </div>
   );
 }

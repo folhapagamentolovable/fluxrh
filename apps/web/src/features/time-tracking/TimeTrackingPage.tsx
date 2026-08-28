@@ -10,7 +10,6 @@ import {
   FileCheck2,
   Filter,
   MapPin,
-  MoreHorizontal,
   QrCode,
   ScanLine,
   Search,
@@ -342,7 +341,7 @@ function Schedules({
                 <CalendarDays />
               </span>
               <button className="icon-button" aria-label={`Filtrar pela escala ${schedule.name}`} onClick={() => setScheduleFilter(schedule.name)}>
-                <MoreHorizontal />
+                <Filter />
               </button>
             </header>
             <StatusBadge tone={schedule.nightShift ? "blue" : "green"}>

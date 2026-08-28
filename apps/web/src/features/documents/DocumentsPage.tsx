@@ -144,7 +144,11 @@ export function DocumentsPage() {
                 onChange={(e) => setQuery(e.target.value)}
               />
             </div>
-            <select aria-label="Filtrar documentos por status" value={status} onChange={(e) => setStatus(e.target.value)}>
+            <select
+              aria-label="Filtrar documentos por status"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
               <option value="all">Todos os status</option>
               <option value="under_review">Em validação</option>
               <option value="sent">Aguardando aceite</option>
@@ -231,7 +235,12 @@ export function DocumentsPage() {
                   Atualizado em{" "}
                   {new Date(template.updatedAt).toLocaleDateString("pt-BR")}
                 </small>
-                <button className="secondary-button" onClick={() => setTab("templates")}>Editar modelo</button>
+                <button
+                  className="secondary-button"
+                  onClick={() => setTab("templates")}
+                >
+                  Abrir modelos
+                </button>
               </footer>
             </article>
           ))}

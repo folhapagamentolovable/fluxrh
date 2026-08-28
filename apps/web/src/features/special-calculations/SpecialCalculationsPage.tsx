@@ -1,13 +1,569 @@
-import { useMutation,useQuery,useQueryClient } from "@tanstack/react-query";import { AlertTriangle,Calculator,CalendarDays,Check,CircleDollarSign,FileCheck2,FileText,Gift,History,Plus,ReceiptText,ShieldCheck,TrendingUp,UsersRound } from "lucide-react";import { useState } from "react";import { Modal } from "@/components/ui/Modal";import { StatusBadge } from "@/components/ui/StatusBadge";import { approveSpecialCalculation,createSpecialCalculation,getSpecialCalculations,resolveSpecialException } from "@/lib/api";import type { SpecialCalculation } from "@fluxrh/contracts";
-type Tab="overview"|"thirteenth"|"vacations"|"averages"|"exceptions"|"rules";const money=(n:number)=>n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});const typeLabel:Record<string,string>={thirteenth_first:"13º · 1ª parcela",thirteenth_second:"13º · 2ª parcela",vacation:"Férias"};
-export function SpecialCalculationsPage(){const client=useQueryClient();const {data,isLoading}=useQuery({queryKey:["special-calculations"],queryFn:getSpecialCalculations});const [tab,setTab]=useState<Tab>("overview");const [detail,setDetail]=useState<SpecialCalculation>();const [newOpen,setNewOpen]=useState(false);const refresh=()=>client.invalidateQueries({queryKey:["special-calculations"]});const approve=useMutation({mutationFn:approveSpecialCalculation,onSuccess:refresh});const resolve=useMutation({mutationFn:({id,exceptionId}:{id:string;exceptionId:string})=>resolveSpecialException(id,exceptionId,"Avos conferidos com o período trabalhado e os afastamentos."),onSuccess:refresh});if(isLoading||!data)return <div className="page"><div className="page-skeleton"/></div>;const tabs:[Tab,string][]=[["overview","Visão geral"],["thirteenth","13º salário"],["vacations","Férias calculadas"],["averages","Médias"],["exceptions","Exceções"],["rules","Regras"]];return <div className="page"><section className="simple-heading"><div><span className="eyebrow"><Gift/> Cálculos especiais</span><h1>13º salário e férias</h1><p>Avos, médias, adicionais e tributos calculados com rastreabilidade por rubrica.</p></div><button className="primary-button" onClick={()=>setNewOpen(true)}><Plus/> Novo cálculo</button></section><div className="module-tabs">{tabs.map(([k,l])=><button className={tab===k?"active":""} onClick={()=>setTab(k)} key={k}>{l}{k==="exceptions"&&data.summary.openExceptions>0&&<span>{data.summary.openExceptions}</span>}</button>)}</div>
-{tab==="overview"&&<><section className="special-metrics">{([["13º calculados",data.summary.thirteenthEmployees,Gift,"blue"],["Férias calculadas",data.summary.vacationsScheduled,CalendarDays,"green"],["Total bruto",money(data.summary.grossTotal),CircleDollarSign,"purple"],["Total líquido",money(data.summary.netTotal),ReceiptText,"amber"],["Exceções",data.summary.openExceptions,AlertTriangle,"red"]] as const).map(([l,v,I,t])=><article key={l}><span className={`metric-icon ${t}`}><I/></span><strong>{v}</strong><small>{l}</small></article>)}</section><div className="special-dashboard"><section className="panel"><div className="panel-heading"><div><span className="section-label">Conferência</span><h2>Cálculos recentes</h2></div></div><CalculationRows rows={data.calculations} detail={setDetail}/></section><aside className="panel special-summary"><span className="section-label">Progresso</span><h2>Aprovação dos cálculos</h2><div className="special-ring"><strong>{data.summary.approvalProgress}%</strong><small>aprovado</small></div><div className="progress"><i style={{width:`${data.summary.approvalProgress}%`}}/></div><p>{data.calculations.filter(c=>c.status==="approved").length} de {data.calculations.length} cálculos aprovados</p><button className="secondary-button" onClick={()=>setTab("exceptions")}><ShieldCheck/> Conferir exceções</button></aside></div></>}
-{tab==="thirteenth"&&<section className="panel special-list"><div className="panel-heading"><div><span className="section-label">Ano-base 2026</span><h2>13º salário</h2></div><StatusBadge tone="blue">1ª parcela</StatusBadge></div><CalculationRows rows={data.calculations.filter(c=>c.type.startsWith("thirteenth"))} detail={setDetail}/></section>}
-{tab==="vacations"&&<section className="vacation-calc-grid">{data.calculations.filter(c=>c.type==="vacation").map(c=><article className="panel vacation-calc" key={c.id}><header><span className="metric-icon green"><CalendarDays/></span><StatusBadge tone={c.status==="approved"?"green":"amber"}>{c.status==="approved"?"Aprovado":"Pendente"}</StatusBadge></header><h2>{c.employeeName}</h2><p>{c.vacationDays} dias de férias{c.soldDays?` · ${c.soldDays} dias de abono`:""}</p><dl><div><dt>Salário-base</dt><dd>{money(c.baseSalary)}</dd></div><div><dt>Médias</dt><dd>{money(c.averageVariables)}</dd></div><div><dt>Bruto</dt><dd>{money(c.grossAmount)}</dd></div><div className="net"><dt>Líquido</dt><dd>{money(c.netAmount)}</dd></div></dl><footer><StatusBadge tone={c.receiptStatus==="generated"?"blue":"gray"}>{c.receiptStatus==="generated"?"Recibo gerado":"Sem recibo"}</StatusBadge><button className="ghost-action" onClick={()=>setDetail(c)}>Ver memória</button></footer></article>)}</section>}
-{tab==="averages"&&<section className="panel averages-table"><div className="panel-heading"><div><span className="section-label">Período móvel</span><h2>Médias de variáveis</h2></div></div><header><strong>Colaborador</strong><span>Meses</span><span>Horas extras</span><span>Adicionais</span><span>Média total</span></header>{data.averageHistory.map(a=><article key={a.employeeId}><span className="calc-avatar">{a.employeeName.split(" ").map(n=>n[0]).slice(0,2)}</span><strong>{a.employeeName}</strong><span>{a.months} meses</span><span>{money(a.overtimeAverage)}</span><span>{money(a.additionalAverage)}</span><strong className="positive">{money(a.totalAverage)}</strong></article>)}</section>}
-{tab==="exceptions"&&<section className="panel special-exceptions"><div className="panel-heading"><div><span className="section-label">Requer análise</span><h2>Exceções dos cálculos</h2></div></div>{data.calculations.flatMap(c=>c.exceptions.filter(e=>e.status==="open").map(e=><article key={e.id}><span className="exception-icon high"><AlertTriangle/></span><div><strong>{e.title}</strong><p>{e.description}</p><small>{c.employeeName} · {typeLabel[c.type]}</small></div><button className="primary-button" onClick={()=>resolve.mutate({id:c.id,exceptionId:e.id})}>Resolver</button></article>))}{data.summary.openExceptions===0&&<div className="empty-state"><ShieldCheck/><h2>Tudo conferido</h2><p>Não existem exceções abertas.</p></div>}</section>}
-{tab==="rules"&&<section className="rule-grid">{data.rules.map(r=><article className="panel special-rule" key={r.id}><span className="metric-icon blue"><Calculator/></span><div><StatusBadge tone="green">Ativa</StatusBadge><h2>{r.name}</h2><p>{r.description}</p></div></article>)}</section>}
-<CalculationDetail value={detail} close={()=>setDetail(undefined)} approve={id=>{approve.mutate(id);setDetail(undefined)}}/><NewCalculation open={newOpen} close={()=>setNewOpen(false)} done={()=>{setNewOpen(false);refresh()}}/></div>}
-function CalculationRows({rows,detail}:{rows:SpecialCalculation[];detail:(c:SpecialCalculation)=>void}){return <div className="calculation-rows">{rows.map(c=><button key={c.id} onClick={()=>detail(c)}><span className={`calc-avatar ${c.type}`}><span>{c.type==="vacation"?"F":"13"}</span></span><div><strong>{c.employeeName}</strong><small>{typeLabel[c.type]} · {c.entitledTwelfths}/12 avos</small></div><span><small>Base + médias</small>{money(c.baseSalary+c.averageVariables)}</span><span><small>Bruto</small>{money(c.grossAmount)}</span><strong className="positive">{money(c.netAmount)}</strong><StatusBadge tone={c.status==="exception"?"red":c.status==="approved"?"green":"amber"}>{c.status==="exception"?"Exceção":c.status==="approved"?"Aprovado":"Pendente"}</StatusBadge></button>)}</div>}
-function CalculationDetail({value,close,approve}:{value?:SpecialCalculation;close:()=>void;approve:(id:string)=>void}){return <Modal open={Boolean(value)} onClose={close} title={value?.employeeName??"Memória de cálculo"} description={value?`${typeLabel[value.type]} · ${value.entitledTwelfths}/12 avos`:""}>{value&&<div className="calc-detail"><section><span><small>Salário-base</small><strong>{money(value.baseSalary)}</strong></span><span><small>Médias</small><strong>{money(value.averageVariables)}</strong></span><span><small>Bruto</small><strong>{money(value.grossAmount)}</strong></span><span><small>Líquido</small><strong className="positive">{money(value.netAmount)}</strong></span></section><div className="calc-items"><header><strong>Rubrica</strong><span>Referência</span><span>Valor</span></header>{value.items.map(i=><article key={i.code}><code>{i.code}</code><strong>{i.name}</strong><span>{i.reference}</span><strong className={i.kind==="deduction"?"negative":"positive"}>{i.kind==="deduction"?"− ":"+ "}{money(i.amount)}</strong></article>)}</div><footer className="form-actions"><button className="secondary-button" onClick={()=>window.print()}><FileText/> Visualizar recibo</button><button className="primary-button" disabled={value.status==="exception"||value.status==="approved"} onClick={()=>approve(value.id)}><Check/> Aprovar cálculo</button></footer></div>}</Modal>}
-function NewCalculation({open,close,done}:{open:boolean;close:()=>void;done:()=>void}){const [type,setType]=useState<SpecialCalculation["type"]>("thirteenth_first");const mutation=useMutation({mutationFn:()=>createSpecialCalculation({employeeId:"emp_beatriz",employeeName:"Beatriz Lima",type,competence:type==="vacation"?"2026-10":"2026-11",baseSalary:2800,averageVariables:90,entitledTwelfths:12,vacationDays:type==="vacation"?20:undefined,soldDays:type==="vacation"?10:undefined,advanceThirteenth:type==="vacation"}),onSuccess:done});return <Modal open={open} onClose={close} title="Novo cálculo" description="Os parâmetros serão registrados na memória de cálculo."><div className="special-form"><label>Colaborador<select><option>Beatriz Lima</option></select></label><label>Tipo<select value={type} onChange={e=>setType(e.target.value as SpecialCalculation["type"])}><option value="thirteenth_first">13º · 1ª parcela</option><option value="thirteenth_second">13º · 2ª parcela</option><option value="vacation">Férias</option></select></label><div className="form-grid"><label>Salário-base<input value="R$ 2.800,00" readOnly/></label><label>Média variável<input value="R$ 90,00" readOnly/></label></div><footer className="form-actions"><button className="secondary-button" onClick={close}>Cancelar</button><button className="primary-button" onClick={()=>mutation.mutate()}>Calcular</button></footer></div></Modal>}
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  AlertTriangle,
+  Calculator,
+  CalendarDays,
+  Check,
+  CircleDollarSign,
+  FileCheck2,
+  FileText,
+  Gift,
+  History,
+  Plus,
+  ReceiptText,
+  ShieldCheck,
+  TrendingUp,
+  UsersRound,
+} from "lucide-react";
+import { useState } from "react";
+import { Modal } from "@/components/ui/Modal";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import {
+  approveSpecialCalculation,
+  createSpecialCalculation,
+  getSpecialCalculations,
+  resolveSpecialException,
+} from "@/lib/api";
+import type { SpecialCalculation } from "@fluxrh/contracts";
+type Tab =
+  "overview" | "thirteenth" | "vacations" | "averages" | "exceptions" | "rules";
+const money = (n: number) =>
+  n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+const typeLabel: Record<string, string> = {
+  thirteenth_first: "13º · 1ª parcela",
+  thirteenth_second: "13º · 2ª parcela",
+  vacation: "Férias",
+};
+export function SpecialCalculationsPage() {
+  const client = useQueryClient();
+  const { data, isLoading } = useQuery({
+    queryKey: ["special-calculations"],
+    queryFn: getSpecialCalculations,
+  });
+  const [tab, setTab] = useState<Tab>("overview");
+  const [detail, setDetail] = useState<SpecialCalculation>();
+  const [newOpen, setNewOpen] = useState(false);
+  const refresh = () =>
+    client.invalidateQueries({ queryKey: ["special-calculations"] });
+  const approve = useMutation({
+    mutationFn: approveSpecialCalculation,
+    onSuccess: refresh,
+  });
+  const resolve = useMutation({
+    mutationFn: ({ id, exceptionId }: { id: string; exceptionId: string }) =>
+      resolveSpecialException(
+        id,
+        exceptionId,
+        "Avos conferidos com o período trabalhado e os afastamentos.",
+      ),
+    onSuccess: refresh,
+  });
+  if (isLoading || !data)
+    return (
+      <div className="page">
+        <div className="page-skeleton" />
+      </div>
+    );
+  const tabs: [Tab, string][] = [
+    ["overview", "Visão geral"],
+    ["thirteenth", "13º salário"],
+    ["vacations", "Férias calculadas"],
+    ["averages", "Médias"],
+    ["exceptions", "Exceções"],
+    ["rules", "Regras"],
+  ];
+  return (
+    <div className="page">
+      <section className="simple-heading">
+        <div>
+          <span className="eyebrow">
+            <Gift /> Cálculos especiais
+          </span>
+          <h1>13º salário e férias</h1>
+          <p>
+            Avos, médias, adicionais e tributos calculados com rastreabilidade
+            por rubrica.
+          </p>
+        </div>
+        <button className="primary-button" onClick={() => setNewOpen(true)}>
+          <Plus /> Novo cálculo
+        </button>
+      </section>
+      <div className="module-tabs">
+        {tabs.map(([k, l]) => (
+          <button
+            className={tab === k ? "active" : ""}
+            onClick={() => setTab(k)}
+            key={k}
+          >
+            {l}
+            {k === "exceptions" && data.summary.openExceptions > 0 && (
+              <span>{data.summary.openExceptions}</span>
+            )}
+          </button>
+        ))}
+      </div>
+      {tab === "overview" && (
+        <>
+          <section className="special-metrics">
+            {(
+              [
+                [
+                  "13º calculados",
+                  data.summary.thirteenthEmployees,
+                  Gift,
+                  "blue",
+                ],
+                [
+                  "Férias calculadas",
+                  data.summary.vacationsScheduled,
+                  CalendarDays,
+                  "green",
+                ],
+                [
+                  "Total bruto",
+                  money(data.summary.grossTotal),
+                  CircleDollarSign,
+                  "purple",
+                ],
+                [
+                  "Total líquido",
+                  money(data.summary.netTotal),
+                  ReceiptText,
+                  "amber",
+                ],
+                ["Exceções", data.summary.openExceptions, AlertTriangle, "red"],
+              ] as const
+            ).map(([l, v, I, t]) => (
+              <article key={l}>
+                <span className={`metric-icon ${t}`}>
+                  <I />
+                </span>
+                <strong>{v}</strong>
+                <small>{l}</small>
+              </article>
+            ))}
+          </section>
+          <div className="special-dashboard">
+            <section className="panel">
+              <div className="panel-heading">
+                <div>
+                  <span className="section-label">Conferência</span>
+                  <h2>Cálculos recentes</h2>
+                </div>
+              </div>
+              <CalculationRows rows={data.calculations} detail={setDetail} />
+            </section>
+            <aside className="panel special-summary">
+              <span className="section-label">Progresso</span>
+              <h2>Aprovação dos cálculos</h2>
+              <div className="special-ring">
+                <strong>{data.summary.approvalProgress}%</strong>
+                <small>aprovado</small>
+              </div>
+              <div className="progress">
+                <i style={{ width: `${data.summary.approvalProgress}%` }} />
+              </div>
+              <p>
+                {
+                  data.calculations.filter((c) => c.status === "approved")
+                    .length
+                }{" "}
+                de {data.calculations.length} cálculos aprovados
+              </p>
+              <button
+                className="secondary-button"
+                onClick={() => setTab("exceptions")}
+              >
+                <ShieldCheck /> Conferir exceções
+              </button>
+            </aside>
+          </div>
+        </>
+      )}
+      {tab === "thirteenth" && (
+        <section className="panel special-list">
+          <div className="panel-heading">
+            <div>
+              <span className="section-label">Ano-base 2026</span>
+              <h2>13º salário</h2>
+            </div>
+            <StatusBadge tone="blue">1ª parcela</StatusBadge>
+          </div>
+          <CalculationRows
+            rows={data.calculations.filter((c) =>
+              c.type.startsWith("thirteenth"),
+            )}
+            detail={setDetail}
+          />
+        </section>
+      )}
+      {tab === "vacations" && (
+        <section className="vacation-calc-grid">
+          {data.calculations
+            .filter((c) => c.type === "vacation")
+            .map((c) => (
+              <article className="panel vacation-calc" key={c.id}>
+                <header>
+                  <span className="metric-icon green">
+                    <CalendarDays />
+                  </span>
+                  <StatusBadge
+                    tone={c.status === "approved" ? "green" : "amber"}
+                  >
+                    {c.status === "approved" ? "Aprovado" : "Pendente"}
+                  </StatusBadge>
+                </header>
+                <h2>{c.employeeName}</h2>
+                <p>
+                  {c.vacationDays} dias de férias
+                  {c.soldDays ? ` · ${c.soldDays} dias de abono` : ""}
+                </p>
+                <dl>
+                  <div>
+                    <dt>Salário-base</dt>
+                    <dd>{money(c.baseSalary)}</dd>
+                  </div>
+                  <div>
+                    <dt>Médias</dt>
+                    <dd>{money(c.averageVariables)}</dd>
+                  </div>
+                  <div>
+                    <dt>Bruto</dt>
+                    <dd>{money(c.grossAmount)}</dd>
+                  </div>
+                  <div className="net">
+                    <dt>Líquido</dt>
+                    <dd>{money(c.netAmount)}</dd>
+                  </div>
+                </dl>
+                <footer>
+                  <StatusBadge
+                    tone={c.receiptStatus === "generated" ? "blue" : "gray"}
+                  >
+                    {c.receiptStatus === "generated"
+                      ? "Recibo gerado"
+                      : "Sem recibo"}
+                  </StatusBadge>
+                  <button className="ghost-action" onClick={() => setDetail(c)}>
+                    Ver memória
+                  </button>
+                </footer>
+              </article>
+            ))}
+        </section>
+      )}
+      {tab === "averages" && (
+        <section className="panel averages-table">
+          <div className="panel-heading">
+            <div>
+              <span className="section-label">Período móvel</span>
+              <h2>Médias de variáveis</h2>
+            </div>
+          </div>
+          <header>
+            <strong>Colaborador</strong>
+            <span>Meses</span>
+            <span>Horas extras</span>
+            <span>Adicionais</span>
+            <span>Média total</span>
+          </header>
+          {data.averageHistory.map((a) => (
+            <article key={a.employeeId}>
+              <span className="calc-avatar">
+                {a.employeeName
+                  .split(" ")
+                  .map((n) => n[0])
+                  .slice(0, 2)}
+              </span>
+              <strong>{a.employeeName}</strong>
+              <span>{a.months} meses</span>
+              <span>{money(a.overtimeAverage)}</span>
+              <span>{money(a.additionalAverage)}</span>
+              <strong className="positive">{money(a.totalAverage)}</strong>
+            </article>
+          ))}
+        </section>
+      )}
+      {tab === "exceptions" && (
+        <section className="panel special-exceptions">
+          <div className="panel-heading">
+            <div>
+              <span className="section-label">Requer análise</span>
+              <h2>Exceções dos cálculos</h2>
+            </div>
+          </div>
+          {data.calculations.flatMap((c) =>
+            c.exceptions
+              .filter((e) => e.status === "open")
+              .map((e) => (
+                <article key={e.id}>
+                  <span className="exception-icon high">
+                    <AlertTriangle />
+                  </span>
+                  <div>
+                    <strong>{e.title}</strong>
+                    <p>{e.description}</p>
+                    <small>
+                      {c.employeeName} · {typeLabel[c.type]}
+                    </small>
+                  </div>
+                  <button
+                    className="primary-button"
+                    onClick={() =>
+                      resolve.mutate({ id: c.id, exceptionId: e.id })
+                    }
+                  >
+                    Resolver
+                  </button>
+                </article>
+              )),
+          )}
+          {data.summary.openExceptions === 0 && (
+            <div className="empty-state">
+              <ShieldCheck />
+              <h2>Tudo conferido</h2>
+              <p>Não existem exceções abertas.</p>
+            </div>
+          )}
+        </section>
+      )}
+      {tab === "rules" && (
+        <section className="rule-grid">
+          {data.rules.map((r) => (
+            <article className="panel special-rule" key={r.id}>
+              <span className="metric-icon blue">
+                <Calculator />
+              </span>
+              <div>
+                <StatusBadge tone="green">Ativa</StatusBadge>
+                <h2>{r.name}</h2>
+                <p>{r.description}</p>
+              </div>
+            </article>
+          ))}
+        </section>
+      )}
+      <CalculationDetail
+        value={detail}
+        close={() => setDetail(undefined)}
+        approve={(id) => {
+          approve.mutate(id);
+          setDetail(undefined);
+        }}
+      />
+      <NewCalculation
+        open={newOpen}
+        close={() => setNewOpen(false)}
+        done={() => {
+          setNewOpen(false);
+          refresh();
+        }}
+      />
+    </div>
+  );
+}
+function CalculationRows({
+  rows,
+  detail,
+}: {
+  rows: SpecialCalculation[];
+  detail: (c: SpecialCalculation) => void;
+}) {
+  return (
+    <div className="calculation-rows">
+      {rows.map((c) => (
+        <button key={c.id} onClick={() => detail(c)}>
+          <span className={`calc-avatar ${c.type}`}>
+            <span>{c.type === "vacation" ? "F" : "13"}</span>
+          </span>
+          <div>
+            <strong>{c.employeeName}</strong>
+            <small>
+              {typeLabel[c.type]} · {c.entitledTwelfths}/12 avos
+            </small>
+          </div>
+          <span>
+            <small>Base + médias</small>
+            {money(c.baseSalary + c.averageVariables)}
+          </span>
+          <span>
+            <small>Bruto</small>
+            {money(c.grossAmount)}
+          </span>
+          <strong className="positive">{money(c.netAmount)}</strong>
+          <StatusBadge
+            tone={
+              c.status === "exception"
+                ? "red"
+                : c.status === "approved"
+                  ? "green"
+                  : "amber"
+            }
+          >
+            {c.status === "exception"
+              ? "Exceção"
+              : c.status === "approved"
+                ? "Aprovado"
+                : "Pendente"}
+          </StatusBadge>
+        </button>
+      ))}
+    </div>
+  );
+}
+function CalculationDetail({
+  value,
+  close,
+  approve,
+}: {
+  value?: SpecialCalculation;
+  close: () => void;
+  approve: (id: string) => void;
+}) {
+  return (
+    <Modal
+      open={Boolean(value)}
+      onClose={close}
+      title={value?.employeeName ?? "Memória de cálculo"}
+      description={
+        value
+          ? `${typeLabel[value.type]} · ${value.entitledTwelfths}/12 avos`
+          : ""
+      }
+    >
+      {value && (
+        <div className="calc-detail">
+          <section>
+            <span>
+              <small>Salário-base</small>
+              <strong>{money(value.baseSalary)}</strong>
+            </span>
+            <span>
+              <small>Médias</small>
+              <strong>{money(value.averageVariables)}</strong>
+            </span>
+            <span>
+              <small>Bruto</small>
+              <strong>{money(value.grossAmount)}</strong>
+            </span>
+            <span>
+              <small>Líquido</small>
+              <strong className="positive">{money(value.netAmount)}</strong>
+            </span>
+          </section>
+          <div className="calc-items">
+            <header>
+              <strong>Rubrica</strong>
+              <span>Referência</span>
+              <span>Valor</span>
+            </header>
+            {value.items.map((i) => (
+              <article key={i.code}>
+                <code>{i.code}</code>
+                <strong>{i.name}</strong>
+                <span>{i.reference}</span>
+                <strong
+                  className={i.kind === "deduction" ? "negative" : "positive"}
+                >
+                  {i.kind === "deduction" ? "− " : "+ "}
+                  {money(i.amount)}
+                </strong>
+              </article>
+            ))}
+          </div>
+          <footer className="form-actions">
+            <button className="secondary-button" onClick={() => window.print()}>
+              <FileText /> Imprimir recibo
+            </button>
+            <button
+              className="primary-button"
+              disabled={
+                value.status === "exception" || value.status === "approved"
+              }
+              onClick={() => approve(value.id)}
+            >
+              <Check /> Aprovar cálculo
+            </button>
+          </footer>
+        </div>
+      )}
+    </Modal>
+  );
+}
+function NewCalculation({
+  open,
+  close,
+  done,
+}: {
+  open: boolean;
+  close: () => void;
+  done: () => void;
+}) {
+  const [type, setType] =
+    useState<SpecialCalculation["type"]>("thirteenth_first");
+  const mutation = useMutation({
+    mutationFn: () =>
+      createSpecialCalculation({
+        employeeId: "emp_beatriz",
+        employeeName: "Beatriz Lima",
+        type,
+        competence: type === "vacation" ? "2026-10" : "2026-11",
+        baseSalary: 2800,
+        averageVariables: 90,
+        entitledTwelfths: 12,
+        vacationDays: type === "vacation" ? 20 : undefined,
+        soldDays: type === "vacation" ? 10 : undefined,
+        advanceThirteenth: type === "vacation",
+      }),
+    onSuccess: done,
+  });
+  return (
+    <Modal
+      open={open}
+      onClose={close}
+      title="Novo cálculo"
+      description="Os parâmetros serão registrados na memória de cálculo."
+    >
+      <div className="special-form">
+        <label>
+          Colaborador
+          <select>
+            <option>Beatriz Lima</option>
+          </select>
+        </label>
+        <label>
+          Tipo
+          <select
+            value={type}
+            onChange={(e) =>
+              setType(e.target.value as SpecialCalculation["type"])
+            }
+          >
+            <option value="thirteenth_first">13º · 1ª parcela</option>
+            <option value="thirteenth_second">13º · 2ª parcela</option>
+            <option value="vacation">Férias</option>
+          </select>
+        </label>
+        <div className="form-grid">
+          <label>
+            Salário-base
+            <input value="R$ 2.800,00" readOnly />
+          </label>
+          <label>
+            Média variável
+            <input value="R$ 90,00" readOnly />
+          </label>
+        </div>
+        <footer className="form-actions">
+          <button className="secondary-button" onClick={close}>
+            Cancelar
+          </button>
+          <button className="primary-button" onClick={() => mutation.mutate()}>
+            Calcular
+          </button>
+        </footer>
+      </div>
+    </Modal>
+  );
+}

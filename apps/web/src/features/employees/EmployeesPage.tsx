@@ -155,8 +155,14 @@ export function EmployeesPage() {
             <option value="vacation">Em férias</option>
             <option value="leave">Afastados</option>
           </select>
-          <button className="secondary-button" onClick={() => { setQuery(""); setStatus("all"); }}>
-            <Filter size={16} /> Mais filtros
+          <button
+            className="secondary-button"
+            onClick={() => {
+              setQuery("");
+              setStatus("all");
+            }}
+          >
+            <Filter size={16} /> Limpar filtros
           </button>
         </div>
         {isLoading ? (
