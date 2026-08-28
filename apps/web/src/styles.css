@@ -170,3 +170,61 @@ a { color: inherit; text-decoration: none; }
 /* Folha de pagamento */
 .payroll-heading>div:last-child{display:flex;align-items:center;gap:12px}.payroll-metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.payroll-metrics article{display:flex;align-items:center;gap:11px;padding:15px;border:1px solid var(--border);border-radius:14px;background:#fff}.payroll-metrics article>div{display:flex;flex-direction:column}.payroll-metrics strong{font-size:17px}.payroll-metrics small{color:var(--muted);font-size:9px}.payroll-flow{display:grid;grid-template-columns:1fr 35px 1fr 35px 1fr 35px 1fr;align-items:center;margin-top:16px;padding:18px}.payroll-flow>div{display:grid;grid-template-columns:38px 1fr;column-gap:9px;align-items:center}.payroll-flow .flow-step{grid-row:1/3;width:36px;height:36px;display:grid;place-items:center;border-radius:50%;background:#f0f2f5;color:#98a2b3}.payroll-flow .done{background:#eafbf3;color:#087a55}.payroll-flow .current{background:#edf4ff;color:#155eef}.payroll-flow svg{width:17px}.payroll-flow strong{font-size:10px}.payroll-flow small{color:var(--muted);font-size:8px}.payroll-flow>i{height:2px;background:#dfe5ed}.payroll-dashboard{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(260px,.55fr);gap:16px}.payroll-rows>button{width:100%;display:grid;grid-template-columns:38px minmax(140px,1fr) 105px 105px 105px auto 15px;align-items:center;gap:10px;padding:12px 0;border:0;border-top:1px solid var(--border);background:transparent;text-align:left;cursor:pointer}.payroll-rows.full>button{grid-template-columns:38px minmax(150px,1fr) repeat(4,100px) auto 15px}.payroll-avatar{width:35px;height:35px;display:grid;place-items:center;border-radius:10px;background:#edf4ff;color:#155eef;font-size:9px;font-weight:700}.payroll-rows button>div,.payroll-rows button>span:not(.payroll-avatar):not(.status-badge){display:flex;flex-direction:column}.payroll-rows small{color:var(--muted);font-size:8px}.payroll-rows strong,.payroll-rows>button>span{font-size:9px}.payroll-rows .net-value{font-size:10px}.payroll-rows>button>svg{width:14px;color:#98a2b3}.positive{color:#087a55!important}.negative{color:#c8323d!important}.payroll-total dl{margin:15px 0}.payroll-total dl div{display:flex;justify-content:space-between;padding:9px 0;border-top:1px solid var(--border);font-size:10px}.payroll-total dl .net{padding:14px 0;border-top:2px solid #d9e2ee}.payroll-total dl .net dd{color:#087a55;font-size:15px;font-weight:700}.payroll-total dd{margin:0;font-weight:600}.closing-card{padding:13px;border-radius:10px;background:#f5f8fc}.closing-card header{display:flex;justify-content:space-between;font-size:9px}.closing-card .progress{margin:8px 0}.closing-card small{color:var(--muted);font-size:8px}.payroll-exceptions article{display:grid;grid-template-columns:38px 1fr auto;gap:12px;align-items:center;padding:15px 0;border-top:1px solid var(--border)}.payroll-exceptions article header{display:flex;gap:8px;align-items:center}.payroll-exceptions article p{margin:5px 0;color:var(--text-secondary);font-size:9px}.payroll-exceptions article small{color:var(--muted);font-size:8px}.legal-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.legal-card header{display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center}.legal-card h2{margin:0}.legal-card header small{color:var(--muted);font-size:8px}.legal-card table{width:100%;margin-top:16px;border-collapse:collapse}.legal-card th,.legal-card td{padding:9px;border-top:1px solid var(--border);text-align:right;font-size:8px}.legal-card th:first-child,.legal-card td:first-child{text-align:left}.legal-card th{color:var(--muted);background:#f7f9fb}.legal-card footer{margin:14px -21px -21px;padding:11px 21px;border-top:1px solid var(--border);color:var(--muted);font-size:8px}.event-catalog article{display:grid;grid-template-columns:55px 1fr auto 180px;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--border)}.event-catalog code{padding:6px;background:#edf4ff;color:#155eef;text-align:center}.event-catalog article>div{display:flex;flex-direction:column}.event-catalog small,.event-catalog article>span:last-child{color:var(--muted);font-size:8px}.payroll-history article{display:grid;grid-template-columns:40px 1fr 120px auto;gap:12px;align-items:center;padding:13px 0;border-top:1px solid var(--border)}.payroll-history article>div{display:flex;flex-direction:column}.payroll-history small{color:var(--muted);font-size:8px}.payroll-detail{padding:20px}.payroll-detail-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.payroll-detail-summary span{display:flex;flex-direction:column;padding:11px;border-radius:9px;background:#f5f8fc}.payroll-detail-summary small{color:var(--muted);font-size:8px}.event-lines{margin-top:16px;border:1px solid var(--border);border-radius:10px;overflow:hidden}.event-lines>header,.event-lines>div{display:grid;grid-template-columns:46px 1fr 100px 110px;gap:9px;align-items:center;padding:9px 11px;border-top:1px solid var(--border)}.event-lines>header{border:0;background:#f5f7fa}.event-lines>header strong{grid-column:1/3}.event-lines>div>span:nth-child(2){display:flex;flex-direction:column}.event-lines small{color:var(--muted);font-size:7px}.event-lines>div>strong{text-align:right}.payroll-detail-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:17px}@media(max-width:1100px){.payroll-metrics{grid-template-columns:repeat(3,1fr)}.payroll-dashboard{grid-template-columns:1fr}.payroll-flow{grid-template-columns:repeat(4,1fr)}.payroll-flow>i{display:none}.payroll-rows>button,.payroll-rows.full>button{grid-template-columns:38px 1fr 95px 95px auto 15px}}@media(max-width:760px){.payroll-metrics,.legal-grid{grid-template-columns:1fr 1fr}.payroll-flow{grid-template-columns:1fr 1fr;gap:12px}.payroll-rows>button,.payroll-rows.full>button{grid-template-columns:36px 1fr auto 14px}.payroll-rows>button>span:not(.payroll-avatar):not(.status-badge),.payroll-rows .net-value{display:none}.payroll-detail-summary{grid-template-columns:1fr 1fr}.event-catalog article{grid-template-columns:50px 1fr auto}.event-catalog article>span:last-child{display:none}}@media(max-width:500px){.payroll-metrics,.legal-grid,.payroll-detail-summary{grid-template-columns:1fr}.payroll-heading{align-items:flex-start}.payroll-heading>div:last-child{flex-wrap:wrap}}
 .exception-counter{align-self:center;background:#fff3e0;color:#a85b00;border:1px solid #ffd9a3;border-radius:999px;padding:8px 12px;font-weight:700}.exceptions-panel{overflow:hidden}.filter-bar input,.exception-filter select{border:0;background:transparent;outline:0;font:inherit;color:inherit}.exception-filter{display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:10px;padding:10px 12px}.exception-list{display:grid}.exception-card{display:grid;grid-template-columns:4px minmax(0,1fr) auto;gap:16px;padding:20px;border-top:1px solid var(--border);align-items:center}.priority-mark{height:100%;min-height:72px;border-radius:99px;background:#8da2c0}.priority-mark.critical{background:#e5484d}.priority-mark.high{background:#f79009}.priority-mark.medium{background:#3974dd}.priority-mark.low{background:#17a673}.exception-title{display:flex;align-items:center;gap:10px}.exception-title h2{font-size:16px;margin:0}.exception-card p{margin:7px 0;color:var(--muted)}.exception-card small{color:var(--muted)}.exception-recommendation{margin-top:10px;padding:9px 12px;background:#f5f8ff;border-radius:8px;color:#315b9d;font-size:13px}.modal-form{display:grid;gap:16px;padding:20px}.modal-form label{display:grid;gap:8px;font-weight:600}.modal-form textarea{min-height:110px;resize:vertical;border:1px solid var(--border);border-radius:10px;padding:12px;font:inherit}.modal-actions{display:flex;justify-content:flex-end;gap:10px}.form-error{color:#c9373c}@media(max-width:720px){.exception-card{grid-template-columns:4px 1fr}.exception-card>.primary-button{grid-column:2;justify-self:start}.filter-bar{align-items:stretch;flex-direction:column}}
+
+/* ── Global Search ─────────────────────────────────────────── */
+.global-search-overlay {
+  position: fixed; inset: 0; z-index: 900;
+  background: rgba(10,14,26,.55); backdrop-filter: blur(4px);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding-top: clamp(60px, 12vh, 140px);
+}
+.global-search-panel {
+  width: min(600px, 92vw); background: var(--surface);
+  border: 1px solid var(--border); border-radius: 14px;
+  box-shadow: 0 24px 64px rgba(0,0,0,.22); overflow: hidden;
+}
+.global-search-field {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 16px; border-bottom: 1px solid var(--border);
+}
+.global-search-field svg { color: var(--muted); flex-shrink: 0; }
+.global-search-field input {
+  flex: 1; background: transparent; border: none; outline: none;
+  font-size: .95rem; color: var(--text);
+}
+.global-search-field input::placeholder { color: var(--muted); }
+.global-search-clear {
+  background: none; border: none; cursor: pointer; color: var(--muted);
+  padding: 2px; border-radius: 4px; display: flex; align-items: center;
+}
+.global-search-clear:hover { color: var(--text); }
+.global-search-results { max-height: 420px; overflow-y: auto; }
+.global-search-group { padding: 6px 0; }
+.global-search-group + .global-search-group { border-top: 1px solid var(--border); }
+.global-search-group-label {
+  font-size: .7rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--muted);
+  padding: 8px 16px 4px;
+}
+.global-search-item {
+  width: 100%; display: flex; align-items: center; gap: 10px;
+  padding: 9px 16px; background: none; border: none; cursor: pointer;
+  text-align: left; color: var(--text); transition: background .1s;
+}
+.global-search-item:hover,
+.global-search-item.active { background: var(--surface-hover, rgba(21,94,239,.08)); }
+.global-search-item-icon {
+  width: 28px; height: 28px; border-radius: 7px;
+  background: var(--surface-2, rgba(21,94,239,.1));
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; color: var(--accent, #155eef);
+}
+.global-search-item strong { display: block; font-size: .88rem; font-weight: 500; }
+.global-search-item small { display: block; font-size: .77rem; color: var(--muted); margin-top: 1px; }
+.global-search-empty {
+  padding: 28px 20px; text-align: center; color: var(--muted); font-size: .9rem;
+}
+.global-search-hint {
+  display: flex; gap: 16px; padding: 10px 16px;
+  border-top: 1px solid var(--border); font-size: .75rem; color: var(--muted);
+}

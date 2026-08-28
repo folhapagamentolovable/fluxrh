@@ -1,8 +1,9 @@
 import { Bell, ChevronDown, Command, LogOut, Menu, Search, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { navigation } from "@/app/navigation";
 import { useAuth } from "@/auth/AuthProvider";
+import { GlobalSearch } from "@/components/ui/GlobalSearch";
 
 export function AppShell() {
   const { user, signOut } = useAuth();
@@ -12,9 +13,23 @@ export function AppShell() {
 
 export function AppShellView({ displayName, signOut }: { displayName: string; signOut: () => Promise<void> }) {
   const [navigationOpen, setNavigationOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const initials = displayName.split(/\s+/).slice(0, 2).map(part => part[0]).join("").toUpperCase();
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen(open => !open);
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   return (
     <div className="app-shell">
+      <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
       <a className="skip-link" href="#main-content">Pular para o conteúdo</a>
       <aside className="sidebar">
         <div className="sidebar-heading"><div className="brand"><span className="brand-mark">F</span><span>Flux<strong>RH</strong></span></div><button className="mobile-nav-toggle" type="button" aria-expanded={navigationOpen} aria-controls="primary-navigation" onClick={() => setNavigationOpen(value => !value)}><span>{navigationOpen ? "Fechar menu" : "Abrir menu"}</span>{navigationOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}</button></div>
@@ -37,7 +52,7 @@ export function AppShellView({ displayName, signOut }: { displayName: string; si
       </aside>
       <main className="main-area" id="main-content" tabIndex={-1}>
         <header className="topbar">
-          <button className="command-search"><Search size={18} /><span>Buscar pessoas, tarefas ou documentos</span><kbd><Command size={12} /> K</kbd></button>
+          <button className="command-search" onClick={() => setSearchOpen(true)} aria-label="Buscar pessoas, tarefas ou documentos"><Search size={18} /><span>Buscar pessoas, tarefas ou documentos</span><kbd><Command size={12} /> K</kbd></button>
           <div className="top-actions"><span className="live-pill"><i /> Operação ativa</span><button className="icon-button" aria-label="Notificações"><Bell size={19} /><i /></button></div>
         </header>
         <Outlet />
