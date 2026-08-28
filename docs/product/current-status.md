@@ -45,6 +45,7 @@ Atualizado em 27 de agosto de 2026.
 - Retenção de arquivos configurável por organização e categoria, prazo calculado no banco e preservação por “legal hold”.
 - Runbook de recuperação ajustado ao banco principal, com cópia separada dos objetos do Storage, conferência de WALG e migrations e rotina não destrutiva automatizada.
 - Piloto interno determinístico com 120 colaboradores, jornadas críticas, exceções propositais, fechamento de ponto e folha, artefatos e relatório reconciliado de divergências.
+- Fase 24 preparada com coortes, responsabilidades, calendário de dois ciclos paralelos, gates, evidências, SLAs e playbook de resposta a incidentes.
 
 ## Limitações conhecidas
 
@@ -56,7 +57,7 @@ Atualizado em 27 de agosto de 2026.
 
 ## Próximo marco
 
-Preparar a Fase 24: definir escopo, responsáveis, calendário e operação paralela do piloto assistido com clientes, sem substituir a folha oficial no primeiro ciclo.
+Recrutar e formalizar os participantes da Fase 24; executar dois ciclos paralelos por cliente, comparar resultados, tratar divergências e obter aceite formal sem substituir a folha oficial.
 
 ## Regras de transição
 

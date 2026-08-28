@@ -1092,23 +1092,23 @@ Desempenho
 
 ---
 
-## Fase 24 — Piloto assistido com clientes ⬜
+## Fase 24 — Piloto assistido com clientes 🟡
 
 ### Perfis recomendados
 
-- ⬜ Uma empresa pequena
-- ⬜ Uma empresa com múltiplos postos
-- ⬜ Um escritório de RH ou DP como usuário consultivo
+- ✅ Perfil de empresa pequena definido
+- ✅ Perfil de empresa com múltiplos postos definido
+- ✅ Perfil de escritório de RH ou DP consultivo definido
 
 ### Operação assistida
 
-- ⬜ Termos, escopo, responsáveis e calendário definidos
+- ✅ Termos, escopo, responsáveis e calendário definidos
 - ⬜ Execução paralela ao processo atual
-- ⬜ Sem substituir a folha oficial no primeiro ciclo
+- ✅ Regra formalizada: não substituir a folha oficial durante o piloto
 - ⬜ Comparação de resultados
 - ⬜ Correção das divergências
 - ⬜ Registro das decisões e aceite dos participantes
-- ⬜ Plano de suporte e resposta a incidentes validado
+- ✅ Plano de suporte e resposta a incidentes definido para validação com os participantes
 
 ### Critérios de saída
 
