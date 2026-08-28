@@ -231,7 +231,7 @@ export function DocumentsPage() {
                   Atualizado em{" "}
                   {new Date(template.updatedAt).toLocaleDateString("pt-BR")}
                 </small>
-                <button className="secondary-button">Editar modelo</button>
+                <button className="secondary-button" onClick={() => setTab("templates")}>Editar modelo</button>
               </footer>
             </article>
           ))}

@@ -39,7 +39,7 @@ export function DashboardPage() {
         <div className="exception-list">{data.exceptions.map((item) => <div className="exception-row" key={item.id}>
           <div className={`priority-indicator ${item.priority}`} />
           <div className="exception-copy"><div><strong>{item.title}</strong><StatusBadge tone={priority[item.priority].tone}>{priority[item.priority].label}</StatusBadge></div><p>{item.description}</p><small>{item.employeeName} · {item.area}</small></div>
-          <button className="ghost-action">Analisar <ArrowRight size={15} /></button>
+          <button className="ghost-action" onClick={() => { window.location.href = "/excecoes"; }}>Analisar <ArrowRight size={15} /></button>
         </div>)}</div>
       </article>
 

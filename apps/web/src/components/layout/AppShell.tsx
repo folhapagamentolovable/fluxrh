@@ -53,7 +53,7 @@ export function AppShellView({ displayName, signOut }: { displayName: string; si
       <main className="main-area" id="main-content" tabIndex={-1}>
         <header className="topbar">
           <button className="command-search" onClick={() => setSearchOpen(true)} aria-label="Buscar pessoas, tarefas ou documentos"><Search size={18} /><span>Buscar pessoas, tarefas ou documentos</span><kbd><Command size={12} /> K</kbd></button>
-          <div className="top-actions"><span className="live-pill"><i /> Operação ativa</span><button className="icon-button" aria-label="Notificações"><Bell size={19} /><i /></button></div>
+          <div className="top-actions"><span className="live-pill"><i /> Operação ativa</span><NavLink className="icon-button" aria-label="Notificações" to="/comunicacao"><Bell size={19} /><i /></NavLink></div>
         </header>
         <Outlet />
       </main>
