@@ -18,6 +18,7 @@ import { occupationalHealthRoutes } from "./modules/occupational-health/occupati
 import { patrolsRoutes } from "./modules/patrols/patrols.routes.js";
 import { governanceRoutes } from "./modules/governance/governance.routes.js";
 import { filesRoutes } from "./modules/files/files.routes.js";
+import { peopleRoutes } from "./modules/people/people.routes.js";
 import {
   registerApiSecurity,
   resolveAllowedOrigins,
@@ -92,5 +93,6 @@ export function buildApp(securityOptions: ApiSecurityOptions = {}) {
   app.register(patrolsRoutes, { prefix: "/api/v1/patrols" });
   app.register(governanceRoutes, { prefix: "/api/v1/governance" });
   app.register(filesRoutes, { prefix: "/api/v1/files" });
+  app.register(peopleRoutes, { prefix: "/api/v1/people" });
   return app;
 }
