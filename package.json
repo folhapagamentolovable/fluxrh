@@ -15,7 +15,8 @@
     "preview": "vite preview",
     "test": "npm run test -w @fluxrh/api && npm run test -w @fluxrh/web",
     "typecheck": "npm run typecheck -w @fluxrh/contracts && npm run typecheck -w @fluxrh/api && npm run typecheck -w @fluxrh/web",
-    "security:check": "node scripts/check-secrets.mjs"
+    "security:check": "node scripts/check-secrets.mjs",
+    "pilot:load": "npm run pilot:load -w @fluxrh/api"
   },
   "devDependencies": {
     "@vitejs/plugin-react-swc": "4.3.3",

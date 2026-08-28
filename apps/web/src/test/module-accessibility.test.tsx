@@ -21,6 +21,7 @@ import { OccupationalHealthPage } from "@/features/occupational-health/Occupatio
 import { PatrolsPage } from "@/features/patrols/PatrolsPage";
 import { WorkflowsPage } from "@/features/workflows/WorkflowsPage";
 import { EmployeePortalPage } from "@/features/portal/EmployeePortalPage";
+import { AuthProvider } from "@/auth/AuthProvider";
 
 const pages = [DashboardPage, ExceptionsPage, EmployeesPage, AdmissionsPage, OrganizationsPage,
   TimeTrackingPage, AbsencesPage, BenefitsPage, SpecialCalculationsPage, PayrollPage, TerminationsPage,
@@ -29,7 +30,7 @@ const pages = [DashboardPage, ExceptionsPage, EmployeesPage, AdmissionsPage, Org
 
 describe("module accessibility baseline", () => {
   it.each(pages.map((Page) => [Page.name, Page] as const))("has no serious Axe violations: %s", async (_name, Page) => {
-    const view = render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter><Page/></MemoryRouter></QueryClientProvider>);
+    const view = render(<AuthProvider><QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter><Page/></MemoryRouter></QueryClientProvider></AuthProvider>);
     await waitFor(() => expect(view.container.querySelector("h1")).toBeTruthy());
     const result = await axe.run(view.container, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa"] }, rules: { "color-contrast": { enabled: false } } });
     expect(result.violations.filter((violation) => ["serious", "critical"].includes(violation.impact ?? ""))).toEqual([]);

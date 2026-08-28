@@ -1,9 +1,11 @@
 import type { EmployeeTimeSummary, TimeException, TimeOverview, TimePunch } from "@fluxrh/contracts";
 import { calculateBalance, calculateWorkedMinutes } from "./time-calculator.js";
+import { pilotScenario } from "../../pilot/pilot-scenario.js";
 
 const baseDate="2026-08-25";const iso=(date:string,time:string)=>`${date}T${time}:00.000-03:00`;
 const punch=(id:string,employeeId:string,employeeName:string,type:TimePunch["type"],date:string,time:string,source:TimePunch["source"]="qr_code"):TimePunch=>({id,employeeId,employeeName,type,recordedAt:iso(date,time),source,locationName:"Matriz São Paulo",deviceId:"device-demo-01",latitude:-23.5505,longitude:-46.6333});
-const schedules=[{id:"sch_5x2",name:"Administrativo 5×2",pattern:"5x2" as const,startTime:"08:00",endTime:"17:48",breakMinutes:60,weeklyHours:44,nightShift:false,employeesCount:72,color:"#155eef"},{id:"sch_12x36",name:"Operacional 12×36",pattern:"12x36" as const,startTime:"07:00",endTime:"19:00",breakMinutes:60,weeklyHours:42,nightShift:false,employeesCount:41,color:"#7a50c8"},{id:"sch_6x1",name:"Tarde 6×1",pattern:"6x1" as const,startTime:"13:40",endTime:"22:00",breakMinutes:60,weeklyHours:44,nightShift:true,employeesCount:35,color:"#17a673"}];
+const assignedTo=(scheduleId:string)=>pilotScenario.employeeAssignments.filter(value=>value.scheduleId===scheduleId).length;
+const schedules=[{id:"sch_5x2",name:"Administrativo 5×2",pattern:"5x2" as const,startTime:"08:00",endTime:"17:48",breakMinutes:60,weeklyHours:44,nightShift:false,employeesCount:assignedTo("schedule_5x2"),color:"#155eef"},{id:"sch_12x36",name:"Operacional 12×36",pattern:"12x36" as const,startTime:"07:00",endTime:"19:00",breakMinutes:60,weeklyHours:42,nightShift:false,employeesCount:assignedTo("schedule_12x36"),color:"#7a50c8"},{id:"sch_6x1",name:"Tarde 6×1",pattern:"6x1" as const,startTime:"13:40",endTime:"22:00",breakMinutes:60,weeklyHours:44,nightShift:true,employeesCount:assignedTo("schedule_6x1"),color:"#17a673"}];
 const rawPunches:TimePunch[]=[
  punch("p1","emp_carlos","Carlos Mendes","clock_in",baseDate,"07:01"),punch("p2","emp_carlos","Carlos Mendes","break_start",baseDate,"12:02"),punch("p3","emp_carlos","Carlos Mendes","break_end",baseDate,"13:00"),punch("p4","emp_carlos","Carlos Mendes","clock_out",baseDate,"19:03"),
  punch("p5","emp_beatriz","Beatriz Lima","clock_in",baseDate,"08:14"),punch("p6","emp_beatriz","Beatriz Lima","break_start",baseDate,"12:05"),punch("p7","emp_beatriz","Beatriz Lima","break_end",baseDate,"13:04"),

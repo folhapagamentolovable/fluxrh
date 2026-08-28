@@ -72,7 +72,7 @@
 
 ### Próximo passo confirmado
 
-🟡 Fase 22 tecnicamente concluída, mas com aceite funcional pendente para ações secundárias. O piloto da Fase 23 permanece condicionado à validação publicada dos fluxos completos.
+⬜ Fase 24 planejada. A Fase 23 foi concluída com a competência interna de agosto de 2026 fechada, reconciliada e documentada no Supabase principal.
 
 ---
 
@@ -249,7 +249,7 @@ Entregáveis
 - Diagramas dos dez workflows
 - Critérios de sucesso do MVP
 
-Fase 1 — Fundação técnica
+## Fase 1 — Fundação técnica ✅
 Objetivo: criar uma base estável para todos os módulos.
 
 Frontend
@@ -297,7 +297,7 @@ Qualidade
 Critério de conclusão
 Frontend e API executam separadamente, possuem testes básicos e trocam dados por um endpoint demonstrativo.
 
-Fase 2 — Design System FluxRH
+## Fase 2 — Design System FluxRH ✅
 Objetivo: evitar que cada módulo crie componentes incompatíveis.
 
 Componentes
@@ -355,7 +355,7 @@ Entregáveis
 
 O design system deverá ser a fonte única dos componentes. Essa abordagem é compatível com a recomendação da própria Lovable de separar componentes e regras reutilizáveis. Design systems da Lovable
 
-Fase 3 — Navegação, autenticação simulada e contexto multiempresa
+## Fase 3 — Navegação, autenticação simulada e contexto multiempresa ✅
 Objetivo: permitir navegar no produto como diferentes tipos de usuário.
 
 Funcionalidades
@@ -379,7 +379,7 @@ Criar usuários e organizações fictícios em arquivos de fixtures. O mesmo con
 Critério de conclusão
 É possível entrar como administrador, RH, gestor ou colaborador e visualizar apenas as áreas autorizadas.
 
-Fase 4 — Central de Operações e Exceções
+## Fase 4 — Central de Operações e Exceções ✅
 Objetivo: implementar primeiro o diferencial central do FluxRH.
 
 Funcionalidades
@@ -418,7 +418,7 @@ Tipos de exceção iniciais
 Critério de conclusão
 O usuário consegue identificar o que exige ação humana sem navegar por todos os módulos.
 
-Fase 5 — Estrutura organizacional
+## Fase 5 — Estrutura organizacional ✅
 Objetivo: estabelecer o contexto operacional de todos os futuros módulos.
 
 Funcionalidades
@@ -449,7 +449,7 @@ Regras
 Critério de conclusão
 É possível representar uma empresa com múltiplos CNPJs, unidades, departamentos, postos e centros de custo.
 
-Fase 6 — Colaboradores e prontuário digital
+## Fase 6 — Colaboradores e prontuário digital ✅
 Objetivo: criar o cadastro central de pessoas.
 
 Funcionalidades
@@ -488,7 +488,7 @@ Cuidados
 Critério de conclusão
 O prontuário mostra a situação atual e todo o histórico do colaborador.
 
-Fase 7 — Motor de workflows, regras e tarefas
+## Fase 7 — Motor de workflows, regras e tarefas ✅
 Objetivo: transformar os módulos em processos autônomos.
 
 Elementos do motor
@@ -531,7 +531,7 @@ Não construir ainda um editor visual complexo. Os workflows serão definidos po
 Critério de conclusão
 Um evento inicia um processo, executa passos automáticos e abre uma exceção quando uma regra falha.
 
-Fase 8 — Documentos e aceites eletrônicos
+## Fase 8 — Documentos e aceites eletrônicos ✅
 Objetivo: sustentar admissão, férias, folha e desligamento.
 
 Funcionalidades
@@ -558,7 +558,7 @@ Funcionalidades
 Inicialmente
 Arquivos podem ser representados por mocks e blobs locais de desenvolvimento. Supabase Storage entra apenas na fase de persistência.
 
-Fase 9 — Admissão e onboarding
+## Fase 9 — Admissão e onboarding ✅
 Objetivo: entregar o primeiro workflow completo.
 
 Admissão
@@ -595,7 +595,7 @@ Uma admissão percorre o fluxo completo e chama o RH somente quando há document
 
 Esse é o primeiro grande marco comercial do produto.
 
-Fase 10 — Jornada, escalas e ponto
+## Fase 10 — Jornada, escalas e ponto ✅
 Objetivo: controlar planejamento e execução da jornada.
 
 Escalas
@@ -647,7 +647,7 @@ Apuração
 Critério de conclusão
 O sistema transforma marcações em eventos apurados e envia apenas divergências ao gestor ou RH.
 
-Fase 11 — Férias, faltas, atestados e afastamentos
+## Fase 11 — Férias, faltas, atestados e afastamentos ✅
 
 Férias
 
@@ -682,7 +682,7 @@ Férias
 - Atualizar ponto
 - Preparar eventos para folha
 - Criar exceção em caso de inconsistência
-  Fase 12 — Benefícios
+## Fase 12 — Benefícios ✅
   Funcionalidades
 - Catálogo
 - Planos
@@ -707,7 +707,7 @@ Férias
 - Seguro de vida
 - Auxílios configuráveis
   Nenhuma API externa será necessária. O sistema gera relatórios e arquivos para execução manual.
-  Fase 13 — Motor de cálculo da folha
+## Fase 13 — Motor de cálculo da folha ✅
   Objetivo: criar uma engine testável antes da interface de fechamento.
   Ordem de implementação
 
@@ -758,7 +758,7 @@ Férias
 - Memória de cálculo
   Critério de conclusão
   O resultado deve ser reproduzível: os mesmos dados e versões de regras sempre produzem o mesmo cálculo.
-  Fase 14 — Fechamento da folha
+## Fase 14 — Fechamento da folha ✅
   Funcionalidades
 - Abrir competência
 - Importar eventos
@@ -786,7 +786,7 @@ Férias
 - Falta sem tratamento
 - Benefício incompatível
 - Colaborador admitido ou desligado na competência
-  Fase 15 — Saúde e Segurança do Trabalho
+## Fase 15 — Saúde e Segurança do Trabalho ✅
   Funcionalidades
 - Exames
 - ASOs
@@ -802,7 +802,7 @@ Férias
 - Alertas
 - Documentos
   Clínicas e profissionais serão cadastros internos. Solicitações serão geradas para impressão ou envio manual.
-  Fase 16 — Postos e rondas por QR Code
+## Fase 16 — Postos e rondas por QR Code ✅
   Funcionalidades
 - Postos
 - Locais
@@ -826,7 +826,7 @@ Férias
 - Sequência inválida
 - Dispositivo inesperado
 - Ocorrência crítica
-  Fase 17 — Comunicação e autosserviço
+## Fase 17 — Comunicação e autosserviço ✅
   Portal do colaborador
 - Meu cadastro
 - Meus documentos
@@ -859,7 +859,7 @@ Férias
 - Notificações internas
 - Preferências
 - Modelos de mensagem
-  Fase 18 — Movimentações e desligamento
+## Fase 18 — Movimentações e desligamento ✅
   Movimentações
 - Promoção
 - Alteração salarial
@@ -883,7 +883,7 @@ Férias
 - Aceites
 - Entrevista
 - Arquivamento
-  Fase 19 — Relatórios, indicadores e custos
+## Fase 19 — Relatórios, indicadores e custos ✅
   Indicadores
 - Headcount
 - Admissões
@@ -911,7 +911,7 @@ Férias
 - Histórico de geração
   O indicador mais importante do FluxRH deverá ser:
   Percentual de etapas operacionais concluídas sem intervenção humana.
-  Fase 20 — Administração, auditoria e LGPD
+## Fase 20 — Administração, auditoria e LGPD ✅
   Funcionalidades
 - Usuários
 - Papéis
@@ -943,9 +943,9 @@ Férias
 * estabelecimento
 * departamento
 * sensibilidade do dado
-  Fase 21 — Persistência PostgreSQL/Supabase
+## Fase 21 — Persistência PostgreSQL/Supabase ✅
   Somente aqui os repositories em memória começam a ser substituídos.
-  Etapa 21.1 — Modelagem
+### Etapa 21.1 — Modelagem ✅
 
 - Consolidar entidades efetivamente utilizadas
 - Remover conceitos que não sobreviveram à validação
@@ -956,7 +956,7 @@ Férias
 - Definir retenção
 - Definir particionamento futuro
 - Definir tabelas de auditoria
-  Etapa 21.2 — Supabase local
+### Etapa 21.2 — Supabase e migrations ✅
 - Configurar Supabase CLI
 - Configurar ambiente local
 - Adotar schemas declarativos
@@ -965,7 +965,7 @@ Férias
 - Criar fixtures de teste
 - Configurar backups
 - Documentar restauração
-  Etapa 21.3 — Autenticação
+### Etapa 21.3 — Autenticação ✅
 - Integrar Supabase Auth
 - Relacionar usuário e perfil interno
 - Migrar sessão simulada
@@ -975,7 +975,7 @@ Férias
 - Revogação
 - Auditoria
   Não utilizar metadados editáveis pelo usuário para autorização. Papéis e escopos devem ser controlados pela aplicação e por dados confiáveis.
-  Etapa 21.4 — RLS e isolamento multiempresa
+### Etapa 21.4 — RLS e isolamento multiempresa ✅
 - Habilitar RLS nas tabelas expostas
 - Restringir por organização
 - Restringir por unidade quando necessário
@@ -984,7 +984,7 @@ Férias
 - Testar tentativas de acesso cruzado
 - Testar perfis e delegações
 - Manter chaves privilegiadas somente no backend
-  Etapa 21.5 — Storage
+### Etapa 21.5 — Storage ✅
 - ✅ Documentos
 - ✅ Atestados
 - ✅ Contratos
@@ -994,7 +994,7 @@ Férias
 - ✅ Políticas por empresa e usuário
 - ✅ Upload, leitura, substituição e remoção
 - ⬜ Antivírus ou quarentena futura
-  Etapa 21.6 — Migração dos módulos
+### Etapa 21.6 — Migração dos módulos ✅
   Sequência recomendada:
 
 1. Empresas e usuários
@@ -1061,16 +1061,26 @@ Desempenho
 
 ---
 
-## Fase 23 — Piloto interno 🟡
+## Fase 23 — Piloto interno ✅
+
+### Correções pós-piloto
+
+- ✅ Indicadores de colaboradores reconciliados entre Visão Geral e Pessoas usando contagens do Supabase
+- ✅ Listagem de Pessoas ampliada para toda a organização, incluindo vínculos encerrados
+- ✅ Saudação da Visão Geral vinculada ao nome da sessão autenticada (`Neozinho`, `super_admin`)
 
 ### Massa operacional
 
-- ✅ Empresa fictícia completa
-- ✅ Pelo menos 100 colaboradores simulados (120 no Grupo Flux)
-- ✅ Dois estabelecimentos
-- ✅ Três postos
-- ✅ Diferentes escalas (5×2, 12×36 e 6×1)
-- ✅ Ciclo completo de uma competência
+- ✅ Gerador canônico, determinístico e versionado criado como fonte única do piloto
+- ✅ Empresa fictícia consolidada nos módulos de organizações, pessoas, ponto e rondas
+- ✅ 120 colaboradores canônicos persistidos no Supabase principal e validados sem duplicação
+- ✅ Dois estabelecimentos reconciliados na distribuição 80/40
+- ✅ Três postos operacionais com rotas, pontos e colaboradores atribuídos
+- ✅ Escalas 5×2, 12×36 e 6×1 atribuídas aos 120 colaboradores e reconciliadas no ponto
+- ✅ Todos os colaboradores vinculados a estabelecimento, posto, escala e jornadas planejadas
+- ✅ Carregador autenticado e idempotente do piloto criado para o Supabase principal, sem `service_role`
+- ✅ Contagens, vínculos, distribuição 80/40, escalas, rondas, idempotência e isolamento multiempresa validados diretamente no banco
+- ✅ Ciclo completo da competência 2026-08 executado e reconciliado
 
 ### Jornadas do piloto
 
@@ -1089,7 +1099,7 @@ Desempenho
 - ✅ Toda jornada crítica executada com os dados do piloto
 - ✅ Exceções detectadas, tratadas e auditadas
 - ✅ Competência fechada e reconciliada
-- ✅ Nenhum defeito crítico ou alto em aberto
+- ✅ Nenhum defeito crítico ou alto do piloto em aberto
 - ✅ Evidências do piloto anexadas ao repositório
 
 ---

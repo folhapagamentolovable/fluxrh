@@ -6,6 +6,9 @@ import type {
   RegisterPatrolVisitInput,
   StartPatrolInput,
 } from "@fluxrh/contracts";
+import { pilotScenario } from "../../pilot/pilot-scenario.js";
+const postAt=(id:string)=>pilotScenario.posts.find(value=>value.id===id)!;
+const assignedNames=(postId:string)=>pilotScenario.employeeAssignments.filter(value=>value.postId===postId).map(value=>pilotScenario.syntheticEmployees.find(employee=>employee.id===value.employeeId)?.fullName).filter((value):value is string=>Boolean(value)).slice(0,2);
 const point = (id: string, name: string, sequence: number, site = "MTZ") => ({
   id,
   name,
@@ -21,13 +24,13 @@ const routes: PatrolOverview["routes"] = [
   {
     id: "route_1",
     name: "Ronda perimetral noturna",
-    siteName: "Matriz São Paulo",
-    companyName: "Flux Serviços Ltda.",
+    siteName: postAt("post_matriz").name,
+    companyName: pilotScenario.company.tradeName,
     shift: "19:00–07:00",
     estimatedMinutes: 45,
     toleranceMinutes: 10,
     active: true,
-    assignedEmployees: ["Paulo Ribeiro", "João Santos"],
+    assignedEmployees: assignedNames("post_matriz"),
     points: [
       point("pt_1", "Portaria principal", 1),
       point("pt_2", "Estacionamento", 2),
@@ -38,18 +41,30 @@ const routes: PatrolOverview["routes"] = [
   {
     id: "route_2",
     name: "Inspeção de abertura",
-    siteName: "Unidade Campinas",
-    companyName: "Guard Facilities Ltda.",
+    siteName: postAt("post_santos").name,
+    companyName: pilotScenario.company.tradeName,
     shift: "05:30–06:15",
     estimatedMinutes: 30,
     toleranceMinutes: 5,
     active: true,
-    assignedEmployees: ["Rafael Nunes"],
+    assignedEmployees: assignedNames("post_santos"),
     points: [
       point("camp_1", "Portaria", 1, "CPS"),
       point("camp_2", "Pátio", 2, "CPS"),
       point("camp_3", "Sala técnica", 3, "CPS"),
     ],
+  },
+  {
+    id: "route_3",
+    name: "Inspeção do posto logístico",
+    siteName: postAt("post_logistica").name,
+    companyName: pilotScenario.company.tradeName,
+    shift: "13:40–22:00",
+    estimatedMinutes: 35,
+    toleranceMinutes: 8,
+    active: true,
+    assignedEmployees: assignedNames("post_logistica"),
+    points: [point("log_1", "Portaria logística", 1, "LOG"), point("log_2", "Docas", 2, "LOG"), point("log_3", "Almoxarifado", 3, "LOG")],
   },
 ];
 const occurrences: PatrolOccurrence[] = [

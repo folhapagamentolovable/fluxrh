@@ -4,7 +4,10 @@ import type {
   EmployeeListItem,
   UpdateEmployeeInput,
 } from "@fluxrh/contracts";
-import { createPilotEmployees } from "../../pilot/pilot-scenario.js";
+import {
+  createPilotEmployees,
+  pilotScenario,
+} from "../../pilot/pilot-scenario.js";
 
 export interface EmployeesRepository {
   list(filter?: EmployeeListFilter): Promise<EmployeeListItem[]>;
@@ -272,6 +275,17 @@ const employees: Employee[] = [
   },
   ...createPilotEmployees(),
 ];
+
+const pilotAssignmentByEmployee = new Map(pilotScenario.employeeAssignments.map((assignment) => [assignment.employeeId, assignment]));
+for (const employee of employees) {
+  const assignment = pilotAssignmentByEmployee.get(employee.id);
+  if (!assignment) continue;
+  const establishment = pilotScenario.establishments.find((value) => value.id === assignment.establishmentId)!;
+  const schedule = pilotScenario.schedules.find((value) => value.id === assignment.scheduleId)!;
+  employee.establishmentId = establishment.id;
+  employee.establishmentName = establishment.name;
+  employee.workSchedule = schedule.label;
+}
 
 export class InMemoryEmployeesRepository implements EmployeesRepository {
   async list(filter: EmployeeListFilter = {}): Promise<EmployeeListItem[]> {

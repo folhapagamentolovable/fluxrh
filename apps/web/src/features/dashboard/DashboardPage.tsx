@@ -3,6 +3,7 @@ import { ArrowRight, Bot, BriefcaseBusiness, CheckCircle2, Clock3, Sparkles, Tri
 import { Link } from "react-router-dom";
 import { getDashboard } from "@/lib/api";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { useAuth } from "@/auth/AuthProvider";
 
 const priority = {
   critical: { label: "Crítica", tone: "red" as const },
@@ -12,6 +13,8 @@ const priority = {
 };
 
 export function DashboardPage() {
+  const { user } = useAuth();
+  const displayName = String(user?.user_metadata.full_name || user?.email || "Usuário").trim().split(/\s+/)[0];
   const { data, isLoading, error } = useQuery({ queryKey: ["operations-dashboard"], queryFn: getDashboard });
   if (isLoading) return <div className="page"><div className="page-skeleton" /></div>;
   if (error || !data) return <div className="page"><div className="error-state"><TriangleAlert /><h2>Não foi possível abrir a operação</h2><p>Verifique se a API do FluxRH está em execução.</p></div></div>;
@@ -25,7 +28,7 @@ export function DashboardPage() {
 
   return <div className="page">
     <section className="page-heading">
-      <div><span className="eyebrow"><Sparkles size={15} /> Central de operações</span><h1>Bom dia, Marina.</h1><p>O FluxRH executou 186 ações automaticamente. Existem 3 decisões para você hoje.</p></div>
+      <div><span className="eyebrow"><Sparkles size={15} /> Central de operações</span><h1>Bom dia, {displayName}.</h1><p>O FluxRH executou 186 ações automaticamente. Existem 3 decisões para você hoje.</p></div>
       <div className="date-card"><small>Terça-feira</small><strong>25 de agosto</strong><span>Competência 08/2026</span></div>
     </section>
 

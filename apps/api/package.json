@@ -7,6 +7,7 @@
     "dev": "npm run build && node --watch dist/server.js",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
+    "pilot:load": "tsx src/pilot/load-pilot.ts",
     "test": "vitest run --config vitest.config.ts --configLoader runner src",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },

@@ -34,6 +34,8 @@ type LinkRow = {
   work_schedule: string | null;
   manager_employee_id: string | null;
   hire_date: string;
+  active: boolean;
+  updated_at: string;
 };
 type DocumentRow = {
   id: string;
@@ -98,10 +100,11 @@ export class SupabaseEmployeesRepository implements EmployeesRepository {
       this.client
         .from("employment_links")
         .select(
-          "employee_id,establishment_id,department_id,cost_center_id,position,contract_type,salary,work_schedule,manager_employee_id,hire_date",
+          "employee_id,establishment_id,department_id,cost_center_id,position,contract_type,salary,work_schedule,manager_employee_id,hire_date,active,updated_at",
         )
         .eq("organization_id", organizationId)
-        .eq("active", true),
+        .order("active", { ascending: false })
+        .order("updated_at", { ascending: false }),
       this.client
         .from("companies")
         .select("id,trade_name")

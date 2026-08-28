@@ -31,7 +31,7 @@ export async function employeesRoutes(app: FastifyInstance) {
       offset?: string;
     };
   }>("/", async (request, reply) => {
-    const limit = Math.min(100, Math.max(1, Number(request.query.limit ?? 50)));
+    const limit = Math.min(200, Math.max(1, Number(request.query.limit ?? 50)));
     const offset = Math.max(0, Number(request.query.offset ?? 0));
     const statuses = [
       "active",

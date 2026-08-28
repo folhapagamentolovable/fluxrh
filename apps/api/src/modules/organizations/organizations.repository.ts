@@ -1,4 +1,5 @@
 import type { Company, CreateCompanyInput, OrganizationSnapshot, OrganizationUnit } from "@fluxrh/contracts";
+import { pilotScenario } from "../../pilot/pilot-scenario.js";
 
 export interface OrganizationsRepository {
   getSnapshot(): Promise<OrganizationSnapshot>;
@@ -6,13 +7,13 @@ export interface OrganizationsRepository {
 }
 
 const companies: Company[] = [
-  { id: "company_flux", legalName: "Flux Serviços Empresariais Ltda.", tradeName: "Grupo Flux", document: "12.345.678/0001-90", status: "active", city: "São Paulo", state: "SP", employeesCount: 120, establishmentsCount: 2 },
+  { id: pilotScenario.company.id, legalName: pilotScenario.company.legalName, tradeName: pilotScenario.company.tradeName, document: "12.345.678/0001-90", status: "active", city: "São Paulo", state: "SP", employeesCount: pilotScenario.company.employeeTarget, establishmentsCount: pilotScenario.establishments.length },
   { id: "company_norte", legalName: "Norte Facilities e Serviços Ltda.", tradeName: "Norte Facilities", document: "45.821.930/0001-18", status: "active", city: "Campinas", state: "SP", employeesCount: 52, establishmentsCount: 1 },
 ];
 
 const units: OrganizationUnit[] = [
-  { id: "est_sp", companyId: "company_flux", parentId: null, type: "establishment", code: "EST-001", name: "Matriz São Paulo", city: "São Paulo", state: "SP", managerName: "Marina Alves", employeesCount: 68, status: "active" },
-  { id: "est_santos", companyId: "company_flux", parentId: null, type: "establishment", code: "EST-002", name: "Unidade Santos", city: "Santos", state: "SP", managerName: "Rafael Alves", employeesCount: 28, status: "active" },
+  { id: "est_sp", companyId: "company_flux", parentId: null, type: "establishment", code: "EST-001", name: "Matriz São Paulo", city: "São Paulo", state: "SP", managerName: "Marina Alves", employeesCount: pilotScenario.establishments.find(value => value.id === "est_sp")!.employeeTarget, status: "active" },
+  { id: "est_santos", companyId: "company_flux", parentId: null, type: "establishment", code: "EST-002", name: "Unidade Santos", city: "Santos", state: "SP", managerName: "Rafael Alves", employeesCount: pilotScenario.establishments.find(value => value.id === "est_santos")!.employeeTarget, status: "active" },
   { id: "est_campinas", companyId: "company_norte", parentId: null, type: "establishment", code: "EST-003", name: "Operação Campinas", city: "Campinas", state: "SP", managerName: "Luciana Prado", employeesCount: 52, status: "active" },
   { id: "dept_people", companyId: "company_flux", parentId: "est_sp", type: "department", code: "DEP-001", name: "Pessoas e Cultura", managerName: "Marina Alves", employeesCount: 12, status: "active" },
   { id: "dept_ops", companyId: "company_flux", parentId: "est_sp", type: "department", code: "DEP-002", name: "Operações", managerName: "Daniel Costa", employeesCount: 39, status: "active" },

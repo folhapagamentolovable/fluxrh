@@ -29,4 +29,3 @@ grant execute on function private.has_organization_role(uuid, public.organizatio
 comment on function private.has_organization_role(uuid, public.organization_role[]) is
   'Authorizes the requested organization roles and always authorizes an active super-admin membership.';
 
-

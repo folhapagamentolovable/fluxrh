@@ -183,7 +183,7 @@ export const createCompany = (input: CreateCompanyInput) =>
     },
   );
 export const getEmployees = (): Promise<EmployeeListItem[]> =>
-  request("/api/v1/employees", employeeListSchema);
+  request("/api/v1/employees?limit=200", employeeListSchema);
 export const getEmployee = (id: string): Promise<Employee> =>
   request(`/api/v1/employees/${id}`, employeeSchema);
 export const createEmployee = (input: CreateEmployeeInput): Promise<Employee> =>
