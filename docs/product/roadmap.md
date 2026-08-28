@@ -1,6 +1,8 @@
 # Roadmap do FluxRH
 
-## Estado atual — Fase 1 concluída tecnicamente
+## Estado atual — Fase 1 concluída tecnicamente, aceite funcional parcial
+
+Os marcos anteriores foram reclassificados: “concluído tecnicamente” cobre contratos, regras, persistência, migrations, testes e build; “concluído funcionalmente” exige também que todas as ações visíveis (inclusive secundárias) funcionem de ponta a ponta no ambiente publicado, com permissões, estados de erro/sucesso e auditoria. As entregas sintéticas não representam liberação comercial.
 
 - Interface Lovable/Vite com navegação dos módulos principais.
 - API REST e contratos TypeScript compartilhados.
@@ -39,7 +41,7 @@ Todos os itens da Fase 1 possuem contrato, API, persistência Supabase, isolamen
 
 ## Fase 2 — operação essencial
 
-Estado: contratos, regras, interface e persistência Supabase concluídos para todos os domínios desta fase.
+Estado: contratos, regras, interface principal e persistência Supabase concluídos; aceite funcional completo permanece **em andamento** devido a ações secundárias pendentes em alguns módulos.
 
 - Documentos e aceite eletrônico. **Persistência e Storage Supabase implementados.**
 - Jornada, ponto, banco de horas e fechamento. **Persistência Supabase implementada e validada remotamente.**
@@ -49,7 +51,7 @@ Estado: contratos, regras, interface e persistência Supabase concluídos para t
 
 ## Fase 3 — experiência e integração
 
-Estado: experiência demonstrável e estado persistente por organização no Supabase.
+Estado: experiência demonstrável e estado persistente por organização no Supabase; aceite funcional completo permanece **em andamento** até a validação de todas as ações secundárias e fluxos publicados.
 
 - Portal do colaborador e do gestor. **Persistência Supabase implementada.**
 - Central universal de solicitações. **Persistência Supabase implementada.**
@@ -71,7 +73,7 @@ Estado: experiência demonstrável e estado persistente por organização no Sup
 
 ## Marco 27 — liberação operacional externa restrita
 
-Estado: **concluído**.
+Estado: **concluído tecnicamente; liberação funcional restrita em validação**. O gate não substitui a validação ponta a ponta dos fluxos de interface.
 
 - Gate persistido de ativação real no Supabase.
 - Mutações externas restritas a sessões autenticadas com vínculo ativo `super_admin`.
@@ -81,4 +83,4 @@ Estado: **concluído**.
 
 ## Critério de conclusão de cada incremento
 
-Um incremento só é considerado concluído quando possui contrato validado, regra testada, interface utilizável, auditoria prevista, build aprovado e comportamento verificado no ambiente publicado.
+Um incremento só é considerado concluído quando possui contrato validado, regra testada, interface utilizável (ações primárias e secundárias), auditoria prevista, build aprovado, permissões verificadas e comportamento completo validado no ambiente publicado. Caso qualquer ação visível ainda seja apenas decorativa, o estado deve ser **em andamento**.

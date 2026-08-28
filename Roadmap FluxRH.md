@@ -4,6 +4,8 @@
 >
 > **Última conferência:** 28 de agosto de 2026  
 > **Legenda:** ✅ concluído · 🟡 em andamento · ⬜ planejado
+>
+> **Nova premissa de aceite:** a conclusão exige que o fluxo completo esteja exercitável no ambiente publicado, incluindo ações primárias e secundárias, estados de sucesso/erro, persistência, permissões e auditoria. Build, migrations ou telas demonstráveis isoladamente não bastam. Entregas sintéticas/operacionais continuam identificadas como validações técnicas, não como liberação comercial.
 
 ## Acompanhamento atual
 
@@ -25,11 +27,11 @@
 
 - ✅ Central de Operações e Exceções
 - ✅ Estrutura organizacional
-- ✅ Cadastro e prontuário digital de colaboradores
+- 🟡 Cadastro e prontuário digital de colaboradores (ações secundárias pendentes: dependentes, solicitação de documentos e edição completa)
 - ✅ Motor de workflows, regras e tarefas
 - ✅ Documentos e aceites eletrônicos
 - ✅ Admissão e onboarding
-- ✅ Jornada, escalas e ponto
+- 🟡 Jornada, escalas e ponto (filtros, exportação e fechamento de competência pendentes de validação ponta a ponta)
 - ✅ Férias, faltas, atestados e afastamentos
 - ✅ Benefícios
 - ✅ Motor de cálculo da folha
@@ -70,7 +72,7 @@
 
 ### Próximo passo confirmado
 
-✅ Fase 22 concluída. Próximo passo: iniciar a Fase 23 — piloto e entrada em produção, começando pela empresa fictícia com volume representativo.
+🟡 Fase 22 tecnicamente concluída, mas com aceite funcional pendente para ações secundárias. O piloto da Fase 23 permanece condicionado à validação publicada dos fluxos completos.
 
 ---
 
