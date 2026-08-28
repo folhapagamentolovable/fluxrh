@@ -51,6 +51,7 @@ Atualizado em 28 de agosto de 2026.
 - Fase 26 validada em modo sintético: onboarding padronizado, SLA interno, monitoramento contínuo, revisões trimestrais de conformidade e roadmap orientado a métricas para as três organizações fictícias; liberação comercial real segue bloqueada.
 - Ambiente remoto integrado entre frontend Lovable, API Render e Supabase externo, com a origem publicada autorizada por CORS e endpoint de prontidão para validar o modo persistente sem expor credenciais.
 - Ambiente operacional externo liberado para operações reais exclusivamente por sessões com vínculo ativo `super_admin`; todas as mutações passam por um gate persistido no Supabase e pela barreira global da API, enquanto os demais papéis permanecem em modo somente leitura.
+- Massa de demonstração isolada criada no Supabase externo com uma organização fictícia, uma empresa fictícia, três unidades organizacionais, dez colaboradores artificiais e dez vínculos; e-mails usam exclusivamente `example.invalid` e documentos usam o prefixo `FICT`.
 
 ## Limitações conhecidas
 
