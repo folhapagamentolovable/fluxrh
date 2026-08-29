@@ -72,7 +72,7 @@
 
 ### Próximo passo confirmado
 
-⬜ Fase 24 planejada. A Fase 23 foi concluída com a competência interna de agosto de 2026 fechada, reconciliada e documentada no Supabase principal.
+🟡 Auditoria controlada de cálculos trabalhistas e aderência à CCT. As Fases 23 a 26 sintéticas estão concluídas; o primeiro caso individual rastreável já foi cadastrado no Supabase principal.
 
 ---
 
@@ -1160,6 +1160,23 @@ Desempenho
 - ✅ Monitoramento sintético de segurança e desempenho contínuo
 - ✅ Revisões sintéticas de LGPD, acessos, retenção e incidentes
 - ✅ Roadmap trimestral orientado por métricas e feedback fictícios
+
+---
+
+## Auditoria controlada de cálculos e CCT 🟡
+
+- ✅ Caso fictício `AUD-0001` criado no Supabase principal
+- ✅ Admissão em 01/01/2025, cargo de Vigia e salário mensal de R$ 2.091,57 registrados
+- ✅ Posto Florence e escala T1 Noturno, das 18:00 às 06:00, associados ao colaborador
+- ✅ Intervalo de janta das 22:00 às 23:00 preservado no vínculo e na trilha de auditoria
+- ✅ Férias de 01/09/2026 a 30/09/2026, com retorno em 01/10/2026, registradas e aprovadas no cenário
+- ✅ Evento de domínio e evento de auditoria com os parâmetros originais persistidos
+- ⬜ Auditar aquisição e concessão de férias, remuneração e terço constitucional
+- ⬜ Auditar jornada noturna, hora noturna reduzida, adicional noturno, intervalo e prorrogação
+- ⬜ Auditar DSR, horas extras, INSS, FGTS e IRRF por competência
+- ⬜ Versionar e comparar as tabelas legais utilizadas em cada cálculo
+- ⬜ Importar e parametrizar a CCT aplicável após identificação de sindicato, base territorial e vigência
+- ⬜ Registrar divergências e propostas de melhoria na memória de cálculo
 
 ---
 
