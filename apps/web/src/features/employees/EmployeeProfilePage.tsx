@@ -116,7 +116,26 @@ export function EmployeeProfilePage() {
         <div className="page-skeleton" />
       </div>
     );
-  if (error || !employee)
+  if (error)
+    return (
+      <div className="page">
+        <div className="error-state">
+          <UserRound />
+          <h2>
+            {error instanceof Error && error.message.includes("(404)")
+              ? "Colaborador não encontrado"
+              : "Não foi possível carregar o colaborador"}
+          </h2>
+          <p>
+            {error instanceof Error && error.message.includes("(404)")
+              ? "O cadastro solicitado não existe ou não está disponível nesta organização."
+              : "O cadastro existe, mas ocorreu uma falha ao carregar o prontuário. Tente novamente em instantes."}
+          </p>
+          <Link to="/pessoas">Voltar para pessoas</Link>
+        </div>
+      </div>
+    );
+  if (!employee)
     return (
       <div className="page">
         <div className="error-state">

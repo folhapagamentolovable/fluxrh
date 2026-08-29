@@ -28,6 +28,7 @@
 - ✅ Central de Operações e Exceções
 - ✅ Estrutura organizacional
 - 🟡 Cadastro e prontuário digital de colaboradores (ações secundárias pendentes: dependentes, solicitação de documentos e edição completa)
+  - ✅ Correção da abertura de prontuários pela busca global após alinhamento do schema de dependentes
 - ✅ Motor de workflows, regras e tarefas
 - ✅ Documentos e aceites eletrônicos
 - ✅ Admissão e onboarding
