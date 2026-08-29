@@ -350,6 +350,11 @@ export const reviewMedicalCertificate = (
   );
 export const getPayrollOverview = (): Promise<PayrollOverview> =>
   request("/api/v1/payroll/overview", payrollOverviewSchema);
+export const processPayroll = (competence?: string): Promise<PayrollOverview> =>
+  request("/api/v1/payroll/process", payrollOverviewSchema, {
+    method: "POST",
+    body: JSON.stringify(competence ? { competence } : {}),
+  });
 export const resolvePayrollException = (
   employeeId: string,
   exceptionId: string,

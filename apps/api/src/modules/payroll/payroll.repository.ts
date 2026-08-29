@@ -277,7 +277,7 @@ const run: PayrollRun = {
   updatedAt: new Date().toISOString(),
   employees,
 };
-const tables: PayrollOverview["legalTables"] = [
+export const payrollLegalTables: PayrollOverview["legalTables"] = [
   {
     id: "inss_2026",
     name: "INSS",
@@ -308,7 +308,7 @@ const tables: PayrollOverview["legalTables"] = [
     ],
   },
 ];
-const catalog: PayrollOverview["catalog"] = [
+export const payrollCatalog: PayrollOverview["catalog"] = [
   {
     code: "1001",
     name: "Salário mensal",
@@ -363,8 +363,8 @@ export class InMemoryPayrollRepository {
     const value = state as unknown as PayrollOverview;
     employees.splice(0, employees.length, ...structuredClone(value.run.employees));
     Object.assign(run, structuredClone(value.run), { employees });
-    tables.splice(0, tables.length, ...structuredClone(value.legalTables));
-    catalog.splice(0, catalog.length, ...structuredClone(value.catalog));
+    payrollLegalTables.splice(0, payrollLegalTables.length, ...structuredClone(value.legalTables));
+    payrollCatalog.splice(0, payrollCatalog.length, ...structuredClone(value.catalog));
   }
 
   async overview(): Promise<PayrollOverview> {
@@ -385,8 +385,8 @@ export class InMemoryPayrollRepository {
         ),
       },
       run,
-      legalTables: tables,
-      catalog,
+      legalTables: payrollLegalTables,
+      catalog: payrollCatalog,
       history: [
         {
           id: "run_2026_07",
@@ -405,7 +405,7 @@ export class InMemoryPayrollRepository {
       ],
     });
   }
-  async resolve(employeeId: string, exceptionId: string) {
+  async resolve(employeeId: string, exceptionId: string, _note?: string) {
     const e = employees.find((x) => x.employeeId === employeeId),
       ex = e?.exceptions.find((x) => x.id === exceptionId);
     if (!e || !ex) return undefined;

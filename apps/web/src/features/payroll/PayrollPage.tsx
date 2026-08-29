@@ -10,6 +10,7 @@ import {
   FileText,
   LockKeyhole,
   ReceiptText,
+  RefreshCw,
   Scale,
   ShieldCheck,
   UsersRound,
@@ -22,6 +23,7 @@ import {
   approvePayrollEmployee,
   closePayroll,
   getPayrollOverview,
+  processPayroll,
   resolvePayrollException,
 } from "@/lib/api";
 import type { PayrollEmployee } from "@fluxrh/contracts";
@@ -41,7 +43,7 @@ const competence = (v: string) =>
   });
 export function PayrollPage() {
   const client = useQueryClient();
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ["payroll"],
     queryFn: getPayrollOverview,
   });
@@ -69,10 +71,25 @@ export function PayrollPage() {
     onSuccess: refresh,
   });
   const close = useMutation({ mutationFn: closePayroll, onSuccess: refresh });
-  if (isLoading || !data)
+  const process = useMutation({ mutationFn: () => processPayroll(), onSuccess: refresh });
+  if (isLoading)
     return (
       <div className="page">
         <div className="page-skeleton" />
+      </div>
+    );
+  if (isError || !data)
+    return (
+      <div className="page">
+        <section className="panel empty-state" role="alert">
+          <Calculator />
+          <h1>Folha ainda não processada</h1>
+          <p>{error instanceof Error && error.message.includes("time_competence_not_closed") ? "Feche e aprove a competência de ponto antes de calcular a folha." : "Consolide ponto, ausências e benefícios para criar a competência."}</p>
+          <button className="primary-button" disabled={process.isPending} onClick={() => process.mutate()}>
+            <RefreshCw /> {process.isPending ? "Processando…" : "Processar competência"}
+          </button>
+          {process.isError && <small role="alert">{process.error instanceof Error && process.error.message.includes("time_competence_not_closed") ? "A competência de ponto ainda não foi fechada." : "Não foi possível processar. Confira as fontes e tente novamente."}</small>}
+        </section>
       </div>
     );
   const tabs: [Tab, string][] = [
@@ -97,6 +114,13 @@ export function PayrollPage() {
           <StatusBadge tone={data.run.status === "closed" ? "green" : "amber"}>
             {data.run.status === "closed" ? "Fechada" : "Em conferência"}
           </StatusBadge>
+          <button
+            className="secondary-button"
+            disabled={data.run.status === "closed" || process.isPending}
+            onClick={() => process.mutate()}
+          >
+            <RefreshCw /> Reprocessar
+          </button>
           <button
             className="primary-button"
             disabled={data.summary.closingProgress < 100 || close.isPending}

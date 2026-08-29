@@ -1003,6 +1003,9 @@ export const payrollOverviewSchema = z.object({
 export const resolvePayrollExceptionSchema = z.object({
   note: z.string().min(3).max(500),
 });
+export const processPayrollSchema = z.object({
+  competence: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/).optional(),
+});
 export const addPayrollEventSchema = z.object({
   code: z.string(),
   name: z.string().min(2),

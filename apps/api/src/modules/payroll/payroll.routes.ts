@@ -1,17 +1,29 @@
-import { resolvePayrollExceptionSchema } from "@fluxrh/contracts";
+import { processPayrollSchema, resolvePayrollExceptionSchema } from "@fluxrh/contracts";
 import type { FastifyInstance } from "fastify";
 import { sendData } from "../../shared/http.js";
-import { createPersistentModuleRepository } from "../../shared/persistent-module-repository.js";
 import { createRequestSupabaseClient, getPersistenceMode } from "../../shared/supabase.js";
 import { InMemoryPayrollRepository } from "./payroll.repository.js";
+import { SupabasePayrollRepository } from "./payroll.supabase-repository.js";
 const memoryRepository = new InMemoryPayrollRepository();
 const repositoryFor = (authorization?: string) => getPersistenceMode() === "supabase"
-  ? createPersistentModuleRepository(createRequestSupabaseClient(authorization), "payroll", () => new InMemoryPayrollRepository())
+  ? new SupabasePayrollRepository(createRequestSupabaseClient(authorization))
   : memoryRepository;
 export async function payrollRoutes(app: FastifyInstance) {
   app.get("/overview", async (req, reply) =>
     sendData(reply, await repositoryFor(req.headers.authorization).overview()),
   );
+  app.post("/process", async (req, reply) => {
+    const parsed = processPayrollSchema.safeParse(req.body ?? {});
+    if (!parsed.success) return reply.code(400).send({ error: "validation_error", issues: parsed.error.issues });
+    const repository = repositoryFor(req.headers.authorization);
+    if (!(repository instanceof SupabasePayrollRepository)) return sendData(reply, await repository.overview());
+    try { return sendData(reply, await repository.process(parsed.data.competence)); }
+    catch (error) {
+      const message = error instanceof Error ? error.message : "payroll_process_failed";
+      const status = message.includes("not_closed") ? 409 : 422;
+      return reply.code(status).send({ error: message });
+    }
+  });
   app.post<{ Params: { employeeId: string; exceptionId: string } }>(
     "/employees/:employeeId/exceptions/:exceptionId/resolve",
     async (req, reply) => {
@@ -21,6 +33,7 @@ export async function payrollRoutes(app: FastifyInstance) {
       const value = await repositoryFor(req.headers.authorization).resolve(
         req.params.employeeId,
         req.params.exceptionId,
+        p.data.note,
       );
       return value
         ? sendData(reply, value)

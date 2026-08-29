@@ -1,0 +1,144 @@
+import { createHash } from "node:crypto";
+import type { PayrollEmployee, PayrollOverview, PayrollRun } from "@fluxrh/contracts";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { getCurrentOrganizationId } from "../../shared/supabase.js";
+import { calculatePayroll } from "./payroll-calculator.js";
+import { payrollCatalog, payrollLegalTables } from "./payroll.repository.js";
+
+type Json = Record<string, unknown>;
+type SourceEvent = PayrollEmployee["events"][number] & { sourceType: string; sourceId?: string; sourceSnapshot: Json };
+type ProcessedEmployee = PayrollEmployee & { inputSnapshot: Json; events: SourceEvent[]; exceptions: Array<PayrollEmployee["exceptions"][number] & { code: string }> };
+
+const round = (value: number) => Math.round(value * 100) / 100;
+const monthBounds = (competence: string) => {
+  const start = `${competence}-01`;
+  const end = new Date(Date.UTC(Number(competence.slice(0, 4)), Number(competence.slice(5, 7)), 0)).toISOString().slice(0, 10);
+  return { start, end };
+};
+const overlapDays = (from: string, to: string, start: string, end: string) => {
+  const first = new Date(`${from < start ? start : from}T12:00:00Z`);
+  const last = new Date(`${to > end ? end : to}T12:00:00Z`);
+  return Math.max(0, Math.floor((last.getTime() - first.getTime()) / 86_400_000) + 1);
+};
+
+export class SupabasePayrollRepository {
+  constructor(private readonly client: SupabaseClient) {}
+
+  async process(competence = new Date().toISOString().slice(0, 7)): Promise<PayrollOverview> {
+    const organizationId = await getCurrentOrganizationId(this.client);
+    const { start, end } = monthBounds(competence);
+    const [employeesResult, linksResult, unitsResult, punchesResult, schedulesResult, assignmentsResult, exceptionsResult, approvalsResult, closureResult, statesResult] = await Promise.all([
+      this.client.from("employees").select("id,full_name,registration,company_id,status").eq("organization_id", organizationId).neq("status", "terminated"),
+      this.client.from("employment_links").select("employee_id,position,salary,department_id,hire_date,termination_date").eq("organization_id", organizationId).eq("active", true),
+      this.client.from("organization_units").select("id,name").eq("organization_id", organizationId),
+      this.client.from("time_punches").select("id,employee_id,type,recorded_at,source").eq("organization_id", organizationId).gte("recorded_at", `${start}T00:00:00Z`).lte("recorded_at", `${end}T23:59:59Z`).order("recorded_at"),
+      this.client.from("time_schedules").select("id,name,start_time,end_time,break_minutes,night_shift").eq("organization_id", organizationId).eq("active", true),
+      this.client.from("employee_schedules").select("employee_id,schedule_id,valid_from").eq("organization_id", organizationId).lte("valid_from", end),
+      this.client.from("time_exceptions").select("id,employee_id,title,description,severity,status").eq("organization_id", organizationId).gte("date", start).lte("date", end),
+      this.client.from("timesheet_approvals").select("employee_id,status").eq("organization_id", organizationId).eq("competence", start),
+      this.client.from("time_competence_closures").select("id,status,closing_progress").eq("organization_id", organizationId).eq("competence", start).maybeSingle(),
+      this.client.from("module_repository_states").select("module_name,state").eq("organization_id", organizationId).in("module_name", ["absences", "benefits"]),
+    ]);
+    for (const result of [employeesResult, linksResult, unitsResult, punchesResult, schedulesResult, assignmentsResult, exceptionsResult, approvalsResult, closureResult, statesResult]) {
+      if (result.error) throw new Error(`payroll_source_load_failed:${result.error.message}`);
+    }
+    if (closureResult.data?.status !== "closed") throw new Error("time_competence_not_closed");
+
+    const states = new Map((statesResult.data ?? []).map((row) => [row.module_name, row.state as Json]));
+    const absences = states.get("absences") ?? {};
+    const benefits = states.get("benefits") ?? {};
+    const occurrences = Array.isArray(absences.occurrences) ? absences.occurrences as Json[] : [];
+    const leaves = Array.isArray(absences.leaves) ? absences.leaves as Json[] : [];
+    const enrollments = Array.isArray(benefits.enrollments) ? benefits.enrollments as Json[] : [];
+    const unitNames = new Map((unitsResult.data ?? []).map((unit) => [unit.id, unit.name]));
+    const links = new Map((linksResult.data ?? []).map((link) => [link.employee_id, link]));
+    const schedules = new Map((schedulesResult.data ?? []).map((schedule) => [schedule.id, schedule]));
+    const assignments = new Map((assignmentsResult.data ?? []).map((assignment) => [assignment.employee_id, assignment.schedule_id]));
+    const approved = new Set((approvalsResult.data ?? []).filter((row) => row.status === "approved").map((row) => row.employee_id));
+    const employeeByName = new Map((employeesResult.data ?? []).map((employee) => [employee.full_name, employee.id]));
+    const sourceEmployeeId = (row: Json) => {
+      const raw = String(row.employeeId ?? "");
+      return (employeesResult.data ?? []).some((employee) => employee.id === raw) ? raw : employeeByName.get(String(row.employeeName ?? ""));
+    };
+
+    const processed: ProcessedEmployee[] = [];
+    for (const employee of employeesResult.data ?? []) {
+      const link = links.get(employee.id);
+      if (!link) continue;
+      const schedule = schedules.get(assignments.get(employee.id));
+      const employeePunches = (punchesResult.data ?? []).filter((punch) => punch.employee_id === employee.id);
+      const byDay = new Map<string, typeof employeePunches>();
+      for (const punch of employeePunches) {
+        const day = String(punch.recorded_at).slice(0, 10);
+        byDay.set(day, [...(byDay.get(day) ?? []), punch]);
+      }
+      let overtime50Hours = 0;
+      let overtime100Hours = 0;
+      for (const [day, values] of byDay) {
+        let worked = 0;
+        for (let index = 0; index + 1 < values.length; index += 2) worked += Math.max(0, (new Date(values[index + 1]!.recorded_at).getTime() - new Date(values[index]!.recorded_at).getTime()) / 3_600_000);
+        const expected = schedule ? Math.max(0, (new Date(`2000-01-01T${schedule.end_time}`).getTime() - new Date(`2000-01-01T${schedule.start_time}`).getTime()) / 3_600_000 - Number(schedule.break_minutes) / 60) : 0;
+        const excess = Math.max(0, worked - expected);
+        if (new Date(`${day}T12:00:00Z`).getUTCDay() === 0) overtime100Hours += excess;
+        else overtime50Hours += excess;
+      }
+      overtime50Hours = round(overtime50Hours);
+      overtime100Hours = round(overtime100Hours);
+      const employeeOccurrences = occurrences.filter((row) => sourceEmployeeId(row) === employee.id && Boolean(row.impactsPayroll) && ["approved", "active", "closed"].includes(String(row.status)) && String(row.startDate) <= end && String(row.endDate) >= start);
+      const absenceDays = employeeOccurrences.filter((row) => row.type === "unjustified_absence").reduce((sum, row) => sum + overlapDays(String(row.startDate), String(row.endDate), start, end), 0);
+      const employeeBenefits = enrollments.filter((row) => sourceEmployeeId(row) === employee.id && row.status === "active" && String(row.startDate) <= end && (!row.endDate || String(row.endDate) >= start));
+      const benefitDiscount = round(employeeBenefits.reduce((sum, row) => sum + Number(row.employeeAmount ?? 0), 0));
+      const calculation = calculatePayroll({ salary: Number(link.salary), overtime50Hours, overtime100Hours, nightHours: 0, absenceDays });
+      const events: SourceEvent[] = [
+        { id: crypto.randomUUID(), code: "1001", name: "Salário mensal", kind: "earning", category: "salary", quantity: 30, reference: "30 dias", amount: Number(link.salary), automatic: true, sourceType: "employment_link", sourceId: employee.id, sourceSnapshot: { salary: Number(link.salary) } },
+      ];
+      const add = (code: string, name: string, kind: "earning" | "deduction" | "informational", category: SourceEvent["category"], quantity: number, reference: string, amount: number, sourceType: string, sourceId?: string, sourceSnapshot: Json = {}) => { if (amount > 0) events.push({ id: crypto.randomUUID(), code, name, kind, category, quantity, reference, amount, automatic: true, sourceType, ...(sourceId ? { sourceId } : {}), sourceSnapshot }); };
+      add("1101", "Horas extras 50%", "earning", "overtime", overtime50Hours, `${overtime50Hours}h`, calculation.overtime50, "time_tracking", closureResult.data.id, { punchIds: employeePunches.map((p) => p.id) });
+      add("1102", "Horas extras 100%", "earning", "overtime", overtime100Hours, `${overtime100Hours}h`, calculation.overtime100, "time_tracking", closureResult.data.id, { punchIds: employeePunches.map((p) => p.id) });
+      add("2001", "Faltas injustificadas", "deduction", "absence", absenceDays, `${absenceDays} dia(s)`, calculation.absence, "absence", employeeOccurrences[0]?.id as string | undefined, { occurrenceIds: employeeOccurrences.map((row) => row.id) });
+      for (const benefit of employeeBenefits) add(String(benefit.payrollCode ?? "3100"), String(benefit.planName ?? "Benefício"), "deduction", "benefit", 1, competence, Number(benefit.employeeAmount ?? 0), "benefit_enrollment", String(benefit.id), { planId: benefit.planId });
+      add("2101", "INSS", "deduction", "tax", 1, "Tabela progressiva", calculation.inss, "legal_table", "inss_2026");
+      add("2102", "IRRF", "deduction", "tax", 1, "Base após INSS", calculation.irrf, "legal_table", "irrf_2026");
+      add("9001", "FGTS empresa", "informational", "tax", 1, "8%", calculation.fgts, "legal_table", "fgts");
+      const employeeExceptions: ProcessedEmployee["exceptions"] = [];
+      if (!approved.has(employee.id)) employeeExceptions.push({ id: crypto.randomUUID(), code: "TIMESHEET_NOT_APPROVED", title: "Folha de ponto não aprovada", description: "A folha individual precisa ser aprovada antes do cálculo salarial.", severity: "critical", status: "open" });
+      for (const value of (exceptionsResult.data ?? []).filter((row) => row.employee_id === employee.id && row.status !== "resolved")) employeeExceptions.push({ id: crypto.randomUUID(), code: `TIME_${value.id}`, title: value.title, description: value.description, severity: value.severity, status: "open" });
+      for (const value of occurrences.filter((row) => sourceEmployeeId(row) === employee.id && Boolean(row.impactsPayroll) && row.status === "pending")) employeeExceptions.push({ id: crypto.randomUUID(), code: `ABSENCE_${value.id}`, title: "Ausência pendente de decisão", description: String(value.reason ?? "Ocorrência com impacto financeiro ainda não aprovada."), severity: "critical", status: "open" });
+      for (const value of leaves.filter((row) => sourceEmployeeId(row) === employee.id && Boolean(row.impactsPayroll) && ["active", "scheduled"].includes(String(row.status)) && String(row.startDate) <= end && String(row.endDate ?? row.returnForecast) >= start)) employeeExceptions.push({ id: crypto.randomUUID(), code: `LEAVE_${value.id}`, title: "Afastamento com impacto na folha", description: "O afastamento exige definição manual da responsabilidade salarial antes da aprovação.", severity: "critical", status: "open" });
+      const deductions = round(calculation.inss + calculation.irrf + calculation.absence + benefitDiscount);
+      processed.push({ id: crypto.randomUUID(), employeeId: employee.id, employeeName: employee.full_name, registration: employee.registration, position: link.position, departmentName: unitNames.get(link.department_id) ?? "Sem departamento", baseSalary: Number(link.salary), grossPay: calculation.gross, deductions, netPay: round(calculation.gross - deductions), employerCharges: calculation.fgts, status: employeeExceptions.length ? "exception" : "pending", events, exceptions: employeeExceptions, inputSnapshot: { competence, timeClosureId: closureResult.data.id, timeApproval: approved.has(employee.id), punchIds: employeePunches.map((p) => p.id), absenceIds: employeeOccurrences.map((row) => row.id), benefitIds: employeeBenefits.map((row) => row.id), calculationVersion: 1 } });
+    }
+    const hash = createHash("sha256").update(JSON.stringify(processed.map((employee) => employee.inputSnapshot))).digest("hex");
+    const { error } = await this.client.rpc("save_payroll_calculation", { competence_value: start, input_hash_value: hash, employees_value: processed });
+    if (error) throw new Error(`payroll_process_failed:${error.message}`);
+    return this.overview(competence);
+  }
+
+  async overview(competence?: string): Promise<PayrollOverview> {
+    const organizationId = await getCurrentOrganizationId(this.client);
+    let query = this.client.from("payroll_runs").select("*").eq("organization_id", organizationId).order("competence", { ascending: false });
+    if (competence) query = query.eq("competence", `${competence}-01`);
+    const { data: runs, error } = await query;
+    if (error) throw new Error(`payroll_overview_failed:${error.message}`);
+    const active = runs?.[0];
+    if (!active) throw new Error("payroll_run_not_processed");
+    const [calculationsResult, eventsResult, exceptionsResult, companyResult] = await Promise.all([
+      this.client.from("payroll_employee_calculations").select("*").eq("run_id", active.id).order("employee_name"),
+      this.client.from("payroll_events").select("*").eq("run_id", active.id),
+      this.client.from("payroll_exceptions").select("*").eq("run_id", active.id),
+      this.client.from("organizations").select("name").eq("id", organizationId).single(),
+    ]);
+    for (const result of [calculationsResult, eventsResult, exceptionsResult, companyResult]) if (result.error) throw new Error(`payroll_overview_failed:${result.error.message}`);
+    const employees: PayrollEmployee[] = (calculationsResult.data ?? []).map((row) => ({ id: row.id, employeeId: row.employee_id, employeeName: row.employee_name, registration: row.registration, position: row.position, departmentName: row.department_name, baseSalary: Number(row.base_salary), grossPay: Number(row.gross_pay), deductions: Number(row.deductions), netPay: Number(row.net_pay), employerCharges: Number(row.employer_charges), status: row.status, events: (eventsResult.data ?? []).filter((event) => event.calculation_id === row.id).map((event) => ({ id: event.id, code: event.code, name: event.name, kind: event.kind, category: event.category, quantity: Number(event.quantity), reference: event.reference, amount: Number(event.amount), automatic: event.automatic })), exceptions: (exceptionsResult.data ?? []).filter((exception) => exception.calculation_id === row.id).map((exception) => ({ id: exception.id, title: exception.title, description: exception.description, severity: exception.severity, status: exception.status })) }));
+    const totals = { grossTotal: round(employees.reduce((sum, employee) => sum + employee.grossPay, 0)), deductionsTotal: round(employees.reduce((sum, employee) => sum + employee.deductions, 0)), netTotal: round(employees.reduce((sum, employee) => sum + employee.netPay, 0)), employerChargesTotal: round(employees.reduce((sum, employee) => sum + employee.employerCharges, 0)) };
+    const companyName = companyResult.data?.name ?? "Organização";
+    const run = (row: typeof active, includeEmployees = false): PayrollRun => ({ id: row.id, companyName, competence: String(row.competence).slice(0, 7), status: row.status, employeesCount: includeEmployees ? employees.length : Number(row.employees_count ?? 0), processedCount: includeEmployees ? employees.length : Number(row.processed_count ?? 0), exceptionsCount: includeEmployees ? employees.flatMap((employee) => employee.exceptions).filter((value) => value.status === "open").length : Number(row.exceptions_count ?? 0), ...(includeEmployees ? totals : { grossTotal: Number(row.gross_total ?? 0), deductionsTotal: Number(row.deductions_total ?? 0), netTotal: Number(row.net_total ?? 0), employerChargesTotal: Number(row.employer_charges_total ?? 0) }), updatedAt: row.updated_at, employees: includeEmployees ? employees : [] });
+    const current = run(active, true);
+    const approvedCount = employees.filter((employee) => employee.status === "approved").length;
+    return { summary: { activeRun: active.status !== "closed", employees: employees.length, grossTotal: totals.grossTotal, netTotal: totals.netTotal, openExceptions: current.exceptionsCount, closingProgress: employees.length ? Math.round(approvedCount / employees.length * 100) : 0 }, run: current, legalTables: structuredClone(payrollLegalTables), catalog: structuredClone(payrollCatalog), history: (runs ?? []).filter((row) => row.id !== active.id && row.status === "closed").map((row) => run(row)) };
+  }
+
+  async resolve(employeeId: string, exceptionId: string, note: string) { const { error } = await this.client.rpc("resolve_payroll_exception", { exception_id_value: exceptionId, note_value: note }); if (error) return undefined; return (await this.overview()).run.employees.find((employee) => employee.employeeId === employeeId); }
+  async approve(employeeId: string) { const overview = await this.overview(); const { error } = await this.client.rpc("approve_payroll_employee", { run_id_value: overview.run.id, employee_id_value: employeeId }); if (error) return undefined; return (await this.overview()).run.employees.find((employee) => employee.employeeId === employeeId); }
+  async close() { const overview = await this.overview(); const { error } = await this.client.rpc("close_payroll_run", { run_id_value: overview.run.id }); return error ? { error: "employees_pending" as const } : { data: (await this.overview()).run }; }
+}
