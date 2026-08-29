@@ -2,7 +2,7 @@
 
 > 📌 **Documento principal de acompanhamento do projeto.** Consultar este arquivo no início de cada nova etapa e atualizar os marcadores ao concluir uma entrega.
 >
-> **Última conferência:** 28 de agosto de 2026  
+> **Última conferência:** 29 de agosto de 2026  
 > **Legenda:** ✅ concluído · 🟡 em andamento · ⬜ planejado
 >
 > **Nova premissa de aceite:** a conclusão exige que o fluxo completo esteja exercitável no ambiente publicado, incluindo ações primárias e secundárias, estados de sucesso/erro, persistência, permissões e auditoria. Build, migrations ou telas demonstráveis isoladamente não bastam. Entregas sintéticas/operacionais continuam identificadas como validações técnicas, não como liberação comercial.
@@ -75,6 +75,14 @@
 ### Próximo passo confirmado
 
 🟡 Auditoria controlada de cálculos trabalhistas e aderência à CCT. As Fases 23 a 26 sintéticas estão concluídas; o primeiro caso individual rastreável já foi cadastrado no Supabase principal.
+
+### Ponto de retomada — 29 de agosto de 2026
+
+- ✅ Caso fictício `AUD-0001` disponível para a auditoria trabalhista e da CCT
+- ✅ Busca global voltou a abrir prontuários após o alinhamento do schema de dependentes
+- ✅ Visão de férias restaurada após a normalização do snapshot legado de ausências
+- ✅ Migrações aplicadas no Supabase principal e código sincronizado com `origin/main`
+- 🟡 Retomar pela auditoria do caso `AUD-0001`: férias, jornada noturna, adicionais, DSR, encargos, tabelas legais e regras da CCT
 
 ---
 
