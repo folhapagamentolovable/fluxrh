@@ -1,5 +1,25 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Bot, BriefcaseBusiness, CheckCircle2, Clock3, Sparkles, TriangleAlert, UsersRound } from "lucide-react";
+import {
+  ArrowRight,
+  BadgeHelp,
+  Bot,
+  BriefcaseBusiness,
+  CalendarCheck2,
+  CheckCircle2,
+  Clock3,
+  FileClock,
+  FileText,
+  HeartHandshake,
+  Megaphone,
+  ReceiptText,
+  Sparkles,
+  Stethoscope,
+  TriangleAlert,
+  UserMinus,
+  UserPlus,
+  UsersRound,
+  WalletCards,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { getDashboard } from "@/lib/api";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -11,6 +31,23 @@ const priority = {
   medium: { label: "Média", tone: "blue" as const },
   low: { label: "Baixa", tone: "gray" as const },
 };
+
+const dailyActions = [
+  { label: "Ocorrências de ponto", description: "Faltas, atestados, atrasos e saídas", path: "/jornada", icon: FileClock, tone: "blue" },
+  { label: "Emitir aviso", description: "Comunicados internos e por e-mail", path: "/comunicacao", icon: Megaphone, tone: "purple" },
+  { label: "Processar admissão", description: "Cadastro, documentos e onboarding", path: "/admissoes", icon: UserPlus, tone: "green" },
+  { label: "Processar desligamento", description: "Simulação, tarefas e documentos", path: "/desligamentos", icon: UserMinus, tone: "red" },
+  { label: "Registrar afastamento", description: "Atestados, férias e licenças", path: "/ferias", icon: Stethoscope, tone: "amber" },
+  { label: "Atender solicitações", description: "Dúvidas de funcionários e clientes", path: "/portal", icon: BadgeHelp, tone: "blue" },
+] as const;
+
+const monthlyActions = [
+  { label: "Fechar folhas de ponto", description: "Conferir e encerrar a competência", path: "/jornada", icon: CalendarCheck2, tone: "purple" },
+  { label: "Calcular salários", description: "Prévia, conferência e fechamento", path: "/folha", icon: WalletCards, tone: "green" },
+  { label: "Conferir benefícios", description: "Concessões, custos e movimentações", path: "/beneficios", icon: HeartHandshake, tone: "amber" },
+  { label: "Emitir holerites", description: "Documentos da folha fechada", path: "/folha", icon: FileText, tone: "blue" },
+  { label: "Emitir recibos", description: "Férias, 13º e cálculos especiais", path: "/calculos", icon: ReceiptText, tone: "red" },
+] as const;
 
 export function DashboardPage() {
   const { user } = useAuth();
@@ -35,6 +72,26 @@ export function DashboardPage() {
     <section className="metrics-grid">{cards.map(({ label, value, hint, icon: Icon, color }) => <article className="metric-card" key={label}>
       <div className={`metric-icon ${color}`}><Icon size={21} /></div><span>{label}</span><strong>{value}</strong><small>{hint}</small>
     </article>)}</section>
+
+    <section className="routine-access" aria-labelledby="routine-title">
+      <div className="routine-heading">
+        <div><span className="section-label">Acesso rápido</span><h2 id="routine-title">Rotina do RH</h2><p>Abra diretamente os fluxos mais usados sem procurar no menu.</p></div>
+      </div>
+      <div className="routine-columns">
+        <article className="panel routine-group">
+          <header><span className="routine-period daily"><Clock3 /></span><div><h3>Hoje</h3><p>Operações que exigem acompanhamento diário</p></div></header>
+          <div className="routine-actions">{dailyActions.map(({ label, description, path, icon: Icon, tone }) => <Link className="routine-action" to={path} key={label}>
+            <span className={`routine-action-icon ${tone}`}><Icon /></span><span><strong>{label}</strong><small>{description}</small></span><ArrowRight />
+          </Link>)}</div>
+        </article>
+        <article className="panel routine-group">
+          <header><span className="routine-period monthly"><CalendarCheck2 /></span><div><h3>Fechamento mensal</h3><p>Conferência, cálculo e emissão da competência</p></div></header>
+          <div className="routine-actions">{monthlyActions.map(({ label, description, path, icon: Icon, tone }) => <Link className="routine-action" to={path} key={label}>
+            <span className={`routine-action-icon ${tone}`}><Icon /></span><span><strong>{label}</strong><small>{description}</small></span><ArrowRight />
+          </Link>)}</div>
+        </article>
+      </div>
+    </section>
 
     <section className="dashboard-grid">
       <article className="panel exceptions-panel">
