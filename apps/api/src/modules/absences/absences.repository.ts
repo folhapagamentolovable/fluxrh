@@ -5,6 +5,13 @@ import type {
   MedicalCertificate,
   VacationRequest,
 } from "@fluxrh/contracts";
+import {
+  absenceOccurrenceSchema,
+  leaveRecordSchema,
+  medicalCertificateSchema,
+  vacationPeriodSchema,
+  vacationRequestSchema,
+} from "@fluxrh/contracts";
 import { validateVacation, inclusiveDays } from "./absence-rules.js";
 const periods: AbsenceOverview["vacationPeriods"] = [
   {
@@ -190,12 +197,49 @@ const leaves: AbsenceOverview["leaves"] = [
 ];
 export class InMemoryAbsencesRepository {
   hydrate(state: Record<string, unknown>) {
-    const value = state as unknown as AbsenceOverview;
-    periods.splice(0, periods.length, ...structuredClone(value.vacationPeriods));
-    requests.splice(0, requests.length, ...structuredClone(value.vacationRequests));
-    certificates.splice(0, certificates.length, ...structuredClone(value.certificates));
-    occurrences.splice(0, occurrences.length, ...structuredClone(value.occurrences));
-    leaves.splice(0, leaves.length, ...structuredClone(value.leaves));
+    const parsedPeriods = vacationPeriodSchema
+      .array()
+      .safeParse(state.vacationPeriods);
+    const parsedRequests = vacationRequestSchema
+      .array()
+      .safeParse(state.vacationRequests ?? state.vacations);
+    const parsedCertificates = medicalCertificateSchema
+      .array()
+      .safeParse(state.certificates ?? state.medicalCertificates);
+    const parsedOccurrences = absenceOccurrenceSchema
+      .array()
+      .safeParse(state.occurrences);
+    const parsedLeaves = leaveRecordSchema.array().safeParse(state.leaves);
+
+    periods.splice(
+      0,
+      periods.length,
+      ...structuredClone(parsedPeriods.success ? parsedPeriods.data : []),
+    );
+    requests.splice(
+      0,
+      requests.length,
+      ...structuredClone(parsedRequests.success ? parsedRequests.data : []),
+    );
+    certificates.splice(
+      0,
+      certificates.length,
+      ...structuredClone(
+        parsedCertificates.success ? parsedCertificates.data : [],
+      ),
+    );
+    occurrences.splice(
+      0,
+      occurrences.length,
+      ...structuredClone(
+        parsedOccurrences.success ? parsedOccurrences.data : [],
+      ),
+    );
+    leaves.splice(
+      0,
+      leaves.length,
+      ...structuredClone(parsedLeaves.success ? parsedLeaves.data : []),
+    );
   }
 
   async overview(): Promise<AbsenceOverview> {

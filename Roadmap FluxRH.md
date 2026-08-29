@@ -34,6 +34,7 @@
 - ✅ Admissão e onboarding
 - 🟡 Jornada, escalas e ponto (filtros, exportação e fechamento de competência pendentes de validação ponta a ponta)
 - ✅ Férias, faltas, atestados e afastamentos
+  - ✅ Snapshot legado do piloto normalizado para impedir erro 500 na visão de férias
 - ✅ Benefícios
 - ✅ Motor de cálculo da folha
 - ✅ Fechamento da folha
