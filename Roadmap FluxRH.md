@@ -1181,7 +1181,7 @@ Desempenho
 - ✅ Intervalo de janta das 22:00 às 23:00 preservado no vínculo e na trilha de auditoria
 - ✅ Férias de 01/09/2026 a 30/09/2026, com retorno em 01/10/2026, registradas e aprovadas no cenário
 - ✅ Evento de domínio e evento de auditoria com os parâmetros originais persistidos
-- ⬜ Auditar aquisição e concessão de férias, remuneração e terço constitucional
+- ✅ Auditar aquisição e concessão de férias, remuneração e terço constitucional
 - ⬜ Auditar jornada noturna, hora noturna reduzida, adicional noturno, intervalo e prorrogação
 - ⬜ Auditar DSR, horas extras, INSS, FGTS e IRRF por competência
 - ⬜ Versionar e comparar as tabelas legais utilizadas em cada cálculo

@@ -760,6 +760,7 @@ export const vacationRequestSchema = z.object({
   periodId: z.string(),
   startDate: z.string(),
   endDate: z.string(),
+  returnDate: z.string().optional(),
   days: z.number().positive(),
   soldDays: z.number().nonnegative(),
   advanceThirteenth: z.boolean(),
