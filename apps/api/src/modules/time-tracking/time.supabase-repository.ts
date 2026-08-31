@@ -1,8 +1,331 @@
-import type{EmployeeTimeSummary,TimeException,TimeOverview,TimePunch}from"@fluxrh/contracts";import type{SupabaseClient}from"@supabase/supabase-js";import{calculateBalance,calculateWorkedMinutes}from"./time-calculator.js";import type{RegisterTimeInput,TimeRepository}from"./time.repository.js";import{getCurrentOrganizationId}from"../../shared/supabase.js";
-type EmployeeRow={id:string;full_name:string};type PunchRow={id:string;employee_id:string;type:TimePunch["type"];recorded_at:string;source:TimePunch["source"];location_name:string;device_id:string;latitude:number|null;longitude:number|null};type ExceptionRow={id:string;employee_id:string;date:string;type:TimeException["type"];title:string;description:string;severity:TimeException["severity"];status:TimeException["status"];minutes:number|null;resolution_note:string|null;created_at:string};
-export class SupabaseTimeRepository implements TimeRepository{constructor(private client:SupabaseClient){}
- async overview():Promise<TimeOverview>{const organizationId=await getCurrentOrganizationId(this.client);const since=new Date();since.setDate(1);since.setHours(0,0,0,0);const[employeesResult,linksResult,schedulesResult,assignmentsResult,stationResult,punchesResult,exceptionsResult,approvalsResult]=await Promise.all([this.client.from("employees").select("id,full_name").eq("organization_id",organizationId).neq("status","terminated"),this.client.from("employment_links").select("employee_id,position").eq("organization_id",organizationId).eq("active",true),this.client.from("time_schedules").select("id,name,pattern,start_time,end_time,break_minutes,weekly_hours,night_shift,color").eq("organization_id",organizationId).eq("active",true),this.client.from("employee_schedules").select("employee_id,schedule_id").eq("organization_id",organizationId).lte("valid_from",new Date().toISOString().slice(0,10)),this.client.from("time_stations").select("id,name,token,rotates_at,active").eq("organization_id",organizationId).eq("active",true).order("created_at").limit(1).maybeSingle(),this.client.from("time_punches").select("id,employee_id,type,recorded_at,source,location_name,device_id,latitude,longitude").eq("organization_id",organizationId).gte("recorded_at",since.toISOString()).order("recorded_at",{ascending:false}),this.client.from("time_exceptions").select("id,employee_id,date,type,title,description,severity,status,minutes,resolution_note,created_at").eq("organization_id",organizationId).gte("date",since.toISOString().slice(0,10)).order("created_at",{ascending:false}),this.client.from("timesheet_approvals").select("employee_id,status").eq("organization_id",organizationId).eq("competence",since.toISOString().slice(0,10))]);for(const result of[employeesResult,linksResult,schedulesResult,assignmentsResult,stationResult,punchesResult,exceptionsResult,approvalsResult])if(result.error)throw new Error(`time_overview_failed:${result.error.message}`);const employees=(employeesResult.data??[])as EmployeeRow[];const names=new Map(employees.map(e=>[e.id,e.full_name]));const schedules=(schedulesResult.data??[]).map(s=>({id:s.id,name:s.name,pattern:s.pattern,startTime:String(s.start_time).slice(0,5),endTime:String(s.end_time).slice(0,5),breakMinutes:s.break_minutes,weeklyHours:Number(s.weekly_hours),nightShift:s.night_shift,employeesCount:(assignmentsResult.data??[]).filter(a=>a.schedule_id===s.id).length,color:s.color}));const defaultSchedule=schedules[0];const assignmentMap=new Map((assignmentsResult.data??[]).map(a=>[a.employee_id,a.schedule_id]));const positionMap=new Map((linksResult.data??[]).map(l=>[l.employee_id,l.position]));const punchRows=(punchesResult.data??[])as PunchRow[];const punches:TimePunch[]=punchRows.map(p=>({id:p.id,employeeId:p.employee_id,employeeName:names.get(p.employee_id)??"Colaborador",type:p.type,recordedAt:p.recorded_at,source:p.source,locationName:p.location_name,deviceId:p.device_id,...(p.latitude!==null?{latitude:Number(p.latitude)}:{}),...(p.longitude!==null?{longitude:Number(p.longitude)}:{})}));const exceptionRows=(exceptionsResult.data??[])as ExceptionRow[];const exceptions:TimeException[]=exceptionRows.map(e=>({id:e.id,employeeId:e.employee_id,employeeName:names.get(e.employee_id)??"Colaborador",date:e.date,type:e.type,title:e.title,description:e.description,severity:e.severity,status:e.status,createdAt:e.created_at,...(e.minutes!==null?{minutes:e.minutes}:{}),...(e.resolution_note?{resolutionNote:e.resolution_note}:{})}));const approved=new Set((approvalsResult.data??[]).filter(a=>a.status==="approved").map(a=>a.employee_id));const summaries:EmployeeTimeSummary[]=employees.map(employee=>{const schedule=schedules.find(s=>s.id===assignmentMap.get(employee.id))??defaultSchedule;const grouped=new Map<string,TimePunch[]>();punches.filter(p=>p.employeeId===employee.id).forEach(p=>{const date=p.recordedAt.slice(0,10);grouped.set(date,[...(grouped.get(date)??[]),p])});const days=[...grouped].map(([date,dayPunches])=>{const expectedMinutes=schedule?Math.max(0,Math.round((new Date(`2000-01-01T${schedule.endTime}:00`).getTime()-new Date(`2000-01-01T${schedule.startTime}:00`).getTime())/60000)-schedule.breakMinutes):0;const workedMinutes=calculateWorkedMinutes(dayPunches);const balance=calculateBalance(workedMinutes,expectedMinutes,new Date(`${date}T12:00:00`).getDay()===0);return{date,scheduledStart:schedule?.startTime??"00:00",scheduledEnd:schedule?.endTime??"00:00",punches:dayPunches,workedMinutes,expectedMinutes,...balance,nightMinutes:0,status:exceptions.some(e=>e.employeeId===employee.id&&e.date===date&&e.status!=="resolved")?"exception" as const:"regular" as const}});const workedMinutes=days.reduce((s,d)=>s+d.workedMinutes,0),expectedMinutes=days.reduce((s,d)=>s+d.expectedMinutes,0);return{employeeId:employee.id,employeeName:employee.full_name,position:positionMap.get(employee.id)??"Colaborador",scheduleName:schedule?.name??"Sem escala",workedMinutes,expectedMinutes,balanceMinutes:workedMinutes-expectedMinutes,overtimeMinutes:days.reduce((s,d)=>s+d.overtime50Minutes+d.overtime100Minutes,0),absenceDays:0,exceptionCount:exceptions.filter(e=>e.employeeId===employee.id&&e.status!=="resolved").length,status:approved.has(employee.id)?"approved" as const:"review" as const,days}});const station=stationResult.data;if(!station)throw new Error("time_station_required");return{summary:{presentToday:new Set(punches.filter(p=>p.recordedAt.slice(0,10)===new Date().toISOString().slice(0,10)).map(p=>p.employeeId)).size,expectedToday:employees.length,openExceptions:exceptions.filter(e=>e.status!=="resolved").length,overtimeHours:Number((summaries.reduce((s,e)=>s+e.overtimeMinutes,0)/60).toFixed(1)),positiveBankMinutes:summaries.reduce((s,e)=>s+Math.max(0,e.balanceMinutes),0),closingProgress:employees.length?Math.round(approved.size/employees.length*100):0},qrStation:{id:station.id,name:station.name,token:station.token,rotatesAt:station.rotates_at,active:station.active},schedules,punches,exceptions,employees:summaries}}
- async register(input:RegisterTimeInput){const{data,error}=await this.client.rpc("register_time_punch",{employee_id_value:input.employeeId,punch_type_value:input.type,station_token_value:input.token,device_id_value:input.deviceId,location_name_value:input.locationName});if(error)return{error:error.message};const overview=await this.overview();return{data:overview.punches.find(p=>p.id===data)!}}
- async resolve(id:string,note:string){const{error}=await this.client.rpc("resolve_time_exception",{exception_id_value:id,resolution_note_value:note});if(error){if(error.message.includes("exception_not_found"))return;throw new Error(`time_exception_resolve_failed:${error.message}`)}return(await this.overview()).exceptions.find(e=>e.id===id)}
- async approveEmployee(id:string){const competence=new Date().toISOString().slice(0,7)+"-01";const{error}=await this.client.rpc("approve_employee_timesheet",{employee_id_value:id,competence_value:competence});if(error){if(error.message.includes("employee_not_found"))return;throw new Error(`timesheet_approve_failed:${error.message}`)}return(await this.overview()).employees.find(e=>e.employeeId===id)}
+import type {
+  EmployeeTimeSummary,
+  TimeException,
+  TimeOverview,
+  TimePunch,
+} from "@fluxrh/contracts";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { calculateBalance, calculateWorkedMinutes } from "./time-calculator.js";
+import { calculateNightWork, scheduledWorkMinutes } from "./night-work.js";
+import type { RegisterTimeInput, TimeRepository } from "./time.repository.js";
+import { getCurrentOrganizationId } from "../../shared/supabase.js";
+type EmployeeRow = { id: string; full_name: string };
+type PunchRow = {
+  id: string;
+  employee_id: string;
+  type: TimePunch["type"];
+  recorded_at: string;
+  source: TimePunch["source"];
+  location_name: string;
+  device_id: string;
+  latitude: number | null;
+  longitude: number | null;
+};
+type ExceptionRow = {
+  id: string;
+  employee_id: string;
+  date: string;
+  type: TimeException["type"];
+  title: string;
+  description: string;
+  severity: TimeException["severity"];
+  status: TimeException["status"];
+  minutes: number | null;
+  resolution_note: string | null;
+  created_at: string;
+};
+export class SupabaseTimeRepository implements TimeRepository {
+  constructor(private client: SupabaseClient) {}
+  async overview(): Promise<TimeOverview> {
+    const organizationId = await getCurrentOrganizationId(this.client);
+    const since = new Date();
+    since.setDate(1);
+    since.setHours(0, 0, 0, 0);
+    const [
+      employeesResult,
+      linksResult,
+      schedulesResult,
+      assignmentsResult,
+      stationResult,
+      punchesResult,
+      exceptionsResult,
+      approvalsResult,
+    ] = await Promise.all([
+      this.client
+        .from("employees")
+        .select("id,full_name")
+        .eq("organization_id", organizationId)
+        .neq("status", "terminated"),
+      this.client
+        .from("employment_links")
+        .select("employee_id,position")
+        .eq("organization_id", organizationId)
+        .eq("active", true),
+      this.client
+        .from("time_schedules")
+        .select(
+          "id,name,pattern,start_time,end_time,break_minutes,weekly_hours,night_shift,color",
+        )
+        .eq("organization_id", organizationId)
+        .eq("active", true),
+      this.client
+        .from("employee_schedules")
+        .select("employee_id,schedule_id")
+        .eq("organization_id", organizationId)
+        .lte("valid_from", new Date().toISOString().slice(0, 10)),
+      this.client
+        .from("time_stations")
+        .select("id,name,token,rotates_at,active")
+        .eq("organization_id", organizationId)
+        .eq("active", true)
+        .order("created_at")
+        .limit(1)
+        .maybeSingle(),
+      this.client
+        .from("time_punches")
+        .select(
+          "id,employee_id,type,recorded_at,source,location_name,device_id,latitude,longitude",
+        )
+        .eq("organization_id", organizationId)
+        .gte("recorded_at", since.toISOString())
+        .order("recorded_at", { ascending: false }),
+      this.client
+        .from("time_exceptions")
+        .select(
+          "id,employee_id,date,type,title,description,severity,status,minutes,resolution_note,created_at",
+        )
+        .eq("organization_id", organizationId)
+        .gte("date", since.toISOString().slice(0, 10))
+        .order("created_at", { ascending: false }),
+      this.client
+        .from("timesheet_approvals")
+        .select("employee_id,status")
+        .eq("organization_id", organizationId)
+        .eq("competence", since.toISOString().slice(0, 10)),
+    ]);
+    for (const result of [
+      employeesResult,
+      linksResult,
+      schedulesResult,
+      assignmentsResult,
+      stationResult,
+      punchesResult,
+      exceptionsResult,
+      approvalsResult,
+    ])
+      if (result.error)
+        throw new Error(`time_overview_failed:${result.error.message}`);
+    const employees = (employeesResult.data ?? []) as EmployeeRow[];
+    const names = new Map(employees.map((e) => [e.id, e.full_name]));
+    const schedules = (schedulesResult.data ?? []).map((s) => ({
+      id: s.id,
+      name: s.name,
+      pattern: s.pattern,
+      startTime: String(s.start_time).slice(0, 5),
+      endTime: String(s.end_time).slice(0, 5),
+      breakMinutes: s.break_minutes,
+      weeklyHours: Number(s.weekly_hours),
+      nightShift: s.night_shift,
+      employeesCount: (assignmentsResult.data ?? []).filter(
+        (a) => a.schedule_id === s.id,
+      ).length,
+      color: s.color,
+    }));
+    const defaultSchedule = schedules[0];
+    const assignmentMap = new Map(
+      (assignmentsResult.data ?? []).map((a) => [a.employee_id, a.schedule_id]),
+    );
+    const positionMap = new Map(
+      (linksResult.data ?? []).map((l) => [l.employee_id, l.position]),
+    );
+    const punchRows = (punchesResult.data ?? []) as PunchRow[];
+    const punches: TimePunch[] = punchRows.map((p) => ({
+      id: p.id,
+      employeeId: p.employee_id,
+      employeeName: names.get(p.employee_id) ?? "Colaborador",
+      type: p.type,
+      recordedAt: p.recorded_at,
+      source: p.source,
+      locationName: p.location_name,
+      deviceId: p.device_id,
+      ...(p.latitude !== null ? { latitude: Number(p.latitude) } : {}),
+      ...(p.longitude !== null ? { longitude: Number(p.longitude) } : {}),
+    }));
+    const exceptionRows = (exceptionsResult.data ?? []) as ExceptionRow[];
+    const exceptions: TimeException[] = exceptionRows.map((e) => ({
+      id: e.id,
+      employeeId: e.employee_id,
+      employeeName: names.get(e.employee_id) ?? "Colaborador",
+      date: e.date,
+      type: e.type,
+      title: e.title,
+      description: e.description,
+      severity: e.severity,
+      status: e.status,
+      createdAt: e.created_at,
+      ...(e.minutes !== null ? { minutes: e.minutes } : {}),
+      ...(e.resolution_note ? { resolutionNote: e.resolution_note } : {}),
+    }));
+    const approved = new Set(
+      (approvalsResult.data ?? [])
+        .filter((a) => a.status === "approved")
+        .map((a) => a.employee_id),
+    );
+    const summaries: EmployeeTimeSummary[] = employees.map((employee) => {
+      const schedule =
+        schedules.find((s) => s.id === assignmentMap.get(employee.id)) ??
+        defaultSchedule;
+      const grouped = new Map<string, TimePunch[]>();
+      const employeePunches = punches
+        .filter((p) => p.employeeId === employee.id)
+        .sort((a, b) => a.recordedAt.localeCompare(b.recordedAt));
+      for (let index = 0; index + 1 < employeePunches.length; index += 2) {
+        const first = employeePunches[index]!;
+        const second = employeePunches[index + 1]!;
+        const date = first.recordedAt.slice(0, 10);
+        grouped.set(date, [...(grouped.get(date) ?? []), first, second]);
+      }
+      const days = [...grouped].map(([date, dayPunches]) => {
+        const expectedMinutes = schedule
+          ? scheduledWorkMinutes(
+              schedule.startTime,
+              schedule.endTime,
+              schedule.breakMinutes,
+            )
+          : 0;
+        const workedMinutes = calculateWorkedMinutes(dayPunches);
+        const intervals = [];
+        for (let index = 0; index + 1 < dayPunches.length; index += 2)
+          intervals.push({
+            start: dayPunches[index]!.recordedAt,
+            end: dayPunches[index + 1]!.recordedAt,
+          });
+        const nightMinutes = schedule?.nightShift
+          ? calculateNightWork(intervals).nightClockMinutes
+          : 0;
+        const balance = calculateBalance(
+          workedMinutes,
+          expectedMinutes,
+          new Date(`${date}T12:00:00`).getDay() === 0,
+        );
+        return {
+          date,
+          scheduledStart: schedule?.startTime ?? "00:00",
+          scheduledEnd: schedule?.endTime ?? "00:00",
+          punches: dayPunches,
+          workedMinutes,
+          expectedMinutes,
+          ...balance,
+          nightMinutes,
+          status: exceptions.some(
+            (e) =>
+              e.employeeId === employee.id &&
+              e.date === date &&
+              e.status !== "resolved",
+          )
+            ? ("exception" as const)
+            : ("regular" as const),
+        };
+      });
+      const workedMinutes = days.reduce((s, d) => s + d.workedMinutes, 0),
+        expectedMinutes = days.reduce((s, d) => s + d.expectedMinutes, 0);
+      return {
+        employeeId: employee.id,
+        employeeName: employee.full_name,
+        position: positionMap.get(employee.id) ?? "Colaborador",
+        scheduleName: schedule?.name ?? "Sem escala",
+        workedMinutes,
+        expectedMinutes,
+        balanceMinutes: workedMinutes - expectedMinutes,
+        overtimeMinutes: days.reduce(
+          (s, d) => s + d.overtime50Minutes + d.overtime100Minutes,
+          0,
+        ),
+        absenceDays: 0,
+        exceptionCount: exceptions.filter(
+          (e) => e.employeeId === employee.id && e.status !== "resolved",
+        ).length,
+        status: approved.has(employee.id)
+          ? ("approved" as const)
+          : ("review" as const),
+        days,
+      };
+    });
+    const station = stationResult.data;
+    if (!station) throw new Error("time_station_required");
+    return {
+      summary: {
+        presentToday: new Set(
+          punches
+            .filter(
+              (p) =>
+                p.recordedAt.slice(0, 10) ===
+                new Date().toISOString().slice(0, 10),
+            )
+            .map((p) => p.employeeId),
+        ).size,
+        expectedToday: employees.length,
+        openExceptions: exceptions.filter((e) => e.status !== "resolved")
+          .length,
+        overtimeHours: Number(
+          (summaries.reduce((s, e) => s + e.overtimeMinutes, 0) / 60).toFixed(
+            1,
+          ),
+        ),
+        positiveBankMinutes: summaries.reduce(
+          (s, e) => s + Math.max(0, e.balanceMinutes),
+          0,
+        ),
+        closingProgress: employees.length
+          ? Math.round((approved.size / employees.length) * 100)
+          : 0,
+      },
+      qrStation: {
+        id: station.id,
+        name: station.name,
+        token: station.token,
+        rotatesAt: station.rotates_at,
+        active: station.active,
+      },
+      schedules,
+      punches,
+      exceptions,
+      employees: summaries,
+    };
+  }
+  async register(input: RegisterTimeInput) {
+    const { data, error } = await this.client.rpc("register_time_punch", {
+      employee_id_value: input.employeeId,
+      punch_type_value: input.type,
+      station_token_value: input.token,
+      device_id_value: input.deviceId,
+      location_name_value: input.locationName,
+    });
+    if (error) return { error: error.message };
+    const overview = await this.overview();
+    return { data: overview.punches.find((p) => p.id === data)! };
+  }
+  async resolve(id: string, note: string) {
+    const { error } = await this.client.rpc("resolve_time_exception", {
+      exception_id_value: id,
+      resolution_note_value: note,
+    });
+    if (error) {
+      if (error.message.includes("exception_not_found")) return;
+      throw new Error(`time_exception_resolve_failed:${error.message}`);
+    }
+    return (await this.overview()).exceptions.find((e) => e.id === id);
+  }
+  async approveEmployee(id: string) {
+    const competence = new Date().toISOString().slice(0, 7) + "-01";
+    const { error } = await this.client.rpc("approve_employee_timesheet", {
+      employee_id_value: id,
+      competence_value: competence,
+    });
+    if (error) {
+      if (error.message.includes("employee_not_found")) return;
+      throw new Error(`timesheet_approve_failed:${error.message}`);
+    }
+    return (await this.overview()).employees.find((e) => e.employeeId === id);
+  }
 }

@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { getCurrentOrganizationId } from "../../shared/supabase.js";
 import { calculatePayroll } from "./payroll-calculator.js";
 import { payrollCatalog, payrollLegalTables } from "./payroll.repository.js";
+import { calculateNightWork, scheduledWorkMinutes } from "../time-tracking/night-work.js";
 
 type Json = Record<string, unknown>;
 type SourceEvent = PayrollEmployee["events"][number] & { sourceType: string; sourceId?: string; sourceSnapshot: Json };
@@ -27,11 +28,15 @@ export class SupabasePayrollRepository {
   async process(competence = new Date().toISOString().slice(0, 7)): Promise<PayrollOverview> {
     const organizationId = await getCurrentOrganizationId(this.client);
     const { start, end } = monthBounds(competence);
+    const punchStart = new Date(`${start}T00:00:00Z`);
+    punchStart.setUTCDate(punchStart.getUTCDate() - 1);
+    const punchEnd = new Date(`${end}T23:59:59Z`);
+    punchEnd.setUTCDate(punchEnd.getUTCDate() + 1);
     const [employeesResult, linksResult, unitsResult, punchesResult, schedulesResult, assignmentsResult, exceptionsResult, approvalsResult, closureResult, statesResult] = await Promise.all([
       this.client.from("employees").select("id,full_name,registration,company_id,status").eq("organization_id", organizationId).neq("status", "terminated"),
       this.client.from("employment_links").select("employee_id,position,salary,department_id,hire_date,termination_date").eq("organization_id", organizationId).eq("active", true),
       this.client.from("organization_units").select("id,name").eq("organization_id", organizationId),
-      this.client.from("time_punches").select("id,employee_id,type,recorded_at,source").eq("organization_id", organizationId).gte("recorded_at", `${start}T00:00:00Z`).lte("recorded_at", `${end}T23:59:59Z`).order("recorded_at"),
+      this.client.from("time_punches").select("id,employee_id,type,recorded_at,source").eq("organization_id", organizationId).gte("recorded_at", punchStart.toISOString()).lte("recorded_at", punchEnd.toISOString()).order("recorded_at"),
       this.client.from("time_schedules").select("id,name,start_time,end_time,break_minutes,night_shift").eq("organization_id", organizationId).eq("active", true),
       this.client.from("employee_schedules").select("employee_id,schedule_id,valid_from").eq("organization_id", organizationId).lte("valid_from", end),
       this.client.from("time_exceptions").select("id,employee_id,title,description,severity,status").eq("organization_id", organizationId).gte("date", start).lte("date", end),
@@ -68,35 +73,43 @@ export class SupabasePayrollRepository {
       if (!link) continue;
       const schedule = schedules.get(assignments.get(employee.id));
       const employeePunches = (punchesResult.data ?? []).filter((punch) => punch.employee_id === employee.id);
-      const byDay = new Map<string, typeof employeePunches>();
-      for (const punch of employeePunches) {
-        const day = String(punch.recorded_at).slice(0, 10);
-        byDay.set(day, [...(byDay.get(day) ?? []), punch]);
+      const byShift = new Map<string, { worked: number; intervals: Array<{ start: string; end: string }> }>();
+      for (let index = 0; index + 1 < employeePunches.length; index += 2) {
+        const first = employeePunches[index]!;
+        const second = employeePunches[index + 1]!;
+        const day = String(first.recorded_at).slice(0, 10);
+        if (day < start || day > end) continue;
+        const current = byShift.get(day) ?? { worked: 0, intervals: [] };
+        current.worked += Math.max(0, (new Date(second.recorded_at).getTime() - new Date(first.recorded_at).getTime()) / 3_600_000);
+        current.intervals.push({ start: first.recorded_at, end: second.recorded_at });
+        byShift.set(day, current);
       }
       let overtime50Hours = 0;
       let overtime100Hours = 0;
-      for (const [day, values] of byDay) {
-        let worked = 0;
-        for (let index = 0; index + 1 < values.length; index += 2) worked += Math.max(0, (new Date(values[index + 1]!.recorded_at).getTime() - new Date(values[index]!.recorded_at).getTime()) / 3_600_000);
-        const expected = schedule ? Math.max(0, (new Date(`2000-01-01T${schedule.end_time}`).getTime() - new Date(`2000-01-01T${schedule.start_time}`).getTime()) / 3_600_000 - Number(schedule.break_minutes) / 60) : 0;
-        const excess = Math.max(0, worked - expected);
+      let payableNightHours = 0;
+      for (const [day, shift] of byShift) {
+        if (schedule?.night_shift) payableNightHours += calculateNightWork(shift.intervals).payableNightHours;
+        const expected = schedule ? scheduledWorkMinutes(String(schedule.start_time), String(schedule.end_time), Number(schedule.break_minutes)) / 60 : 0;
+        const excess = Math.max(0, shift.worked - expected);
         if (new Date(`${day}T12:00:00Z`).getUTCDay() === 0) overtime100Hours += excess;
         else overtime50Hours += excess;
       }
       overtime50Hours = round(overtime50Hours);
       overtime100Hours = round(overtime100Hours);
+      payableNightHours = round(payableNightHours);
       const employeeOccurrences = occurrences.filter((row) => sourceEmployeeId(row) === employee.id && Boolean(row.impactsPayroll) && ["approved", "active", "closed"].includes(String(row.status)) && String(row.startDate) <= end && String(row.endDate) >= start);
       const employeeVacations = vacationRequests.filter((row) => sourceEmployeeId(row) === employee.id && ["approved", "completed"].includes(String(row.status)) && String(row.startDate) <= end && String(row.endDate) >= start);
       const absenceDays = employeeOccurrences.filter((row) => row.type === "unjustified_absence").reduce((sum, row) => sum + overlapDays(String(row.startDate), String(row.endDate), start, end), 0);
       const employeeBenefits = enrollments.filter((row) => sourceEmployeeId(row) === employee.id && row.status === "active" && String(row.startDate) <= end && (!row.endDate || String(row.endDate) >= start));
       const benefitDiscount = round(employeeBenefits.reduce((sum, row) => sum + Number(row.employeeAmount ?? 0), 0));
-      const calculation = calculatePayroll({ salary: Number(link.salary), overtime50Hours, overtime100Hours, nightHours: 0, absenceDays });
+      const calculation = calculatePayroll({ salary: Number(link.salary), overtime50Hours, overtime100Hours, nightHours: payableNightHours, absenceDays });
       const events: SourceEvent[] = [
         { id: crypto.randomUUID(), code: "1001", name: "Salário mensal", kind: "earning", category: "salary", quantity: 30, reference: "30 dias", amount: Number(link.salary), automatic: true, sourceType: "employment_link", sourceId: employee.id, sourceSnapshot: { salary: Number(link.salary) } },
       ];
       const add = (code: string, name: string, kind: "earning" | "deduction" | "informational", category: SourceEvent["category"], quantity: number, reference: string, amount: number, sourceType: string, sourceId?: string, sourceSnapshot: Json = {}) => { if (amount > 0) events.push({ id: crypto.randomUUID(), code, name, kind, category, quantity, reference, amount, automatic: true, sourceType, ...(sourceId ? { sourceId } : {}), sourceSnapshot }); };
       add("1101", "Horas extras 50%", "earning", "overtime", overtime50Hours, `${overtime50Hours}h`, calculation.overtime50, "time_tracking", closureResult.data.id, { punchIds: employeePunches.map((p) => p.id) });
       add("1102", "Horas extras 100%", "earning", "overtime", overtime100Hours, `${overtime100Hours}h`, calculation.overtime100, "time_tracking", closureResult.data.id, { punchIds: employeePunches.map((p) => p.id) });
+      add("1201", "Adicional noturno", "earning", "additional", payableNightHours, `${payableNightHours}h noturnas equivalentes`, calculation.night, "time_tracking", closureResult.data.id, { punchIds: employeePunches.map((p) => p.id), reducedNightHourMinutes: 52.5, additionalRate: 0.2, includesExtensionAfter05: true });
       add("2001", "Faltas injustificadas", "deduction", "absence", absenceDays, `${absenceDays} dia(s)`, calculation.absence, "absence", employeeOccurrences[0]?.id as string | undefined, { occurrenceIds: employeeOccurrences.map((row) => row.id) });
       for (const benefit of employeeBenefits) add(String(benefit.payrollCode ?? "3100"), String(benefit.planName ?? "Benefício"), "deduction", "benefit", 1, competence, Number(benefit.employeeAmount ?? 0), "benefit_enrollment", String(benefit.id), { planId: benefit.planId });
       add("2101", "INSS", "deduction", "tax", 1, "Tabela progressiva", calculation.inss, "legal_table", "inss_2026");
