@@ -90,6 +90,14 @@ Estado: **controle técnico implementado e aplicado remotamente; execução func
 - Evidências referenciadas com hash SHA-256 opcional e auditoria append-only.
 - Execução paralela continua condicionada à identificação humana da organização, competência e responsáveis reais.
 
+## Marco 29 — reconciliação frontend–backend
+
+Estado: **em andamento**.
+
+- Benefícios e movimentações: formulários conectados à lista real de colaboradores e aos valores digitados.
+- Desligamentos: colaborador, datas, motivo, aviso e parâmetros de cálculo passam a compor o payload efetivamente enviado.
+- Pendente: cálculos especiais, saúde ocupacional, convites, portal, rondas, agendamentos, Storage e interface de operação real.
+
 ## Critério de conclusão de cada incremento
 
 Um incremento só é considerado concluído quando possui contrato validado, regra testada, interface utilizável (ações primárias e secundárias), auditoria prevista, build aprovado, permissões verificadas e comportamento completo validado no ambiente publicado. Caso qualquer ação visível ainda seja apenas decorativa, o estado deve ser **em andamento**.
