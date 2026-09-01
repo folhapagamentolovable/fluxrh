@@ -81,6 +81,15 @@ Estado: **concluído tecnicamente; liberação funcional restrita em validação
 - API com bloqueio global e falha segura quando o gate não pode ser verificado.
 - Migration remota `20260828160000` aplicada e validada.
 
+## Marco 28 — primeiro ciclo real controlado
+
+Estado: **controle técnico implementado e aplicado remotamente; execução funcional pendente**.
+
+- Registro persistente de competência, escopo, checklist de entrada, revisor humano e rollback.
+- Aprovação explícita e exclusiva por `super_admin`, sem acionar folha oficial.
+- Evidências referenciadas com hash SHA-256 opcional e auditoria append-only.
+- Execução paralela continua condicionada à identificação humana da organização, competência e responsáveis reais.
+
 ## Critério de conclusão de cada incremento
 
 Um incremento só é considerado concluído quando possui contrato validado, regra testada, interface utilizável (ações primárias e secundárias), auditoria prevista, build aprovado, permissões verificadas e comportamento completo validado no ambiente publicado. Caso qualquer ação visível ainda seja apenas decorativa, o estado deve ser **em andamento**.

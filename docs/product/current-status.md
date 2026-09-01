@@ -53,6 +53,7 @@ Atualizado em 28 de agosto de 2026.
 - Ambiente operacional externo liberado para operações reais exclusivamente por sessões com vínculo ativo `super_admin`; todas as mutações passam por um gate persistido no Supabase e pela barreira global da API, enquanto os demais papéis permanecem em modo somente leitura.
 - Massa de demonstração isolada criada no Supabase externo com uma organização fictícia, uma empresa fictícia, três unidades organizacionais, dez colaboradores artificiais e dez vínculos; e-mails usam exclusivamente `example.invalid` e documentos usam o prefixo `FICT`.
 - Massa adicional vinculada à organização resolvida como ativa pela API, garantindo a exibição remota de uma empresa, três unidades, dez colaboradores e dez vínculos fictícios nas telas atuais, enquanto o seletor multi-organização não é implementado.
+- Controle persistente do primeiro ciclo real paralelo, com checklist obrigatório, escopo e competência explícitos, revisor humano, plano de rollback, aprovação exclusiva por `super_admin`, evidências com hash opcional e trilha de auditoria append-only.
 
 ## Limitações conhecidas
 
@@ -64,7 +65,7 @@ Atualizado em 28 de agosto de 2026.
 
 ## Próximo marco
 
-Executar o primeiro ciclo real controlado pelo `super_admin`, com evidências de auditoria, conferência humana e plano de rollback, antes de ampliar permissões operacionais para qualquer outro papel.
+Cadastrar o primeiro ciclo real paralelo com organização, competência, escopo e revisor humano confirmados pelo responsável, sem substituir a operação oficial. A migration `20260901100000` do controle de ciclos já está aplicada no Supabase externo.
 
 ## Regras de transição
 
