@@ -428,6 +428,7 @@ function NewAnnouncement({
   done: () => void;
 }) {
   const [scheduled, setScheduled] = useState(false);
+  const [scheduledAt, setScheduledAt] = useState("");
   const [title, setTitle] = useState("Comunicado interno");
   const [message, setMessage] = useState(
     "Nova orientação disponível para os colaboradores. Consulte os detalhes no portal.",
@@ -446,7 +447,7 @@ function NewAnnouncement({
         audience,
         priority,
         requiresAcknowledgement: true,
-        scheduledAt: scheduled ? "2026-09-01T08:00:00.000Z" : undefined,
+        scheduledAt: scheduled ? new Date(scheduledAt).toISOString() : undefined,
       });
       if (emailEnabled)
         await sendExternalEmail({
@@ -514,8 +515,9 @@ function NewAnnouncement({
             checked={scheduled}
             onChange={(e) => setScheduled(e.target.checked)}
           />
-          <span>Agendar para 01/09/2026 às 08:00</span>
+          <span>Agendar publicação</span>
         </label>
+        {scheduled && <label>Data e hora<input type="datetime-local" value={scheduledAt} min={new Date().toISOString().slice(0, 16)} onChange={(event) => setScheduledAt(event.target.value)} /></label>}
         <label className="switch-row">
           <input
             type="checkbox"
@@ -551,6 +553,7 @@ function NewAnnouncement({
               mutation.isPending ||
               title.trim().length < 3 ||
               message.trim().length < 5 ||
+              (scheduled && !scheduledAt) ||
               (emailEnabled && !recipients.includes("@"))
             }
             onClick={() => mutation.mutate()}

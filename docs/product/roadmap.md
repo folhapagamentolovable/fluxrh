@@ -96,7 +96,8 @@ Estado: **em andamento**.
 
 - Benefícios e movimentações: formulários conectados à lista real de colaboradores e aos valores digitados.
 - Desligamentos: colaborador, datas, motivo, aviso e parâmetros de cálculo passam a compor o payload efetivamente enviado.
-- Pendente: cálculos especiais, saúde ocupacional, convites, portal, rondas, agendamentos, Storage e interface de operação real.
+- Saúde ocupacional, cálculos especiais, convites, portal e agendamentos: formulários conectados a dados reais e sem parâmetros demonstrativos fixos.
+- Pendente: rondas, Storage e interface de operação real.
 
 ## Critério de conclusão de cada incremento
 

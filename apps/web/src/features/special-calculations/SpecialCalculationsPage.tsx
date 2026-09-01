@@ -21,6 +21,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import {
   approveSpecialCalculation,
   createSpecialCalculation,
+  getEmployees,
   getSpecialCalculations,
   resolveSpecialException,
 } from "@/lib/api";
@@ -500,21 +501,30 @@ function NewCalculation({
   close: () => void;
   done: () => void;
 }) {
+  const { data: employees = [] } = useQuery({ queryKey: ["employees"], queryFn: getEmployees });
+  const [employeeId, setEmployeeId] = useState("");
   const [type, setType] =
     useState<SpecialCalculation["type"]>("thirteenth_first");
+  const [competence, setCompetence] = useState("");
+  const [averageVariables, setAverageVariables] = useState(0);
+  const [entitledTwelfths, setEntitledTwelfths] = useState(12);
+  const [vacationDays, setVacationDays] = useState(30);
+  const [soldDays, setSoldDays] = useState(0);
+  const [advanceThirteenth, setAdvanceThirteenth] = useState(false);
+  const employee = employees.find((item) => item.id === employeeId);
   const mutation = useMutation({
     mutationFn: () =>
       createSpecialCalculation({
-        employeeId: "emp_beatriz",
-        employeeName: "Beatriz Lima",
+        employeeId: employee!.id,
+        employeeName: employee!.fullName,
         type,
-        competence: type === "vacation" ? "2026-10" : "2026-11",
-        baseSalary: 2800,
-        averageVariables: 90,
-        entitledTwelfths: 12,
-        vacationDays: type === "vacation" ? 20 : undefined,
-        soldDays: type === "vacation" ? 10 : undefined,
-        advanceThirteenth: type === "vacation",
+        competence,
+        baseSalary: employee!.salary,
+        averageVariables,
+        entitledTwelfths,
+        vacationDays: type === "vacation" ? vacationDays : undefined,
+        soldDays: type === "vacation" ? soldDays : undefined,
+        advanceThirteenth: type === "vacation" ? advanceThirteenth : undefined,
       }),
     onSuccess: done,
   });
@@ -528,8 +538,9 @@ function NewCalculation({
       <div className="special-form">
         <label>
           Colaborador
-          <select>
-            <option>Beatriz Lima</option>
+          <select value={employeeId} onChange={(event) => setEmployeeId(event.target.value)}>
+            <option value="">Selecione</option>
+            {employees.filter((item) => item.status !== "terminated").map((item) => <option key={item.id} value={item.id}>{item.fullName} · {item.registration}</option>)}
           </select>
         </label>
         <label>
@@ -545,21 +556,24 @@ function NewCalculation({
             <option value="vacation">Férias</option>
           </select>
         </label>
+        <label>Competência (AAAA-MM)<input required pattern="\d{4}-(0[1-9]|1[0-2])" placeholder="2026-09" value={competence} onChange={(event) => setCompetence(event.target.value)} /></label>
         <div className="form-grid">
           <label>
             Salário-base
-            <input value="R$ 2.800,00" readOnly />
+            <input value={employee ? money(employee.salary) : "Selecione o colaborador"} readOnly />
           </label>
           <label>
             Média variável
-            <input value="R$ 90,00" readOnly />
+            <input type="number" min={0} value={averageVariables} onChange={(event) => setAverageVariables(Number(event.target.value))} />
           </label>
+          <label>Avos de direito<input type="number" min={0} max={12} value={entitledTwelfths} onChange={(event) => setEntitledTwelfths(Number(event.target.value))} /></label>
         </div>
+        {type === "vacation" && <div className="form-grid"><label>Dias de férias<input type="number" min={1} max={30} value={vacationDays} onChange={(event) => setVacationDays(Number(event.target.value))} /></label><label>Dias vendidos<input type="number" min={0} max={10} value={soldDays} onChange={(event) => setSoldDays(Number(event.target.value))} /></label><label className="switch-row"><input type="checkbox" checked={advanceThirteenth} onChange={(event) => setAdvanceThirteenth(event.target.checked)} /><span>Antecipar 13º</span></label></div>}
         <footer className="form-actions">
           <button className="secondary-button" onClick={close}>
             Cancelar
           </button>
-          <button className="primary-button" onClick={() => mutation.mutate()}>
+          <button className="primary-button" disabled={!employee || !/^\d{4}-(0[1-9]|1[0-2])$/.test(competence) || mutation.isPending} onClick={() => mutation.mutate()}>
             Calcular
           </button>
         </footer>

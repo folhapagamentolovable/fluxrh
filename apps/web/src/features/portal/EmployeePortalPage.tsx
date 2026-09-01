@@ -391,16 +391,18 @@ function NewRequest({
     payroll_question: "Dúvida sobre folha",
     other: "Falar com o RH",
   };
+  const [title, setTitle] = useState(titles[type ?? "other"]);
+  const [description, setDescription] = useState("");
+  const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
   const mutation = useMutation({
     mutationFn: () =>
       createServiceRequest({
         employeeId: profile.employeeId,
         employeeName: profile.name,
         type: type ?? "other",
-        title: titles[type ?? "other"],
-        description:
-          "Solicitação registrada pelo portal de autoatendimento para análise e acompanhamento.",
-        priority: "medium",
+        title,
+        description,
+        priority,
       }),
     onSuccess: done,
   });
@@ -414,15 +416,18 @@ function NewRequest({
       <div className="special-form">
         <label>
           Assunto
-          <input defaultValue={titles[type ?? "other"]} />
+          <input value={title} onChange={(event) => setTitle(event.target.value)} />
         </label>
         <label>
           Descrição
           <textarea
             rows={4}
-            defaultValue="Solicitação registrada pelo portal de autoatendimento para análise e acompanhamento."
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+            placeholder="Descreva o que você precisa e inclua os dados necessários para análise."
           />
         </label>
+        <label>Prioridade<select value={priority} onChange={(event) => setPriority(event.target.value as typeof priority)}><option value="low">Baixa</option><option value="medium">Normal</option><option value="high">Alta</option></select></label>
         <div className="form-note">
           <ShieldCheck />
           <p>
@@ -434,7 +439,7 @@ function NewRequest({
           <button className="secondary-button" onClick={close}>
             Cancelar
           </button>
-          <button className="primary-button" onClick={() => mutation.mutate()}>
+          <button className="primary-button" disabled={title.trim().length < 3 || description.trim().length < 5 || mutation.isPending} onClick={() => mutation.mutate()}>
             Enviar solicitação
           </button>
         </footer>

@@ -21,11 +21,12 @@ import {
   X,
 } from "lucide-react";
 import { useState, type KeyboardEvent } from "react";
-import type { GovernanceOverview } from "@fluxrh/contracts";
+import type { GovernanceOverview, InviteGovernanceUserInput } from "@fluxrh/contracts";
 import { Modal } from "@/components/ui/Modal";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import {
   getGovernance,
+  getOrganizations,
   inviteGovernanceUser,
   revokeGovernanceSession,
   updateRolePermission,
@@ -451,15 +452,22 @@ function InviteUser({
   close: () => void;
   done: () => void;
 }) {
+  const { data: organizations } = useQuery({ queryKey: ["organizations"], queryFn: getOrganizations });
+  const companies = organizations?.companies ?? [];
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState<InviteGovernanceUserInput["role"]>("hr");
+  const [companyId, setCompanyId] = useState("");
+  const [teamOnly, setTeamOnly] = useState(false);
   const mutation = useMutation({
     mutationFn: () =>
       inviteGovernanceUser({
-        name: "Novo usuário",
-        email: "novo.usuario@fluxrh.local",
-        role: "hr",
-        companyIds: ["company_flux"],
+        name,
+        email,
+        role,
+        companyIds: [companyId],
         departmentIds: [],
-        teamOnly: false,
+        teamOnly,
       }),
     onSuccess: done,
   });
@@ -473,29 +481,33 @@ function InviteUser({
       <div className="special-form">
         <label>
           Nome
-          <input defaultValue="Novo usuário" />
+          <input value={name} onChange={(event) => setName(event.target.value)} />
         </label>
         <label>
           E-mail
-          <input type="email" defaultValue="novo.usuario@fluxrh.local" />
+          <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
         </label>
         <div className="form-grid">
           <label>
             Perfil
-            <select>
-              <option>RH</option>
-              <option>Gestor</option>
-              <option>Departamento pessoal</option>
-              <option>Auditor</option>
+            <select value={role} onChange={(event) => setRole(event.target.value as typeof role)}>
+              <option value="hr">RH</option>
+              <option value="manager">Gestor</option>
+              <option value="payroll">Departamento pessoal</option>
+              <option value="auditor">Auditor</option>
+              <option value="finance">Financeiro</option>
+              <option value="admin">Administrador</option>
             </select>
           </label>
           <label>
             Empresa
-            <select>
-              <option>Flux Serviços Ltda.</option>
+            <select value={companyId} onChange={(event) => setCompanyId(event.target.value)}>
+              <option value="">Selecione</option>
+              {companies.map((company) => <option key={company.id} value={company.id}>{company.legalName}</option>)}
             </select>
           </label>
         </div>
+        <label className="switch-row"><input type="checkbox" checked={teamOnly} onChange={(event) => setTeamOnly(event.target.checked)} /><span>Restringir acesso à própria equipe</span></label>
         <div className="security-note">
           <LockKeyhole />
           <p>
@@ -507,7 +519,7 @@ function InviteUser({
           <button className="secondary-button" onClick={close}>
             Cancelar
           </button>
-          <button className="primary-button" onClick={() => mutation.mutate()}>
+          <button className="primary-button" disabled={name.trim().length < 3 || !/^\S+@\S+\.\S+$/.test(email) || !companyId || mutation.isPending} onClick={() => mutation.mutate()}>
             <MailPlus /> Enviar convite
           </button>
         </footer>

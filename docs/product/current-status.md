@@ -55,6 +55,7 @@ Atualizado em 28 de agosto de 2026.
 - Massa adicional vinculada à organização resolvida como ativa pela API, garantindo a exibição remota de uma empresa, três unidades, dez colaboradores e dez vínculos fictícios nas telas atuais, enquanto o seletor multi-organização não é implementado.
 - Controle persistente do primeiro ciclo real paralelo, com checklist obrigatório, escopo e competência explícitos, revisor humano, plano de rollback, aprovação exclusiva por `super_admin`, evidências com hash opcional e trilha de auditoria append-only.
 - Primeira etapa da reconciliação frontend–backend concluída em formulários financeiros: concessões e movimentações de benefícios e novos desligamentos agora usam o colaborador selecionado e os valores efetivamente digitados, sem payloads pessoais ou datas fictícias fixas.
+- Segunda etapa concluída em saúde ocupacional, cálculos especiais, solicitações do portal, convites de governança e comunicações: os payloads agora refletem os dados selecionados ou digitados; convites usam empresas cadastradas e agendamentos exigem data e hora explícitas.
 
 ## Limitações conhecidas
 
@@ -68,7 +69,7 @@ Atualizado em 28 de agosto de 2026.
 
 Cadastrar o primeiro ciclo real paralelo com organização, competência, escopo e revisor humano confirmados pelo responsável, sem substituir a operação oficial. A migration `20260901100000` do controle de ciclos já está aplicada no Supabase externo.
 
-Antes disso, concluir a reconciliação dos formulários ainda demonstrativos — cálculos especiais, saúde ocupacional, convites, portal, rondas e agendamentos — e disponibilizar a interface do ciclo real em Configurações.
+Antes disso, concluir a reconciliação de rondas e disponibilizar a interface do ciclo real em Configurações.
 
 ## Regras de transição
 

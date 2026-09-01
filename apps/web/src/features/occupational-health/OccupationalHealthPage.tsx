@@ -24,6 +24,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import {
   completeOccupationalExam,
   createOccupationalExam,
+  getEmployees,
   getOccupationalHealth,
   resolveOccupationalException,
 } from "@/lib/api";
@@ -549,19 +550,26 @@ function NewExam({
   close: () => void;
   done: () => void;
 }) {
+  const { data: employees = [] } = useQuery({ queryKey: ["employees"], queryFn: getEmployees });
+  const [employeeId, setEmployeeId] = useState("");
+  const [type, setType] = useState<OccupationalExam["type"]>("periodic");
+  const [scheduledDate, setScheduledDate] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [clinicName, setClinicName] = useState("");
+  const employee = employees.find((item) => item.id === employeeId);
   const mutation = useMutation({
     mutationFn: () =>
       createOccupationalExam({
-        employeeId: "emp_marina",
-        employeeName: "Marina Souza",
-        registration: "FLX-104",
-        companyName: "Flux Serviços Ltda.",
-        departmentName: "Pessoas e Cultura",
-        position: "Coordenadora de RH",
-        type: "periodic",
-        scheduledDate: "2026-09-10",
-        dueDate: "2026-09-15",
-        clinicName: "Unidade Centro",
+        employeeId: employee!.id,
+        employeeName: employee!.fullName,
+        registration: employee!.registration,
+        companyName: employee!.companyName,
+        departmentName: employee!.departmentName,
+        position: employee!.position,
+        type,
+        scheduledDate,
+        dueDate,
+        clinicName: clinicName.trim() || undefined,
       }),
     onSuccess: done,
   });
@@ -575,34 +583,37 @@ function NewExam({
       <div className="special-form">
         <label>
           Colaborador
-          <select>
-            <option>Marina Souza</option>
+          <select value={employeeId} onChange={(event) => setEmployeeId(event.target.value)}>
+            <option value="">Selecione</option>
+            {employees.filter((item) => item.status !== "terminated").map((item) => <option key={item.id} value={item.id}>{item.fullName} · {item.registration}</option>)}
           </select>
         </label>
         <div className="form-grid">
           <label>
             Tipo
-            <select>
-              <option>Periódico</option>
-              <option>Retorno ao trabalho</option>
-              <option>Mudança de risco</option>
-              <option>Demissional</option>
+            <select value={type} onChange={(event) => setType(event.target.value as OccupationalExam["type"])}>
+              <option value="admission">Admissional</option>
+              <option value="periodic">Periódico</option>
+              <option value="return_to_work">Retorno ao trabalho</option>
+              <option value="risk_change">Mudança de risco</option>
+              <option value="termination">Demissional</option>
             </select>
           </label>
           <label>
             Data
-            <BrazilianDateInput defaultValue="2026-09-10" />
+            <BrazilianDateInput value={scheduledDate} onValueChange={setScheduledDate} />
           </label>
+          <label>Data limite<BrazilianDateInput value={dueDate} onValueChange={setDueDate} /></label>
         </div>
         <label>
           Unidade de atendimento
-          <input defaultValue="Unidade Centro" />
+          <input value={clinicName} onChange={(event) => setClinicName(event.target.value)} />
         </label>
         <footer className="form-actions">
           <button className="secondary-button" onClick={close}>
             Cancelar
           </button>
-          <button className="primary-button" onClick={() => mutation.mutate()}>
+          <button className="primary-button" disabled={!employee || !scheduledDate || !dueDate || mutation.isPending} onClick={() => mutation.mutate()}>
             <ClipboardPlus /> Agendar e convocar
           </button>
         </footer>
