@@ -19,6 +19,7 @@ import {
 import { useState } from "react";
 import type { OccupationalExam } from "@fluxrh/contracts";
 import { Modal } from "@/components/ui/Modal";
+import { BrazilianDateInput } from "@/components/ui/BrazilianDateInput";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import {
   completeOccupationalExam,
@@ -590,7 +591,7 @@ function NewExam({
           </label>
           <label>
             Data
-            <input type="date" defaultValue="2026-09-10" />
+            <BrazilianDateInput defaultValue="2026-09-10" />
           </label>
         </div>
         <label>

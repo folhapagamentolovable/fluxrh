@@ -11,6 +11,7 @@ import {
 import { useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Modal } from "@/components/ui/Modal";
+import { BrazilianDateInput } from "@/components/ui/BrazilianDateInput";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { createEmployee, getEmployees, getOrganizations } from "@/lib/api";
 import {
@@ -273,11 +274,7 @@ export function EmployeesPage() {
           </label>
           <label>
             Data de nascimento
-            <input
-              type="date"
-              required
-              value={form.birthDate}
-              onChange={(e) => setForm({ ...form, birthDate: e.target.value })}
+            <BrazilianDateInput required value={form.birthDate} onValueChange={(birthDate) => setForm({ ...form, birthDate })}
             />
           </label>
           <label>
@@ -399,11 +396,7 @@ export function EmployeesPage() {
           </label>
           <label>
             Data de admissão
-            <input
-              type="date"
-              required
-              value={form.hireDate}
-              onChange={(e) => setForm({ ...form, hireDate: e.target.value })}
+            <BrazilianDateInput required value={form.hireDate} onValueChange={(hireDate) => setForm({ ...form, hireDate })}
             />
           </label>
           {mutation.error && (

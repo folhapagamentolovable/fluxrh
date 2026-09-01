@@ -19,6 +19,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Modal } from "@/components/ui/Modal";
+import { BrazilianDateInput } from "@/components/ui/BrazilianDateInput";
 import {
   createDocumentRequest,
   createEmployeeDependent,
@@ -510,7 +511,7 @@ export function EmployeeProfilePage() {
           <div className="form-grid">
             <label>E-mail<input required type="email" value={editForm.email} onChange={(event) => setEditForm({ ...editForm, email: event.target.value })} /></label>
             <label>Telefone<input required value={editForm.phone} onChange={(event) => setEditForm({ ...editForm, phone: event.target.value })} /></label>
-            <label>Data de nascimento<input required type="date" value={editForm.birthDate} onChange={(event) => setEditForm({ ...editForm, birthDate: event.target.value })} /></label>
+            <label>Data de nascimento<BrazilianDateInput required value={editForm.birthDate} onValueChange={(birthDate) => setEditForm({ ...editForm, birthDate })} /></label>
           </div>
           <footer className="form-actions"><button type="button" className="secondary-button" onClick={() => setEditOpen(false)}>Cancelar</button><button className="primary-button" disabled={editMutation.isPending}>{editMutation.isPending ? "Salvando..." : "Salvar alterações"}</button></footer>
         </form>
@@ -567,13 +568,7 @@ export function EmployeeProfilePage() {
           <div className="form-grid">
             <label>
               Nascimento
-              <input
-                type="date"
-                value={dependent.birthDate}
-                onChange={(event) =>
-                  setDependent({ ...dependent, birthDate: event.target.value })
-                }
-              />
+              <BrazilianDateInput value={dependent.birthDate} onValueChange={(birthDate) => setDependent({ ...dependent, birthDate })} />
             </label>
             <label>
               Parentesco
