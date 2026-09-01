@@ -56,6 +56,7 @@ Atualizado em 28 de agosto de 2026.
 - Controle persistente do primeiro ciclo real paralelo, com checklist obrigatório, escopo e competência explícitos, revisor humano, plano de rollback, aprovação exclusiva por `super_admin`, evidências com hash opcional e trilha de auditoria append-only.
 - Primeira etapa da reconciliação frontend–backend concluída em formulários financeiros: concessões e movimentações de benefícios e novos desligamentos agora usam o colaborador selecionado e os valores efetivamente digitados, sem payloads pessoais ou datas fictícias fixas.
 - Segunda etapa concluída em saúde ocupacional, cálculos especiais, solicitações do portal, convites de governança e comunicações: os payloads agora refletem os dados selecionados ou digitados; convites usam empresas cadastradas e agendamentos exigem data e hora explícitas.
+- Reconciliação de rondas concluída: início avulso exige colaborador e dispositivo, cada leitura registra dispositivo, modo offline e conferência de localização, e ocorrências coletam classificação, severidade, descrição, responsável e quantidade de evidências.
 
 ## Limitações conhecidas
 
@@ -69,7 +70,7 @@ Atualizado em 28 de agosto de 2026.
 
 Cadastrar o primeiro ciclo real paralelo com organização, competência, escopo e revisor humano confirmados pelo responsável, sem substituir a operação oficial. A migration `20260901100000` do controle de ciclos já está aplicada no Supabase externo.
 
-Antes disso, concluir a reconciliação de rondas e disponibilizar a interface do ciclo real em Configurações.
+O próximo incremento é disponibilizar a interface do ciclo real em Configurações.
 
 ## Regras de transição
 
