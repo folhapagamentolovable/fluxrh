@@ -9,3 +9,4 @@ coverage/
 *.tsbuildinfo
 .npm-cache/
 supabase/.temp/
+tmp/

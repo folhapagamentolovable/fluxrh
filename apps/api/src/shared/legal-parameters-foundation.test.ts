@@ -6,6 +6,10 @@ const migration = readFileSync(fileURLToPath(new URL(
   "../../../../supabase/migrations/20260901013620_version_legal_parameter_sets.sql",
   import.meta.url,
 )), "utf8");
+const collectiveAddendumMigration = readFileSync(fileURLToPath(new URL(
+  "../../../../supabase/migrations/20260901034935_import_sindeepres_2026_addendum.sql",
+  import.meta.url,
+)), "utf8");
 
 describe("versioned legal parameters", () => {
   it("is tenant scoped, immutable to application roles and protected by RLS", () => {
@@ -24,5 +28,13 @@ describe("versioned legal parameters", () => {
     expect(migration).toContain("'inss','inss_employee','INSS empregado',2");
     expect(migration).toContain("'irrf','irrf_monthly','IRRF mensal',2");
     expect(migration).toContain("'collective_agreement','sindeepres_aud0001'");
+  });
+
+  it("imports the registered 2026 addendum without silently applying it to excluded activities", () => {
+    expect(collectiveAddendumMigration).toContain("SP002405/2026");
+    expect(collectiveAddendumMigration).toContain("bfd4cfd54e8661d72ae286a21894653fe0d49019953cd46477c4e554fa35a1ac");
+    expect(collectiveAddendumMigration).toContain("vigilância e segurança patrimonial");
+    expect(collectiveAddendumMigration).toContain("blocked_pending_applicability_confirmation");
+    expect(collectiveAddendumMigration).toContain("schedule12x36ClauseNotPresentInUploadedAddendum");
   });
 });

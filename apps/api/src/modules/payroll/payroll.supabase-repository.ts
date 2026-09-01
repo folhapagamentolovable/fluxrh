@@ -81,7 +81,13 @@ export class SupabasePayrollRepository {
     const irrfParameter = legal.get("irrf")!;
     const fgtsParameter = legal.get("fgts")!;
     const dsrParameter = legal.get("dsr")!;
-    const legalParametersSnapshot = Object.fromEntries([...legal.entries()].map(([kind, row]) => [kind, legalSnapshot(row)]));
+    const legalParametersSnapshot = Object.fromEntries([...legal.entries()].map(([kind, row]) => [kind, {
+      ...legalSnapshot(row),
+      ...(kind === "collective_agreement" ? {
+        applicabilityStatus: String((row.parameters.applicability as Json | undefined)?.status ?? "unknown"),
+        automationStatus: String((row.parameters.automation as Json | undefined)?.status ?? "unknown"),
+      } : {}),
+    }]));
 
     const states = new Map((statesResult.data ?? []).map((row) => [row.module_name, row.state as Json]));
     const absences = states.get("absences") ?? {};
@@ -156,6 +162,8 @@ export class SupabasePayrollRepository {
       for (const value of occurrences.filter((row) => sourceEmployeeId(row) === employee.id && Boolean(row.impactsPayroll) && row.status === "pending")) employeeExceptions.push({ id: crypto.randomUUID(), code: `ABSENCE_${value.id}`, title: "Ausência pendente de decisão", description: String(value.reason ?? "Ocorrência com impacto financeiro ainda não aprovada."), severity: "critical", status: "open" });
       for (const value of leaves.filter((row) => sourceEmployeeId(row) === employee.id && Boolean(row.impactsPayroll) && ["active", "scheduled"].includes(String(row.status)) && String(row.startDate) <= end && String(row.endDate ?? row.returnForecast) >= start)) employeeExceptions.push({ id: crypto.randomUUID(), code: `LEAVE_${value.id}`, title: "Afastamento com impacto na folha", description: "O afastamento exige definição manual da responsabilidade salarial antes da aprovação.", severity: "critical", status: "open" });
       for (const value of employeeVacations.filter((row) => row.payrollEventStatus !== "processed")) employeeExceptions.push({ id: crypto.randomUUID(), code: `VACATION_${value.id}`, title: "Férias sem cálculo processado", description: "A remuneração de férias e o terço constitucional precisam ser processados antes da aprovação da folha, evitando pagamento mensal em duplicidade ou omissão do evento.", severity: "critical", status: "open" });
+      const collectiveAgreement = legal.get("collective_agreement");
+      if (employee.registration === "AUD-0001" && collectiveAgreement && (collectiveAgreement.parameters.automation as Json | undefined)?.status === "blocked_pending_applicability_confirmation") employeeExceptions.push({ id: crypto.randomUUID(), code: "CCT_APPLICABILITY_PENDING", title: "Aplicabilidade da CCT pendente", description: "O Termo Aditivo SINDEEPRES SP002405/2026 exclui vigilância e segurança patrimonial. Confirme as atividades reais do cargo Vigia antes de aplicar automaticamente as cláusulas econômicas.", severity: "critical", status: "open" });
       const deductions = round(calculation.inss + calculation.irrf + calculation.absence + benefitDiscount);
       processed.push({ id: crypto.randomUUID(), employeeId: employee.id, employeeName: employee.full_name, registration: employee.registration, position: link.position, departmentName: unitNames.get(link.department_id) ?? "Sem departamento", baseSalary: Number(link.salary), grossPay: calculation.gross, deductions, netPay: round(calculation.gross - deductions), employerCharges: calculation.fgts, status: employeeExceptions.length ? "exception" : "pending", events, exceptions: employeeExceptions, inputSnapshot: { competence, timeClosureId: closureResult.data.id, timeApproval: approved.has(employee.id), punchIds: employeePunches.map((p) => p.id), absenceIds: employeeOccurrences.map((row) => row.id), vacationIds: employeeVacations.map((row) => row.id), benefitIds: employeeBenefits.map((row) => row.id), legalParameters: legalParametersSnapshot, calculationVersion: 3 } });
     }

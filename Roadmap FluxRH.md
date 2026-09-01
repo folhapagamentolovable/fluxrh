@@ -1185,9 +1185,14 @@ Desempenho
 - ✅ Auditar jornada noturna, hora noturna reduzida, adicional noturno, intervalo e prorrogação
 - ✅ Auditar DSR, horas extras, INSS, FGTS e IRRF por competência
 - ✅ Versionar e comparar as tabelas legais utilizadas em cada cálculo
-- ⬜ Importar e parametrizar a CCT aplicável após identificação de sindicato, base territorial e vigência
+- 🟡 Importar e parametrizar a CCT aplicável após identificação de sindicato, base territorial e vigência
+  - ✅ Termo Aditivo 2026/2026 importado com registro MTE `SP002405/2026`, vigência, partes, território, parâmetros econômicos e hash documental
+  - 🟡 Aplicação automática ao `AUD-0001` bloqueada: o instrumento exclui vigilância e segurança patrimonial e o cargo `Vigia` exige confirmação das atividades reais
+  - ⬜ Obter a CCT principal do processo `10260.202420/2025-88` para validar escala 12×36 e demais cláusulas não econômicas preservadas pelo aditivo
 - ✅ Premissa do caso confirmada: divisor 220 e escala 12×36 autorizada por CCT do SINDEEPRES
-- ⬜ Registrar divergências e propostas de melhoria na memória de cálculo
+- 🟡 Registrar divergências e propostas de melhoria na memória de cálculo
+  - ✅ Divergência de abrangência registrada no snapshot e como exceção crítica `CCT_APPLICABILITY_PENDING`
+  - ⬜ Implementar cadastro de enquadramento sindical por atividade real, território e vigência
 
 ---
 
