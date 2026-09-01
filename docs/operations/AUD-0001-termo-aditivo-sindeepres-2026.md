@@ -17,15 +17,25 @@ SHA-256: `bfd4cfd54e8661d72ae286a21894653fe0d49019953cd46477c4e554fa35a1ac`
 
 ## Divergência de aplicabilidade do AUD-0001
 
-A cláusula de abrangência exclui expressamente **Vigilância e Segurança Patrimonial**. O nome do cargo fictício é **Vigia**, mas o cadastro ainda não descreve com precisão suficiente as atividades efetivamente exercidas.
+A cláusula de abrangência exclui expressamente **Vigilância e Segurança Patrimonial**. A organização confirmou que, neste contexto empresarial, o cargo **Vigia** corresponde às atividades de **Fiscal de Piso / Fiscal de Loja**, não às atividades excluídas de vigilância patrimonial.
 
 Consequências adotadas:
 
-1. O instrumento foi importado e versionado, mas sua aplicação econômica ao AUD-0001 permanece bloqueada.
-2. Um novo cálculo do registro `AUD-0001` gera a exceção crítica `CCT_APPLICABILITY_PENDING`.
-3. A memória de cálculo registra a versão, o hash e os estados de aplicabilidade e automação.
+1. O instrumento foi importado e versionado com o enquadramento empresarial confirmado.
+2. A exceção `CCT_APPLICABILITY_PENDING` deixa de ser gerada para o AUD-0001 a partir da versão 3.
+3. A memória de cálculo registra a versão, o hash, o enquadramento ocupacional e os estados de aplicabilidade e automação.
 4. O divisor 220 permanece como premissa confirmada pelo responsável e é compatível com a referência a 220 horas mensais do Termo Aditivo.
 5. A autorização da escala 12×36 não aparece no Termo Aditivo enviado; sua comprovação documental depende da CCT principal ou de outro instrumento aplicável.
+
+## Enquadramentos empresariais confirmados
+
+| Função da empresa | Função equivalente na CCT | Referência |
+|---|---|---:|
+| Vigia | Fiscal de Piso / Fiscal de Loja | R$ 2.091,57, correspondente a R$ 60,00 acima do piso de R$ 2.031,57 |
+| Auxiliar de Limpeza | Auxiliar de Serviços Gerais / Operações | Piso mínimo de R$ 1.805,43 |
+| Zelador | Zelador | Piso de R$ 2.144,33, preservada a regra de acúmulo de função de 20% |
+
+O valor de R$ 2.091,57 foi confirmado como salário autoritativo do Vigia. Embora tenha sido inicialmente mencionado um diferencial de R$ 50,00, a diferença aritmética em relação ao piso de R$ 2.031,57 é R$ 60,00; a versão parametrizada registra os valores reconciliados.
 
 ## Parâmetros econômicos extraídos
 

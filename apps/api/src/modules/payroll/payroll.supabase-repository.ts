@@ -81,6 +81,8 @@ export class SupabasePayrollRepository {
     const irrfParameter = legal.get("irrf")!;
     const fgtsParameter = legal.get("fgts")!;
     const dsrParameter = legal.get("dsr")!;
+    const collectiveAgreement = legal.get("collective_agreement");
+    const companyJobMappings = Array.isArray(collectiveAgreement?.parameters.companyJobMappings) ? collectiveAgreement.parameters.companyJobMappings as Json[] : [];
     const legalParametersSnapshot = Object.fromEntries([...legal.entries()].map(([kind, row]) => [kind, {
       ...legalSnapshot(row),
       ...(kind === "collective_agreement" ? {
@@ -111,6 +113,7 @@ export class SupabasePayrollRepository {
     for (const employee of employeesResult.data ?? []) {
       const link = links.get(employee.id);
       if (!link) continue;
+      const collectiveJobMapping = companyJobMappings.find((mapping) => String(mapping.companyRole).localeCompare(String(link.position), "pt-BR", { sensitivity: "base" }) === 0);
       const schedule = schedules.get(assignments.get(employee.id));
       const employeePunches = (punchesResult.data ?? []).filter((punch) => punch.employee_id === employee.id);
       const byShift = new Map<string, { worked: number; intervals: Array<{ start: string; end: string }> }>();
@@ -162,10 +165,11 @@ export class SupabasePayrollRepository {
       for (const value of occurrences.filter((row) => sourceEmployeeId(row) === employee.id && Boolean(row.impactsPayroll) && row.status === "pending")) employeeExceptions.push({ id: crypto.randomUUID(), code: `ABSENCE_${value.id}`, title: "Ausência pendente de decisão", description: String(value.reason ?? "Ocorrência com impacto financeiro ainda não aprovada."), severity: "critical", status: "open" });
       for (const value of leaves.filter((row) => sourceEmployeeId(row) === employee.id && Boolean(row.impactsPayroll) && ["active", "scheduled"].includes(String(row.status)) && String(row.startDate) <= end && String(row.endDate ?? row.returnForecast) >= start)) employeeExceptions.push({ id: crypto.randomUUID(), code: `LEAVE_${value.id}`, title: "Afastamento com impacto na folha", description: "O afastamento exige definição manual da responsabilidade salarial antes da aprovação.", severity: "critical", status: "open" });
       for (const value of employeeVacations.filter((row) => row.payrollEventStatus !== "processed")) employeeExceptions.push({ id: crypto.randomUUID(), code: `VACATION_${value.id}`, title: "Férias sem cálculo processado", description: "A remuneração de férias e o terço constitucional precisam ser processados antes da aprovação da folha, evitando pagamento mensal em duplicidade ou omissão do evento.", severity: "critical", status: "open" });
-      const collectiveAgreement = legal.get("collective_agreement");
       if (employee.registration === "AUD-0001" && collectiveAgreement && (collectiveAgreement.parameters.automation as Json | undefined)?.status === "blocked_pending_applicability_confirmation") employeeExceptions.push({ id: crypto.randomUUID(), code: "CCT_APPLICABILITY_PENDING", title: "Aplicabilidade da CCT pendente", description: "O Termo Aditivo SINDEEPRES SP002405/2026 exclui vigilância e segurança patrimonial. Confirme as atividades reais do cargo Vigia antes de aplicar automaticamente as cláusulas econômicas.", severity: "critical", status: "open" });
+      const mappedSalaryReference = Number(collectiveJobMapping?.companySalary ?? collectiveJobMapping?.collectiveFloor ?? 0);
+      if (collectiveJobMapping && Number(link.salary) < mappedSalaryReference) employeeExceptions.push({ id: crypto.randomUUID(), code: "CCT_SALARY_BELOW_REFERENCE", title: "Salário abaixo da referência coletiva", description: `${String(link.position)} está com salário de ${Number(link.salary).toFixed(2)}, abaixo da referência empresarial/coletiva de ${mappedSalaryReference.toFixed(2)}.`, severity: "critical", status: "open" });
       const deductions = round(calculation.inss + calculation.irrf + calculation.absence + benefitDiscount);
-      processed.push({ id: crypto.randomUUID(), employeeId: employee.id, employeeName: employee.full_name, registration: employee.registration, position: link.position, departmentName: unitNames.get(link.department_id) ?? "Sem departamento", baseSalary: Number(link.salary), grossPay: calculation.gross, deductions, netPay: round(calculation.gross - deductions), employerCharges: calculation.fgts, status: employeeExceptions.length ? "exception" : "pending", events, exceptions: employeeExceptions, inputSnapshot: { competence, timeClosureId: closureResult.data.id, timeApproval: approved.has(employee.id), punchIds: employeePunches.map((p) => p.id), absenceIds: employeeOccurrences.map((row) => row.id), vacationIds: employeeVacations.map((row) => row.id), benefitIds: employeeBenefits.map((row) => row.id), legalParameters: legalParametersSnapshot, calculationVersion: 3 } });
+      processed.push({ id: crypto.randomUUID(), employeeId: employee.id, employeeName: employee.full_name, registration: employee.registration, position: link.position, departmentName: unitNames.get(link.department_id) ?? "Sem departamento", baseSalary: Number(link.salary), grossPay: calculation.gross, deductions, netPay: round(calculation.gross - deductions), employerCharges: calculation.fgts, status: employeeExceptions.length ? "exception" : "pending", events, exceptions: employeeExceptions, inputSnapshot: { competence, timeClosureId: closureResult.data.id, timeApproval: approved.has(employee.id), punchIds: employeePunches.map((p) => p.id), absenceIds: employeeOccurrences.map((row) => row.id), vacationIds: employeeVacations.map((row) => row.id), benefitIds: employeeBenefits.map((row) => row.id), legalParameters: legalParametersSnapshot, ...(collectiveJobMapping ? { collectiveJobMapping } : {}), calculationVersion: 4 } });
     }
     const hash = createHash("sha256").update(JSON.stringify(processed.map((employee) => employee.inputSnapshot))).digest("hex");
     const { error } = await this.client.rpc("save_payroll_calculation", { competence_value: start, input_hash_value: hash, employees_value: processed });

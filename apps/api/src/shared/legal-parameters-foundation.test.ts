@@ -10,6 +10,10 @@ const collectiveAddendumMigration = readFileSync(fileURLToPath(new URL(
   "../../../../supabase/migrations/20260901034935_import_sindeepres_2026_addendum.sql",
   import.meta.url,
 )), "utf8");
+const companyMappingsMigration = readFileSync(fileURLToPath(new URL(
+  "../../../../supabase/migrations/20260901040303_confirm_company_cct_job_mappings.sql",
+  import.meta.url,
+)), "utf8");
 
 describe("versioned legal parameters", () => {
   it("is tenant scoped, immutable to application roles and protected by RLS", () => {
@@ -36,5 +40,15 @@ describe("versioned legal parameters", () => {
     expect(collectiveAddendumMigration).toContain("vigilância e segurança patrimonial");
     expect(collectiveAddendumMigration).toContain("blocked_pending_applicability_confirmation");
     expect(collectiveAddendumMigration).toContain("schedule12x36ClauseNotPresentInUploadedAddendum");
+  });
+
+  it("records the company job mappings and the authoritative AUD-0001 salary", () => {
+    expect(companyMappingsMigration).toContain("'companyRole','Vigia'");
+    expect(companyMappingsMigration).toContain("'collectiveRole','Fiscal de Piso / Fiscal de Loja'");
+    expect(companyMappingsMigration).toContain("'companySalary',2091.57");
+    expect(companyMappingsMigration).toContain("'effectivePremium',60.00");
+    expect(companyMappingsMigration).toContain("'companyRole','Auxiliar de Limpeza'");
+    expect(companyMappingsMigration).toContain("'companyRole','Zelador'");
+    expect(companyMappingsMigration).toContain("active_for_confirmed_company_mappings");
   });
 });
