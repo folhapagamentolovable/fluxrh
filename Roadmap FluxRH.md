@@ -1185,15 +1185,17 @@ Desempenho
 - ✅ Auditar jornada noturna, hora noturna reduzida, adicional noturno, intervalo e prorrogação
 - ✅ Auditar DSR, horas extras, INSS, FGTS e IRRF por competência
 - ✅ Versionar e comparar as tabelas legais utilizadas em cada cálculo
-- 🟡 Importar e parametrizar a CCT aplicável após identificação de sindicato, base territorial e vigência
+- ✅ Importar e parametrizar a CCT aplicável após identificação de sindicato, base territorial e vigência
   - ✅ Termo Aditivo 2026/2026 importado com registro MTE `SP002405/2026`, vigência, partes, território, parâmetros econômicos e hash documental
   - ✅ Enquadramento empresarial confirmado: `Vigia` equivale a `Fiscal de Piso / Fiscal de Loja`, com salário autoritativo de R$ 2.091,57
   - ✅ `Auxiliar de Limpeza` equivale a `Auxiliar de Serviços Gerais / Operações`; `Zelador` preserva a regra própria da CCT
-  - ⬜ Obter a CCT principal do processo `10260.202420/2025-88` para validar escala 12×36 e demais cláusulas não econômicas preservadas pelo aditivo
+  - ✅ CCT principal localizada: registro MTE `SP003052/2025`, solicitação `MR002706/2025` e processo `10260.202420/2025-88`
+  - ✅ Escalas 12×36 (cláusula 52) e 5×2 (cláusula 53) parametrizadas com divisor, limites e intervalos
 - ✅ Premissa do caso confirmada: divisor 220 e escala 12×36 autorizada por CCT do SINDEEPRES
 - 🟡 Registrar divergências e propostas de melhoria na memória de cálculo
   - ✅ Divergência de abrangência resolvida por decisão empresarial versionada; o enquadramento e a referência salarial passam a integrar o snapshot
   - ✅ Validação automática criada para salário abaixo da referência empresarial/coletiva
+  - ✅ Regra coletiva da escala incorporada ao snapshot e intervalo mínimo validado automaticamente
   - ⬜ Generalizar o cadastro de enquadramento sindical para novas organizações, atividades, territórios e instrumentos
 
 ---

@@ -25,7 +25,16 @@ Consequências adotadas:
 2. A exceção `CCT_APPLICABILITY_PENDING` deixa de ser gerada para o AUD-0001 a partir da versão 3.
 3. A memória de cálculo registra a versão, o hash, o enquadramento ocupacional e os estados de aplicabilidade e automação.
 4. O divisor 220 permanece como premissa confirmada pelo responsável e é compatível com a referência a 220 horas mensais do Termo Aditivo.
-5. A autorização da escala 12×36 não aparece no Termo Aditivo enviado; sua comprovação documental depende da CCT principal ou de outro instrumento aplicável.
+5. A autorização da escala 12×36 não aparece no Termo Aditivo, mas foi localizada na cláusula 52 da CCT principal `SP003052/2025`; a escala 5×2 consta da cláusula 53.
+
+## CCT principal e jornadas confirmadas
+
+A CCT principal foi identificada pelo registro MTE `SP003052/2025`, solicitação `MR002706/2025` e processo `10260.202420/2025-88`, com vigência de 01/01/2025 a 31/12/2026.
+
+- **12×36 — cláusula 52:** autorizada, com 12 horas de trabalho por 36 de descanso, divisor 220, intervalo mínimo de 30 minutos e regras específicas para labor em folgas e permanência até a substituição.
+- **5×2 — cláusula 53:** autorizada entre as escalas especiais, com referência de 192 horas mensais, descanso semanal mínimo de 24 horas, intervalo mínimo de 30 minutos e divisor 220.
+- A decisão do responsável pela organização de considerar ambas as escalas autorizadas foi registrada na versão 4 dos parâmetros coletivos.
+- O snapshot da folha passa a guardar a regra coletiva da escala efetivamente associada; intervalos inferiores ao mínimo geram `CCT_BREAK_BELOW_MINIMUM`.
 
 ## Enquadramentos empresariais confirmados
 

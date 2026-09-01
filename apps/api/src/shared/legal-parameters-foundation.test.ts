@@ -14,6 +14,10 @@ const companyMappingsMigration = readFileSync(fileURLToPath(new URL(
   "../../../../supabase/migrations/20260901040303_confirm_company_cct_job_mappings.sql",
   import.meta.url,
 )), "utf8");
+const principalCctMigration = readFileSync(fileURLToPath(new URL(
+  "../../../../supabase/migrations/20260901040739_import_principal_cct_shift_rules.sql",
+  import.meta.url,
+)), "utf8");
 
 describe("versioned legal parameters", () => {
   it("is tenant scoped, immutable to application roles and protected by RLS", () => {
@@ -50,5 +54,14 @@ describe("versioned legal parameters", () => {
     expect(companyMappingsMigration).toContain("'companyRole','Auxiliar de Limpeza'");
     expect(companyMappingsMigration).toContain("'companyRole','Zelador'");
     expect(companyMappingsMigration).toContain("active_for_confirmed_company_mappings");
+  });
+
+  it("imports the principal CCT references and authorizes 12x36 and 5x2", () => {
+    expect(principalCctMigration).toContain("SP003052/2025");
+    expect(principalCctMigration).toContain("MR002706/2025");
+    expect(principalCctMigration).toContain("10260.202420/2025-88");
+    expect(principalCctMigration).toContain("'code','12x36','authorized',true,'sourceClause',52");
+    expect(principalCctMigration).toContain("'code','5x2','authorized',true,'sourceClause',53");
+    expect(principalCctMigration.match(/'salaryDivisor',220/g)?.length).toBeGreaterThanOrEqual(2);
   });
 });
