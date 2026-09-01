@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import type { PayrollEmployee, PayrollOverview, PayrollRun } from "@fluxrh/contracts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getCurrentOrganizationId } from "../../shared/supabase.js";
-import { calculatePayroll } from "./payroll-calculator.js";
+import { calculatePayroll, competenceCalendar } from "./payroll-calculator.js";
 import { payrollCatalog, payrollLegalTables } from "./payroll.repository.js";
 import { calculateNightWork, scheduledWorkMinutes } from "../time-tracking/night-work.js";
 
@@ -28,6 +28,7 @@ export class SupabasePayrollRepository {
   async process(competence = new Date().toISOString().slice(0, 7)): Promise<PayrollOverview> {
     const organizationId = await getCurrentOrganizationId(this.client);
     const { start, end } = monthBounds(competence);
+    const calendar = competenceCalendar(competence);
     const punchStart = new Date(`${start}T00:00:00Z`);
     punchStart.setUTCDate(punchStart.getUTCDate() - 1);
     const punchEnd = new Date(`${end}T23:59:59Z`);
@@ -102,7 +103,7 @@ export class SupabasePayrollRepository {
       const absenceDays = employeeOccurrences.filter((row) => row.type === "unjustified_absence").reduce((sum, row) => sum + overlapDays(String(row.startDate), String(row.endDate), start, end), 0);
       const employeeBenefits = enrollments.filter((row) => sourceEmployeeId(row) === employee.id && row.status === "active" && String(row.startDate) <= end && (!row.endDate || String(row.endDate) >= start));
       const benefitDiscount = round(employeeBenefits.reduce((sum, row) => sum + Number(row.employeeAmount ?? 0), 0));
-      const calculation = calculatePayroll({ salary: Number(link.salary), overtime50Hours, overtime100Hours, nightHours: payableNightHours, absenceDays });
+      const calculation = calculatePayroll({ salary: Number(link.salary), overtime50Hours, overtime100Hours, nightHours: payableNightHours, absenceDays, ...calendar });
       const events: SourceEvent[] = [
         { id: crypto.randomUUID(), code: "1001", name: "Salário mensal", kind: "earning", category: "salary", quantity: 30, reference: "30 dias", amount: Number(link.salary), automatic: true, sourceType: "employment_link", sourceId: employee.id, sourceSnapshot: { salary: Number(link.salary) } },
       ];
@@ -110,6 +111,7 @@ export class SupabasePayrollRepository {
       add("1101", "Horas extras 50%", "earning", "overtime", overtime50Hours, `${overtime50Hours}h`, calculation.overtime50, "time_tracking", closureResult.data.id, { punchIds: employeePunches.map((p) => p.id) });
       add("1102", "Horas extras 100%", "earning", "overtime", overtime100Hours, `${overtime100Hours}h`, calculation.overtime100, "time_tracking", closureResult.data.id, { punchIds: employeePunches.map((p) => p.id) });
       add("1201", "Adicional noturno", "earning", "additional", payableNightHours, `${payableNightHours}h noturnas equivalentes`, calculation.night, "time_tracking", closureResult.data.id, { punchIds: employeePunches.map((p) => p.id), reducedNightHourMinutes: 52.5, additionalRate: 0.2, includesExtensionAfter05: true });
+      add("1202", "DSR sobre verbas variáveis", "earning", "additional", calendar.restDays, `${calendar.restDays} repousos / ${calendar.workingDays} dias úteis`, calculation.dsr, "legal_table", `dsr_${competence}`, { competence, ...calendar, holidayCalendarIncluded: false, variableBase: round(calculation.overtime50 + calculation.overtime100 + calculation.night) });
       add("2001", "Faltas injustificadas", "deduction", "absence", absenceDays, `${absenceDays} dia(s)`, calculation.absence, "absence", employeeOccurrences[0]?.id as string | undefined, { occurrenceIds: employeeOccurrences.map((row) => row.id) });
       for (const benefit of employeeBenefits) add(String(benefit.payrollCode ?? "3100"), String(benefit.planName ?? "Benefício"), "deduction", "benefit", 1, competence, Number(benefit.employeeAmount ?? 0), "benefit_enrollment", String(benefit.id), { planId: benefit.planId });
       add("2101", "INSS", "deduction", "tax", 1, "Tabela progressiva", calculation.inss, "legal_table", "inss_2026");

@@ -1183,9 +1183,10 @@ Desempenho
 - ✅ Evento de domínio e evento de auditoria com os parâmetros originais persistidos
 - ✅ Auditar aquisição e concessão de férias, remuneração e terço constitucional
 - ✅ Auditar jornada noturna, hora noturna reduzida, adicional noturno, intervalo e prorrogação
-- ⬜ Auditar DSR, horas extras, INSS, FGTS e IRRF por competência
+- ✅ Auditar DSR, horas extras, INSS, FGTS e IRRF por competência
 - ⬜ Versionar e comparar as tabelas legais utilizadas em cada cálculo
 - ⬜ Importar e parametrizar a CCT aplicável após identificação de sindicato, base territorial e vigência
+- ✅ Premissa do caso confirmada: divisor 220 e escala 12×36 autorizada por CCT do SINDEEPRES
 - ⬜ Registrar divergências e propostas de melhoria na memória de cálculo
 
 ---
