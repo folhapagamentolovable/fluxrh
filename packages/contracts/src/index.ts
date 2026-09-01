@@ -952,9 +952,14 @@ export const payrollLegalTableSchema = z.object({
   id: z.string(),
   name: z.string(),
   effectiveFrom: z.string(),
+  effectiveTo: z.string().optional(),
   version: z.number(),
   status: z.enum(["active", "scheduled", "expired"]),
   updatedAt: z.string(),
+  sourceName: z.string().optional(),
+  sourceUrl: z.string().url().optional(),
+  sourceHash: z.string().length(64).optional(),
+  changes: z.array(z.string()).optional(),
   brackets: z.array(
     z.object({
       from: z.number(),

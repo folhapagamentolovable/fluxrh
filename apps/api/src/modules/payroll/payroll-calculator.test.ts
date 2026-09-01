@@ -32,6 +32,21 @@ describe("payroll calculator", () => {
     expect(calculateIrrf(4392.8, 5000)).toBe(0);
     expect(calculateIrrf(5350.4, 6000)).toBe(382.88);
   });
+  it("uses the legal tables and FGTS rate supplied by the resolved version", () => {
+    const result = calculatePayroll({
+      salary: 1000,
+      overtime50Hours: 0,
+      overtime100Hours: 0,
+      nightHours: 0,
+      absenceDays: 0,
+      inssTable: { brackets: [{ from: 0, to: null, rate: 10, deduction: 0 }], ceiling: 1000 },
+      irrfTable: { brackets: [{ from: 0, to: null, rate: 0, deduction: 0 }], simplifiedDeduction: 0 },
+      fgtsRate: 0.1,
+    });
+    expect(result.inss).toBe(100);
+    expect(result.irrf).toBe(0);
+    expect(result.fgts).toBe(100);
+  });
   it("reproduces AUD-0001 August payroll with DSR and no overtime", () => {
     const result = calculatePayroll({
       salary: 2091.57,

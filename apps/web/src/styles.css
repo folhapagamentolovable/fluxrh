@@ -230,3 +230,4 @@ a { color: inherit; text-decoration: none; }
   display: flex; gap: 16px; padding: 10px 16px;
   border-top: 1px solid var(--border); font-size: .75rem; color: var(--muted);
 }
+.legal-audit{margin-top:12px;padding:10px;border-radius:8px;background:#f7f9fb;color:var(--text-secondary);font-size:8px}.legal-audit p{margin:3px 0}.legal-audit a{color:#155eef}.legal-audit code{overflow-wrap:anywhere}.legal-audit ul{margin:5px 0 0;padding-left:16px}.legal-audit li+li{margin-top:3px}

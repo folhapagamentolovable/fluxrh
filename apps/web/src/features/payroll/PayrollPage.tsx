@@ -368,7 +368,9 @@ export function PayrollPage() {
                     · versão {table.version}
                   </small>
                 </div>
-                <StatusBadge tone="green">Ativa</StatusBadge>
+                <StatusBadge tone={table.status === "active" ? "green" : table.status === "scheduled" ? "blue" : "gray"}>
+                  {table.status === "active" ? "Ativa" : table.status === "scheduled" ? "Programada" : "Expirada"}
+                </StatusBadge>
               </header>
               <table>
                 <thead>
@@ -390,6 +392,15 @@ export function PayrollPage() {
                   ))}
                 </tbody>
               </table>
+              {(table.sourceName || table.sourceHash || table.changes?.length) && (
+                <div className="legal-audit">
+                  {table.sourceName && (
+                    <p><strong>Fonte:</strong>{" "}{table.sourceUrl ? <a href={table.sourceUrl} target="_blank" rel="noreferrer">{table.sourceName}</a> : table.sourceName}</p>
+                  )}
+                  {table.sourceHash && <p><strong>Hash:</strong> <code>{table.sourceHash.slice(0, 16)}…</code></p>}
+                  {table.changes?.length ? <div><strong>Comparação com a versão anterior</strong><ul>{table.changes.map((change) => <li key={change}>{change}</li>)}</ul></div> : null}
+                </div>
+              )}
               <footer>
                 Atualizada em{" "}
                 {new Date(`${table.updatedAt}T12:00:00`).toLocaleDateString(

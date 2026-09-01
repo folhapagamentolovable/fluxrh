@@ -2,7 +2,7 @@
 
 > 📌 **Documento principal de acompanhamento do projeto.** Consultar este arquivo no início de cada nova etapa e atualizar os marcadores ao concluir uma entrega.
 >
-> **Última conferência:** 29 de agosto de 2026  
+> **Última conferência:** 1º de setembro de 2026
 > **Legenda:** ✅ concluído · 🟡 em andamento · ⬜ planejado
 >
 > **Nova premissa de aceite:** a conclusão exige que o fluxo completo esteja exercitável no ambiente publicado, incluindo ações primárias e secundárias, estados de sucesso/erro, persistência, permissões e auditoria. Build, migrations ou telas demonstráveis isoladamente não bastam. Entregas sintéticas/operacionais continuam identificadas como validações técnicas, não como liberação comercial.
@@ -1184,7 +1184,7 @@ Desempenho
 - ✅ Auditar aquisição e concessão de férias, remuneração e terço constitucional
 - ✅ Auditar jornada noturna, hora noturna reduzida, adicional noturno, intervalo e prorrogação
 - ✅ Auditar DSR, horas extras, INSS, FGTS e IRRF por competência
-- ⬜ Versionar e comparar as tabelas legais utilizadas em cada cálculo
+- ✅ Versionar e comparar as tabelas legais utilizadas em cada cálculo
 - ⬜ Importar e parametrizar a CCT aplicável após identificação de sindicato, base territorial e vigência
 - ✅ Premissa do caso confirmada: divisor 220 e escala 12×36 autorizada por CCT do SINDEEPRES
 - ⬜ Registrar divergências e propostas de melhoria na memória de cálculo
