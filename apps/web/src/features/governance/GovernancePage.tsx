@@ -24,6 +24,7 @@ import { useState, type KeyboardEvent } from "react";
 import type { GovernanceOverview, InviteGovernanceUserInput } from "@fluxrh/contracts";
 import { Modal } from "@/components/ui/Modal";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { ControlledRealCyclesPanel } from "./ControlledRealCyclesPanel";
 import {
   getGovernance,
   getOrganizations,
@@ -31,8 +32,9 @@ import {
   revokeGovernanceSession,
   updateRolePermission,
 } from "@/lib/api";
-type Tab = "users" | "permissions" | "audit" | "sessions" | "policies";
+type Tab = "users" | "permissions" | "audit" | "sessions" | "policies" | "real-cycles";
 const roleLabel: Record<string, string> = {
+  super_admin: "Super administrador",
   owner: "Proprietário",
   admin: "Administrador",
   hr: "RH",
@@ -104,6 +106,7 @@ export function GovernancePage() {
     ["audit", "Trilha de auditoria"],
     ["sessions", "Sessões"],
     ["policies", "Políticas"],
+    ["real-cycles", "Operação real"],
   ];
   const rolePermissions = data.permissions.filter(
     (x) => x.role === selectedRole,
@@ -432,6 +435,7 @@ export function GovernancePage() {
           ))}
         </section>
       )}
+      {tab === "real-cycles" && <ControlledRealCyclesPanel />}
       <InviteUser
         open={inviteOpen}
         close={() => setInviteOpen(false)}

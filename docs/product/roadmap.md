@@ -83,11 +83,12 @@ Estado: **concluído tecnicamente; liberação funcional restrita em validação
 
 ## Marco 28 — primeiro ciclo real controlado
 
-Estado: **controle técnico implementado e aplicado remotamente; execução funcional pendente**.
+Estado: **controle técnico e interface implementados; validação funcional publicada pendente**.
 
 - Registro persistente de competência, escopo, checklist de entrada, revisor humano e rollback.
 - Aprovação explícita e exclusiva por `super_admin`, sem acionar folha oficial.
 - Evidências referenciadas com hash SHA-256 opcional e auditoria append-only.
+- Interface em Configurações para preparar, revisar, aprovar e anexar evidências sem executar a folha oficial.
 - Execução paralela continua condicionada à identificação humana da organização, competência e responsáveis reais.
 
 ## Marco 29 — reconciliação frontend–backend
@@ -98,7 +99,7 @@ Estado: **em andamento**.
 - Desligamentos: colaborador, datas, motivo, aviso e parâmetros de cálculo passam a compor o payload efetivamente enviado.
 - Saúde ocupacional, cálculos especiais, convites, portal e agendamentos: formulários conectados a dados reais e sem parâmetros demonstrativos fixos.
 - Rondas: operador, dispositivo, condições da leitura e dados completos da ocorrência passam a compor os payloads enviados.
-- Pendente: Storage e interface de operação real.
+- Pendente: validação autenticada da interface publicada e reconciliação operacional do Storage.
 
 ## Critério de conclusão de cada incremento
 

@@ -57,6 +57,7 @@ Atualizado em 28 de agosto de 2026.
 - Primeira etapa da reconciliação frontend–backend concluída em formulários financeiros: concessões e movimentações de benefícios e novos desligamentos agora usam o colaborador selecionado e os valores efetivamente digitados, sem payloads pessoais ou datas fictícias fixas.
 - Segunda etapa concluída em saúde ocupacional, cálculos especiais, solicitações do portal, convites de governança e comunicações: os payloads agora refletem os dados selecionados ou digitados; convites usam empresas cadastradas e agendamentos exigem data e hora explícitas.
 - Reconciliação de rondas concluída: início avulso exige colaborador e dispositivo, cada leitura registra dispositivo, modo offline e conferência de localização, e ocorrências coletam classificação, severidade, descrição, responsável e quantidade de evidências.
+- Interface do primeiro ciclo real controlado implementada em Configurações, com competência brasileira, escopo mínimo, checklist integral, revisor humano, plano de rollback, aprovação restrita e evidências referenciadas; o fluxo não executa nem substitui a folha oficial.
 
 ## Limitações conhecidas
 
@@ -70,7 +71,7 @@ Atualizado em 28 de agosto de 2026.
 
 Cadastrar o primeiro ciclo real paralelo com organização, competência, escopo e revisor humano confirmados pelo responsável, sem substituir a operação oficial. A migration `20260901100000` do controle de ciclos já está aplicada no Supabase externo.
 
-O próximo incremento é disponibilizar a interface do ciclo real em Configurações.
+O próximo incremento é validar a interface do ciclo real com sessão `super_admin` no ambiente publicado e concluir a reconciliação operacional do Storage.
 
 ## Regras de transição
 

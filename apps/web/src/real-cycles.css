@@ -1,0 +1,28 @@
+.real-cycle-banner{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;padding:20px;border:1px solid #bfd4ff;border-radius:16px;background:linear-gradient(135deg,#f5f8ff,#eef7ff)}
+.real-cycle-banner>svg{width:42px;height:42px;padding:10px;border-radius:12px;background:#155eef;color:#fff}
+.real-cycle-banner h2{margin:4px 0}
+.real-cycle-banner p{margin:0;color:var(--muted)}
+.real-cycle-list{display:grid;gap:15px;margin-top:16px}
+.real-cycle-card header,.real-cycle-card footer{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.real-cycle-card header small,.real-cycle-card footer>small{color:var(--muted)}
+.real-cycle-card h2{margin:3px 0}
+.real-cycle-card>p{margin:13px 0;color:var(--text-secondary)}
+.real-cycle-scopes{display:flex;flex-wrap:wrap;gap:7px}
+.real-cycle-scopes span{padding:6px 9px;border-radius:999px;background:#eef1ff;color:#315f86;font-size:11px}
+.real-cycle-card details{margin:15px 0;padding:12px;border-radius:10px;background:var(--surface-soft)}
+.real-cycle-card summary{cursor:pointer;font-weight:700}
+.real-cycle-card details>p{color:var(--text-secondary)}
+.real-cycle-card ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:0;list-style:none}
+.real-cycle-card li{display:flex;gap:6px;align-items:center;font-size:12px}
+.real-cycle-card li svg{width:14px;color:#298859}
+.real-cycle-card footer>div{display:flex;gap:8px}
+.cycle-evidence-list p{display:grid;gap:3px;padding:9px 0;border-top:1px solid var(--border)}
+.cycle-evidence-list span,.cycle-evidence-list small{color:var(--muted)}
+.empty-real-cycle{text-align:center}
+.real-cycle-warning{display:flex;gap:12px;align-items:flex-start;color:#9a6700}
+.real-cycle-form fieldset{display:grid;gap:7px;margin:0;padding:12px;border:1px solid var(--border);border-radius:10px}
+.real-cycle-form legend{padding:0 6px;font-weight:700}
+.real-cycle-form .switch-row{display:flex;grid-template-columns:none;align-items:center}
+.form-error{margin:0;color:#b42318;font-size:12px}
+.special-form textarea{width:100%;padding:10px;border:1px solid var(--border);border-radius:9px;background:#fff;font:inherit;box-sizing:border-box}
+@media(max-width:750px){.real-cycle-banner{grid-template-columns:auto 1fr}.real-cycle-banner button{grid-column:1/-1;justify-self:stretch;justify-content:center}.real-cycle-card header,.real-cycle-card footer{align-items:flex-start;flex-direction:column}.real-cycle-card footer>div{width:100%;flex-wrap:wrap}.real-cycle-card ul{grid-template-columns:1fr}}

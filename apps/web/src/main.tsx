@@ -14,6 +14,7 @@ import "./analytics.css";
 import "./occupational-health.css";
 import "./patrols.css";
 import "./governance.css";
+import "./real-cycles.css";
 import "./manual.css";
 import "./not-found.css";
 import "./lovable-overrides.css";

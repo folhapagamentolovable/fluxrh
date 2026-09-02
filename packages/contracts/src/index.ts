@@ -2206,3 +2206,76 @@ export const updateEmployeeSchema = z.object({
   birthDate: z.string(),
 });
 export type UpdateEmployeeInput = z.infer<typeof updateEmployeeSchema>;
+
+export const controlledRealCycleScopeSchema = z.enum([
+  "employees",
+  "time_tracking",
+  "absences",
+  "benefits",
+  "payroll_preview",
+]);
+export const controlledRealCycleChecklistSchema = z.object({
+  termsApproved: z.literal(true),
+  ownersNamed: z.literal(true),
+  accessReviewed: z.literal(true),
+  backupVerified: z.literal(true),
+  rollbackTested: z.literal(true),
+  dataInventoryApproved: z.literal(true),
+  humanReviewerNamed: z.literal(true),
+});
+export const controlledRealCycleEvidenceSchema = z.object({
+  id: z.string().uuid(),
+  kind: z.enum(["input", "comparison", "decision", "audit", "rollback"]),
+  label: z.string(),
+  reference: z.string(),
+  sha256: z.string().nullable().optional(),
+  recordedAt: z.string(),
+});
+export const controlledRealCycleSchema = z.object({
+  id: z.string().uuid(),
+  competence: z.string(),
+  title: z.string(),
+  status: z.enum([
+    "prepared",
+    "approved",
+    "in_progress",
+    "completed",
+    "rolled_back",
+    "cancelled",
+  ]),
+  scope: z.array(controlledRealCycleScopeSchema),
+  checklist: controlledRealCycleChecklistSchema,
+  humanReviewer: z.string(),
+  rollbackPlan: z.string(),
+  approvalNote: z.string().nullable().optional(),
+  approvedAt: z.string().nullable().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  evidence: z.array(controlledRealCycleEvidenceSchema),
+});
+export const prepareControlledRealCycleSchema = z.object({
+  competence: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/),
+  title: z.string().trim().min(5).max(160),
+  scope: z.array(controlledRealCycleScopeSchema).min(1),
+  humanReviewer: z.string().trim().min(3).max(120),
+  rollbackPlan: z.string().trim().min(20).max(4000),
+  checklist: controlledRealCycleChecklistSchema,
+});
+export const approveControlledRealCycleSchema = z.object({
+  approvalNote: z.string().trim().min(10).max(2000),
+});
+export const appendControlledRealCycleEvidenceSchema = z.object({
+  kind: controlledRealCycleEvidenceSchema.shape.kind,
+  label: z.string().trim().min(3).max(160),
+  reference: z.string().trim().min(3).max(2000),
+  sha256: z.string().regex(/^[a-f0-9]{64}$/i).optional(),
+});
+export const controlledRealCycleCommandSchema = z.object({
+  id: z.string().uuid(),
+  status: z.string().optional(),
+});
+export type ControlledRealCycle = z.infer<typeof controlledRealCycleSchema>;
+export type ControlledRealCycleScope = z.infer<typeof controlledRealCycleScopeSchema>;
+export type PrepareControlledRealCycleInput = z.infer<typeof prepareControlledRealCycleSchema>;
+export type ApproveControlledRealCycleInput = z.infer<typeof approveControlledRealCycleSchema>;
+export type AppendControlledRealCycleEvidenceInput = z.infer<typeof appendControlledRealCycleEvidenceSchema>;

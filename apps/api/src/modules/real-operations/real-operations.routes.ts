@@ -34,14 +34,68 @@ function unavailable(reply: FastifyReply) {
   return reply.code(503).send({ error: "real_cycle_requires_supabase_persistence" });
 }
 
+type CycleRow = {
+  id: string;
+  competence: string;
+  title: string;
+  status: string;
+  scope: string[];
+  checklist: Record<string, boolean>;
+  human_reviewer: string;
+  rollback_plan: string;
+  approval_note: string | null;
+  approved_at: string | null;
+  created_at: string;
+  updated_at: string;
+  controlled_real_cycle_evidence?: Array<{
+    id: string;
+    kind: string;
+    label: string;
+    reference: string;
+    sha256: string | null;
+    recorded_at: string;
+  }>;
+};
+
+export function presentCycle(row: CycleRow) {
+  return {
+    id: row.id,
+    competence: row.competence,
+    title: row.title,
+    status: row.status,
+    scope: row.scope,
+    checklist: row.checklist,
+    humanReviewer: row.human_reviewer,
+    rollbackPlan: row.rollback_plan,
+    approvalNote: row.approval_note,
+    approvedAt: row.approved_at,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    evidence: (row.controlled_real_cycle_evidence ?? [])
+      .map((item) => ({
+        id: item.id,
+        kind: item.kind,
+        label: item.label,
+        reference: item.reference,
+        sha256: item.sha256,
+        recordedAt: item.recorded_at,
+      }))
+      .sort((a, b) => b.recordedAt.localeCompare(a.recordedAt)),
+  };
+}
+
 export async function realOperationsRoutes(app: FastifyInstance) {
   app.get("/cycles", async (request, reply) => {
     if (getPersistenceMode() !== "supabase") return unavailable(reply);
     const client = createRequestSupabaseClient(request.headers.authorization);
     const organizationId = await getCurrentOrganizationId(client);
-    const { data, error } = await client.from("controlled_real_cycles").select("*").eq("organization_id", organizationId).order("created_at", { ascending: false });
+    const { data, error } = await client
+      .from("controlled_real_cycles")
+      .select("*, controlled_real_cycle_evidence(*)")
+      .eq("organization_id", organizationId)
+      .order("created_at", { ascending: false });
     if (error) return reply.code(422).send({ error: error.message });
-    return sendData(reply, data ?? []);
+    return sendData(reply, ((data ?? []) as CycleRow[]).map(presentCycle));
   });
 
   app.post("/cycles", async (request, reply) => {

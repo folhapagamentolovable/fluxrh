@@ -75,6 +75,14 @@ import {
   type WorkflowOverview,
 } from "@fluxrh/contracts";
 import {
+  controlledRealCycleCommandSchema,
+  controlledRealCycleSchema,
+  type AppendControlledRealCycleEvidenceInput,
+  type ApproveControlledRealCycleInput,
+  type ControlledRealCycle,
+  type PrepareControlledRealCycleInput,
+} from "@fluxrh/contracts";
+import {
   employeeDependentSchema,
   timeCompetenceClosureSchema,
   type CreateEmployeeDependentInput,
@@ -618,6 +626,33 @@ export const revokeGovernanceSession = (id: string) =>
       justification: "Sessão encerrada pelo administrador por segurança.",
     }),
   });
+export const getControlledRealCycles = (): Promise<ControlledRealCycle[]> =>
+  request("/api/v1/real-operations/cycles", controlledRealCycleSchema.array());
+export const prepareControlledRealCycle = (
+  input: PrepareControlledRealCycleInput,
+) =>
+  request("/api/v1/real-operations/cycles", controlledRealCycleCommandSchema, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+export const approveControlledRealCycle = (
+  id: string,
+  input: ApproveControlledRealCycleInput,
+) =>
+  request(
+    `/api/v1/real-operations/cycles/${id}/approve`,
+    controlledRealCycleCommandSchema,
+    { method: "POST", body: JSON.stringify(input) },
+  );
+export const appendControlledRealCycleEvidence = (
+  id: string,
+  input: AppendControlledRealCycleEvidenceInput,
+) =>
+  request(
+    `/api/v1/real-operations/cycles/${id}/evidence`,
+    controlledRealCycleCommandSchema,
+    { method: "POST", body: JSON.stringify(input) },
+  );
 export const getCurrentTimeCompetence =
   (): Promise<TimeCompetenceClosure | null> =>
     request(

@@ -74,7 +74,7 @@
 
 ### Próximo passo confirmado
 
-🟡 Auditoria controlada de cálculos trabalhistas e aderência à CCT. As Fases 23 a 26 sintéticas estão concluídas; o primeiro caso individual rastreável já foi cadastrado no Supabase principal.
+🟡 Marco 29 — reconciliação frontend–backend e primeiro ciclo real controlado. A auditoria individual `AUD-0001` e a parametrização inicial da CCT foram concluídas; o controle persistente e a interface do ciclo paralelo estão implementados, restando a validação autenticada no ambiente publicado e a reconciliação operacional do Storage.
 
 ### Ponto de retomada — 29 de agosto de 2026
 
@@ -82,7 +82,9 @@
 - ✅ Busca global voltou a abrir prontuários após o alinhamento do schema de dependentes
 - ✅ Visão de férias restaurada após a normalização do snapshot legado de ausências
 - ✅ Migrações aplicadas no Supabase principal e código sincronizado com `origin/main`
-- 🟡 Retomar pela auditoria do caso `AUD-0001`: férias, jornada noturna, adicionais, DSR, encargos, tabelas legais e regras da CCT
+- ✅ Auditoria do caso `AUD-0001` concluída: férias, jornada noturna, adicionais, DSR, encargos, tabelas legais e regras da CCT
+- ✅ Interface do ciclo real controlado implementada em Configurações, com escopo, checklist, revisor, rollback, aprovação e evidências
+- 🟡 Validar a interface autenticada no Lovable e concluir a reconciliação operacional do Storage
 
 ---
 
@@ -1173,7 +1175,7 @@ Desempenho
 
 ---
 
-## Auditoria controlada de cálculos e CCT 🟡
+## Auditoria controlada de cálculos e CCT ✅
 
 - ✅ Caso fictício `AUD-0001` criado no Supabase principal
 - ✅ Admissão em 01/01/2025, cargo de Vigia e salário mensal de R$ 2.091,57 registrados
@@ -1192,11 +1194,11 @@ Desempenho
   - ✅ CCT principal localizada: registro MTE `SP003052/2025`, solicitação `MR002706/2025` e processo `10260.202420/2025-88`
   - ✅ Escalas 12×36 (cláusula 52) e 5×2 (cláusula 53) parametrizadas com divisor, limites e intervalos
 - ✅ Premissa do caso confirmada: divisor 220 e escala 12×36 autorizada por CCT do SINDEEPRES
-- 🟡 Registrar divergências e propostas de melhoria na memória de cálculo
+- ✅ Registrar divergências e propostas de melhoria na memória de cálculo
   - ✅ Divergência de abrangência resolvida por decisão empresarial versionada; o enquadramento e a referência salarial passam a integrar o snapshot
   - ✅ Validação automática criada para salário abaixo da referência empresarial/coletiva
   - ✅ Regra coletiva da escala incorporada ao snapshot e intervalo mínimo validado automaticamente
-  - ⬜ Generalizar o cadastro de enquadramento sindical para novas organizações, atividades, territórios e instrumentos
+  - ⬜ Evolução futura: generalizar o cadastro de enquadramento sindical para novas organizações, atividades, territórios e instrumentos
 
 ---
 
