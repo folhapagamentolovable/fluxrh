@@ -5,7 +5,6 @@ import {
   CircleDollarSign,
   GitBranch,
   MapPin,
-  MoreHorizontal,
   Plus,
   Search,
   UsersRound,
@@ -147,12 +146,6 @@ export function OrganizationsPage() {
                       .join("")
                       .slice(0, 2)}
                   </span>
-                  <button
-                    className="icon-button"
-                    aria-label={`Mais ações para ${company.tradeName}`}
-                  >
-                    <MoreHorizontal size={18} />
-                  </button>
                 </div>
                 <StatusBadge tone="green">Ativa</StatusBadge>
                 <h2>{company.tradeName}</h2>

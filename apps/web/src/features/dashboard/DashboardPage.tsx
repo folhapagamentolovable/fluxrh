@@ -56,17 +56,23 @@ export function DashboardPage() {
   if (isLoading) return <div className="page"><div className="page-skeleton" /></div>;
   if (error || !data) return <div className="page"><div className="error-state"><TriangleAlert /><h2>Não foi possível abrir a operação</h2><p>Verifique se a API do FluxRH está em execução.</p></div></div>;
 
+  const now = new Date();
+  const openDecisions = data.exceptions.length;
+  const dateLabel = new Intl.DateTimeFormat("pt-BR", { day: "numeric", month: "long" }).format(now);
+  const weekDay = new Intl.DateTimeFormat("pt-BR", { weekday: "long" }).format(now);
+  const competenceLabel = new Intl.DateTimeFormat("pt-BR", { month: "2-digit", year: "numeric" }).format(now);
+
   const cards = [
-    { label: "Colaboradores ativos", value: data.metrics.activeEmployees, hint: "+6 neste mês", icon: UsersRound, color: "blue" },
-    { label: "Exceções abertas", value: data.metrics.openExceptions, hint: "3 pedem atenção hoje", icon: TriangleAlert, color: "red" },
-    { label: "Processos em andamento", value: data.metrics.workflowsRunning, hint: "18 dentro do prazo", icon: BriefcaseBusiness, color: "purple" },
-    { label: "Taxa de automação", value: `${data.metrics.automationRate}%`, hint: "+3,2% desde julho", icon: Bot, color: "green" },
+    { label: "Colaboradores ativos", value: data.metrics.activeEmployees, hint: "Base atual da organização", icon: UsersRound, color: "blue" },
+    { label: "Exceções abertas", value: data.metrics.openExceptions, hint: `${openDecisions} listada(s) como prioritária(s)`, icon: TriangleAlert, color: "red" },
+    { label: "Processos em andamento", value: data.metrics.workflowsRunning, hint: `${data.workflows.length} acompanhado(s) nesta visão`, icon: BriefcaseBusiness, color: "purple" },
+    { label: "Taxa de automação", value: `${data.metrics.automationRate}%`, hint: "Indicador consolidado da operação", icon: Bot, color: "green" },
   ];
 
   return <div className="page">
     <section className="page-heading">
-      <div><span className="eyebrow"><Sparkles size={15} /> Central de operações</span><h1>Bom dia, {displayName}.</h1><p>O FluxRH executou 186 ações automaticamente. Existem 3 decisões para você hoje.</p></div>
-      <div className="date-card"><small>Terça-feira</small><strong>25 de agosto</strong><span>Competência 08/2026</span></div>
+      <div><span className="eyebrow"><Sparkles size={15} /> Central de operações</span><h1>Bom dia, {displayName}.</h1><p>Existem {data.metrics.openExceptions} exceção(ões) aberta(s) e {data.metrics.workflowsRunning} processo(s) em andamento.</p></div>
+      <div className="date-card"><small>{weekDay}</small><strong>{dateLabel}</strong><span>Competência {competenceLabel}</span></div>
     </section>
 
     <section className="metrics-grid">{cards.map(({ label, value, hint, icon: Icon, color }) => <article className="metric-card" key={label}>
@@ -99,14 +105,14 @@ export function DashboardPage() {
         <div className="exception-list">{data.exceptions.map((item) => <div className="exception-row" key={item.id}>
           <div className={`priority-indicator ${item.priority}`} />
           <div className="exception-copy"><div><strong>{item.title}</strong><StatusBadge tone={priority[item.priority].tone}>{priority[item.priority].label}</StatusBadge></div><p>{item.description}</p><small>{item.employeeName} · {item.area}</small></div>
-          <button className="ghost-action" onClick={() => { window.location.href = "/excecoes"; }}>Analisar <ArrowRight size={15} /></button>
+          <Link className="ghost-action" to="/excecoes">Analisar <ArrowRight size={15} /></Link>
         </div>)}</div>
       </article>
 
       <article className="panel autopilot-panel">
         <div className="autopilot-orbit"><div><Bot size={31} /></div><i /><i /><i /></div>
-        <span className="section-label">Piloto automático</span><h2>O operacional está fluindo</h2><p>179 de 186 ações foram concluídas sem intervenção humana nas últimas 24 horas.</p>
-        <div className="autopilot-stats"><div><CheckCircle2 /><span><strong>179</strong><small>Concluídas</small></span></div><div><Clock3 /><span><strong>7</strong><small>Em análise</small></span></div></div>
+        <span className="section-label">Piloto automático</span><h2>Indicadores da operação</h2><p>{data.metrics.automationRate}% da operação monitorada está automatizada.</p>
+        <div className="autopilot-stats"><div><CheckCircle2 /><span><strong>{data.metrics.automationRate}%</strong><small>Automação</small></span></div><div><Clock3 /><span><strong>{data.metrics.openExceptions}</strong><small>Exceções abertas</small></span></div></div>
       </article>
     </section>
 

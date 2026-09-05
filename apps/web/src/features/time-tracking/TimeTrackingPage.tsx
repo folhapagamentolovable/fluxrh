@@ -53,6 +53,11 @@ export function TimeTrackingPage() {
   const [punchType, setPunchType] = useState<
     "clock_in" | "break_start" | "break_end" | "clock_out"
   >("clock_in");
+  const [punchEmployeeId, setPunchEmployeeId] = useState("");
+  const [deviceId, setDeviceId] = useState("");
+  const punchEmployee =
+    data?.employees.find((employee) => employee.employeeId === punchEmployeeId) ??
+    data?.employees[0];
   const refresh = () =>
     client.invalidateQueries({ queryKey: ["time-overview"] });
   const resolveMutation = useMutation({
@@ -65,11 +70,11 @@ export function TimeTrackingPage() {
   const punchMutation = useMutation({
     mutationFn: () =>
       registerTimePunch({
-        employeeId: "emp_marina",
-        employeeName: "Marina Souza",
+        employeeId: punchEmployee!.employeeId,
+        employeeName: punchEmployee!.employeeName,
         type: punchType,
         token: data!.qrStation.token,
-        deviceId: "browser-demo-01",
+        deviceId: deviceId.trim(),
         locationName: data!.qrStation.name,
       }),
     onSuccess: () => {
@@ -172,11 +177,24 @@ export function TimeTrackingPage() {
         open={punchOpen}
         onClose={() => setPunchOpen(false)}
         title="Registrar ponto por QR Code"
-        description="Simulação autenticada da estação Matriz São Paulo."
+        description={`Marcação autenticada na estação ${data.qrStation.name}.`}
       >
         <div className="punch-modal">
           <MiniQr token={data.qrStation.token} />
           <div>
+            <label>
+              Colaborador
+              <select
+                value={punchEmployee?.employeeId ?? ""}
+                onChange={(event) => setPunchEmployeeId(event.target.value)}
+              >
+                {data.employees.map((employee) => (
+                  <option value={employee.employeeId} key={employee.employeeId}>
+                    {employee.employeeName}
+                  </option>
+                ))}
+              </select>
+            </label>
             <label>
               Tipo de marcação
               <select
@@ -191,11 +209,25 @@ export function TimeTrackingPage() {
                 <option value="clock_out">Saída</option>
               </select>
             </label>
+            <label>
+              Identificação do dispositivo
+              <input
+                value={deviceId}
+                onChange={(event) => setDeviceId(event.target.value)}
+                placeholder="Ex.: recepcao-01"
+              />
+            </label>
             <div className="punch-identity">
-              <span>MS</span>
+              <span>
+                {punchEmployee?.employeeName
+                  .split(" ")
+                  .map((name) => name[0])
+                  .slice(0, 2)
+                  .join("")}
+              </span>
               <div>
-                <small>Colaboradora autenticada</small>
-                <strong>Marina Souza</strong>
+                <small>Colaborador selecionado</small>
+                <strong>{punchEmployee?.employeeName}</strong>
                 <p>{data.qrStation.name}</p>
               </div>
             </div>
@@ -209,7 +241,12 @@ export function TimeTrackingPage() {
             </button>
             <button
               className="primary-button"
-              disabled={punchMutation.isPending}
+              disabled={
+                punchMutation.isPending ||
+                !punchEmployee ||
+                deviceId.trim().length < 3 ||
+                !data.qrStation.active
+              }
               onClick={() => punchMutation.mutate()}
             >
               {punchMutation.isPending

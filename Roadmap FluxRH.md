@@ -2,7 +2,7 @@
 
 > 📌 **Documento principal de acompanhamento do projeto.** Consultar este arquivo no início de cada nova etapa e atualizar os marcadores ao concluir uma entrega.
 >
-> **Última conferência:** 1º de setembro de 2026
+> **Última conferência:** 5 de setembro de 2026
 > **Legenda:** ✅ concluído · 🟡 em andamento · ⬜ planejado
 >
 > **Nova premissa de aceite:** a conclusão exige que o fluxo completo esteja exercitável no ambiente publicado, incluindo ações primárias e secundárias, estados de sucesso/erro, persistência, permissões e auditoria. Build, migrations ou telas demonstráveis isoladamente não bastam. Entregas sintéticas/operacionais continuam identificadas como validações técnicas, não como liberação comercial.
@@ -74,7 +74,7 @@
 
 ### Próximo passo confirmado
 
-🟡 Marco 29 — reconciliação frontend–backend e primeiro ciclo real controlado. A auditoria individual `AUD-0001` e a parametrização inicial da CCT foram concluídas; o controle persistente e a interface do ciclo paralelo estão implementados, restando a validação autenticada no ambiente publicado e a reconciliação operacional do Storage.
+🟡 Marco 29 — reconciliação frontend–backend e primeiro ciclo real controlado. A auditoria individual `AUD-0001` e a parametrização inicial da CCT foram concluídas; o controle persistente e a interface do ciclo paralelo estão implementados. A primeira varredura de ações e payloads do frontend corrigiu ponto, atestados, empresas e indicadores do dashboard; restam a validação autenticada no ambiente publicado, o upload binário de atestados no Storage e a varredura dos fluxos secundários restantes.
 
 ### Ponto de retomada — 29 de agosto de 2026
 
@@ -84,7 +84,12 @@
 - ✅ Migrações aplicadas no Supabase principal e código sincronizado com `origin/main`
 - ✅ Auditoria do caso `AUD-0001` concluída: férias, jornada noturna, adicionais, DSR, encargos, tabelas legais e regras da CCT
 - ✅ Interface do ciclo real controlado implementada em Configurações, com escopo, checklist, revisor, rollback, aprovação e evidências
-- 🟡 Validar a interface autenticada no Lovable e concluir a reconciliação operacional do Storage
+- ✅ Registro de ponto deixou de enviar a identidade fixa de Marina e agora usa colaborador, tipo e dispositivo visíveis no formulário
+- ✅ Recebimento de atestado deixou de enviar Beatriz e metadados fixos; colaborador, datas, emissor, registro e arquivo agora vêm do formulário
+- ✅ Ação decorativa “Mais ações” removida dos cartões de empresas até existir operação correspondente
+- ✅ Dashboard deixou de exibir data e quantidades operacionais sintéticas, passando a usar o snapshot retornado pela API
+- 🟡 Conectar o arquivo binário do atestado ao Storage privado e ao respectivo registro persistido
+- 🟡 Validar a interface autenticada no Lovable e concluir a varredura das ações secundárias restantes
 
 ---
 
