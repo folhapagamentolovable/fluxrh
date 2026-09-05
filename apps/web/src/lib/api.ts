@@ -14,9 +14,12 @@ import {
   employeePortalOverviewSchema,
   employeeSchema,
   employeeTimeSummarySchema,
+  fileAssetSchema,
+  fileDownloadSchema,
   medicalCertificateSchema,
   notificationSchema,
   organizationSnapshotSchema,
+  preparedFileUploadSchema,
   payrollEmployeeSchema,
   payrollOverviewSchema,
   payrollRunSchema,
@@ -57,9 +60,12 @@ import {
   type EmployeeMovement,
   type EmployeePortalOverview,
   type EmployeeTimeSummary,
+  type FileAsset,
+  type FileDownload,
   type MedicalCertificate,
   type Notification,
   type OrganizationSnapshot,
+  type PrepareFileUploadInput,
   type PayrollEmployee,
   type PayrollOverview,
   type PayrollRun,
@@ -346,6 +352,46 @@ export const createMedicalCertificate = (
     method: "POST",
     body: JSON.stringify(input),
   });
+export async function uploadPrivateFile(
+  file: File,
+  input: Omit<PrepareFileUploadInput, "originalName" | "mimeType" | "sizeBytes">,
+): Promise<FileAsset> {
+  if (localDataMode || !isSupabaseConfigured)
+    throw new Error("O upload privado exige a API persistente e uma sessão Supabase configurada.");
+  const prepared = await request("/api/v1/files/uploads", preparedFileUploadSchema, {
+    method: "POST",
+    body: JSON.stringify({
+      ...input,
+      originalName: file.name,
+      mimeType: file.type,
+      sizeBytes: file.size,
+    }),
+  });
+  try {
+    const uploaded = await supabase.storage
+      .from(prepared.asset.bucketId)
+      .uploadToSignedUrl(prepared.asset.objectPath, prepared.token, file, {
+        contentType: file.type,
+      });
+    if (uploaded.error)
+      throw new Error(`Falha no envio do arquivo: ${uploaded.error.message}`);
+    return await request(
+      `/api/v1/files/${prepared.asset.id}/complete`,
+      fileAssetSchema,
+      { method: "POST", body: "{}" },
+    );
+  } catch (error) {
+    await deletePrivateFile(prepared.asset.id).catch(() => undefined);
+    throw error;
+  }
+}
+export const deletePrivateFile = (id: string): Promise<FileAsset> =>
+  request(`/api/v1/files/${id}`, fileAssetSchema, {
+    method: "DELETE",
+    body: "{}",
+  });
+export const getPrivateFileDownload = (id: string): Promise<FileDownload> =>
+  request(`/api/v1/files/${id}/download`, fileDownloadSchema);
 export const reviewMedicalCertificate = (
   id: string,
   decision: "approve" | "reject",

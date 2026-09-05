@@ -54,4 +54,25 @@ describe("InMemoryAbsencesRepository hydration", () => {
     expect(overview.occurrences).toEqual([]);
     expect(overview.leaves).toEqual([]);
   });
+
+  it("persists the private Storage asset linked to a medical certificate", async () => {
+    const repository = new InMemoryAbsencesRepository();
+    const certificate = await repository.createCertificate({
+      employeeId: "employee-storage",
+      employeeName: "Colaborador Storage",
+      startDate: "2026-09-05",
+      endDate: "2026-09-06",
+      issuer: "Clínica Segura",
+      professionalRegistration: "CRM-SP 123456",
+      documentName: "atestado-storage.pdf",
+      documentAssetId: "33333333-3333-4333-8333-333333333333",
+    });
+
+    expect(certificate.documentAssetId).toBe(
+      "33333333-3333-4333-8333-333333333333",
+    );
+    expect((await repository.overview()).certificates[0]?.documentAssetId).toBe(
+      "33333333-3333-4333-8333-333333333333",
+    );
+  });
 });

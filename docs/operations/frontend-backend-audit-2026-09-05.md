@@ -18,7 +18,7 @@ Os payloads de ponto e atestado receberam testes automatizados para impedir a re
 
 ## Pendências priorizadas
 
-1. Integrar o conteúdo binário selecionado no recebimento de atestado ao bucket privado, associando o ativo ao registro do atestado. Neste incremento apenas os metadados deixam de ser fictícios.
+1. ✅ Integrar o conteúdo binário selecionado no recebimento de atestado ao bucket privado, associando o ativo ao registro do atestado. O envio direto por URL assinada, a confirmação pela API e a exclusão compensatória foram implementados.
 2. Validar os fluxos corrigidos com sessão autenticada no ambiente publicado.
 3. Prosseguir pela varredura de ações secundárias: decisões com justificativa, atalhos que devem abrir a etapa correta, edição de prontuário e solicitação de documentos.
 4. Padronizar a competência exibida em jornada e cálculos no formato brasileiro e eliminar períodos fixos remanescentes.

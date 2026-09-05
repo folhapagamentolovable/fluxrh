@@ -74,7 +74,7 @@
 
 ### Próximo passo confirmado
 
-🟡 Marco 29 — reconciliação frontend–backend e primeiro ciclo real controlado. A auditoria individual `AUD-0001` e a parametrização inicial da CCT foram concluídas; o controle persistente e a interface do ciclo paralelo estão implementados. A primeira varredura de ações e payloads do frontend corrigiu ponto, atestados, empresas e indicadores do dashboard; restam a validação autenticada no ambiente publicado, o upload binário de atestados no Storage e a varredura dos fluxos secundários restantes.
+🟡 Marco 29 — reconciliação frontend–backend e primeiro ciclo real controlado. A auditoria individual `AUD-0001` e a parametrização inicial da CCT foram concluídas; o controle persistente e a interface do ciclo paralelo estão implementados. A primeira varredura de ações e payloads do frontend corrigiu ponto, atestados, empresas e indicadores do dashboard; o upload binário de atestados no Storage e seu vínculo persistente também foram implementados. Restam a validação autenticada no ambiente publicado e a varredura dos fluxos secundários restantes.
 
 ### Ponto de retomada — 29 de agosto de 2026
 
@@ -88,7 +88,7 @@
 - ✅ Recebimento de atestado deixou de enviar Beatriz e metadados fixos; colaborador, datas, emissor, registro e arquivo agora vêm do formulário
 - ✅ Ação decorativa “Mais ações” removida dos cartões de empresas até existir operação correspondente
 - ✅ Dashboard deixou de exibir data e quantidades operacionais sintéticas, passando a usar o snapshot retornado pela API
-- 🟡 Conectar o arquivo binário do atestado ao Storage privado e ao respectivo registro persistido
+- ✅ Arquivo binário do atestado conectado ao Storage privado, verificado pela API e vinculado ao registro persistido, com exclusão compensatória em caso de falha
 - 🟡 Validar a interface autenticada no Lovable e concluir a varredura das ações secundárias restantes
 
 ---

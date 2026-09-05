@@ -615,9 +615,15 @@ export const preparedFileUploadSchema = z.object({
   signedUrl: z.string().url(),
   token: z.string(),
 });
+export const fileDownloadSchema = z.object({
+  asset: fileAssetSchema,
+  signedUrl: z.string().url(),
+  expiresIn: z.number().int().positive(),
+});
 export type FileAsset = z.infer<typeof fileAssetSchema>;
 export type PrepareFileUploadInput = z.infer<typeof prepareFileUploadSchema>;
 export type PreparedFileUpload = z.infer<typeof preparedFileUploadSchema>;
+export type FileDownload = z.infer<typeof fileDownloadSchema>;
 export type FileRetentionPolicy = z.infer<typeof fileRetentionPolicySchema>;
 
 export const schedulePatternSchema = z.enum(["5x2", "6x1", "12x36", "custom"]);
@@ -811,6 +817,7 @@ export const medicalCertificateSchema = z.object({
   receivedAt: z.string(),
   status: z.enum(["under_review", "validated", "rejected"]),
   documentName: z.string(),
+  documentAssetId: z.string().uuid().optional(),
   validationNote: z.string().optional(),
 });
 export const leaveRecordSchema = z.object({
@@ -882,6 +889,7 @@ export const createMedicalCertificateSchema = z.object({
   professionalRegistration: z.string().min(3),
   cid: z.string().optional(),
   documentName: z.string().min(3),
+  documentAssetId: z.string().uuid(),
 });
 export const reviewMedicalCertificateSchema = z.object({
   decision: z.enum(["approve", "reject"]),

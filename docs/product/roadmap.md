@@ -100,10 +100,10 @@ Estado: **em andamento**.
 - Saúde ocupacional, cálculos especiais, convites, portal e agendamentos: formulários conectados a dados reais e sem parâmetros demonstrativos fixos.
 - Rondas: operador, dispositivo, condições da leitura e dados completos da ocorrência passam a compor os payloads enviados.
 - Jornada: marcação de ponto conectada ao colaborador, tipo e dispositivo escolhidos, sem identidade demonstrativa fixa.
-- Ausências: metadados do atestado conectados ao colaborador e valores informados; upload binário no Storage ainda pendente.
+- Ausências: metadados e arquivo binário do atestado conectados ao colaborador e valores informados; ativo privado verificado e vinculado ao registro persistido, com rollback em caso de falha.
 - Empresas: ação visual sem backend removida até existir operação correspondente.
 - Dashboard: data, competência e indicadores operacionais sintéticos substituídos por valores correntes e pelo snapshot da API.
-- Pendente: validação autenticada da interface publicada, upload binário de atestados no Storage e varredura das ações secundárias restantes.
+- Pendente: validação autenticada da interface publicada e varredura das ações secundárias restantes.
 
 ## Critério de conclusão de cada incremento
 
