@@ -17,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Modal } from "@/components/ui/Modal";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import {
@@ -43,11 +44,26 @@ const competence = (v: string) =>
   });
 export function PayrollPage() {
   const client = useQueryClient();
+  const [searchParams] = useSearchParams();
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["payroll"],
     queryFn: getPayrollOverview,
   });
-  const [tab, setTab] = useState<Tab>("overview");
+  const requestedTab = searchParams.get("tab");
+  const [tab, setTab] = useState<Tab>(
+    (
+      [
+        "overview",
+        "employees",
+        "exceptions",
+        "parameters",
+        "catalog",
+        "history",
+      ] as string[]
+    ).includes(requestedTab ?? "")
+      ? (requestedTab as Tab)
+      : "overview",
+  );
   const [detail, setDetail] = useState<PayrollEmployee>();
   const [resolve, setResolve] = useState<{
     employeeId: string;
@@ -73,7 +89,10 @@ export function PayrollPage() {
     onSuccess: refresh,
   });
   const close = useMutation({ mutationFn: closePayroll, onSuccess: refresh });
-  const process = useMutation({ mutationFn: () => processPayroll(), onSuccess: refresh });
+  const process = useMutation({
+    mutationFn: () => processPayroll(),
+    onSuccess: refresh,
+  });
   if (isLoading)
     return (
       <div className="page">
@@ -86,11 +105,28 @@ export function PayrollPage() {
         <section className="panel empty-state" role="alert">
           <Calculator />
           <h1>Folha ainda não processada</h1>
-          <p>{error instanceof Error && error.message.includes("time_competence_not_closed") ? "Feche e aprove a competência de ponto antes de calcular a folha." : "Consolide ponto, ausências e benefícios para criar a competência."}</p>
-          <button className="primary-button" disabled={process.isPending} onClick={() => process.mutate()}>
-            <RefreshCw /> {process.isPending ? "Processando…" : "Processar competência"}
+          <p>
+            {error instanceof Error &&
+            error.message.includes("time_competence_not_closed")
+              ? "Feche e aprove a competência de ponto antes de calcular a folha."
+              : "Consolide ponto, ausências e benefícios para criar a competência."}
+          </p>
+          <button
+            className="primary-button"
+            disabled={process.isPending}
+            onClick={() => process.mutate()}
+          >
+            <RefreshCw />{" "}
+            {process.isPending ? "Processando…" : "Processar competência"}
           </button>
-          {process.isError && <small role="alert">{process.error instanceof Error && process.error.message.includes("time_competence_not_closed") ? "A competência de ponto ainda não foi fechada." : "Não foi possível processar. Confira as fontes e tente novamente."}</small>}
+          {process.isError && (
+            <small role="alert">
+              {process.error instanceof Error &&
+              process.error.message.includes("time_competence_not_closed")
+                ? "A competência de ponto ainda não foi fechada."
+                : "Não foi possível processar. Confira as fontes e tente novamente."}
+            </small>
+          )}
         </section>
       </div>
     );
@@ -370,8 +406,20 @@ export function PayrollPage() {
                     · versão {table.version}
                   </small>
                 </div>
-                <StatusBadge tone={table.status === "active" ? "green" : table.status === "scheduled" ? "blue" : "gray"}>
-                  {table.status === "active" ? "Ativa" : table.status === "scheduled" ? "Programada" : "Expirada"}
+                <StatusBadge
+                  tone={
+                    table.status === "active"
+                      ? "green"
+                      : table.status === "scheduled"
+                        ? "blue"
+                        : "gray"
+                  }
+                >
+                  {table.status === "active"
+                    ? "Ativa"
+                    : table.status === "scheduled"
+                      ? "Programada"
+                      : "Expirada"}
                 </StatusBadge>
               </header>
               <table>
@@ -394,13 +442,42 @@ export function PayrollPage() {
                   ))}
                 </tbody>
               </table>
-              {(table.sourceName || table.sourceHash || table.changes?.length) && (
+              {(table.sourceName ||
+                table.sourceHash ||
+                table.changes?.length) && (
                 <div className="legal-audit">
                   {table.sourceName && (
-                    <p><strong>Fonte:</strong>{" "}{table.sourceUrl ? <a href={table.sourceUrl} target="_blank" rel="noreferrer">{table.sourceName}</a> : table.sourceName}</p>
+                    <p>
+                      <strong>Fonte:</strong>{" "}
+                      {table.sourceUrl ? (
+                        <a
+                          href={table.sourceUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {table.sourceName}
+                        </a>
+                      ) : (
+                        table.sourceName
+                      )}
+                    </p>
                   )}
-                  {table.sourceHash && <p><strong>Hash:</strong> <code>{table.sourceHash.slice(0, 16)}…</code></p>}
-                  {table.changes?.length ? <div><strong>Comparação com a versão anterior</strong><ul>{table.changes.map((change) => <li key={change}>{change}</li>)}</ul></div> : null}
+                  {table.sourceHash && (
+                    <p>
+                      <strong>Hash:</strong>{" "}
+                      <code>{table.sourceHash.slice(0, 16)}…</code>
+                    </p>
+                  )}
+                  {table.changes?.length ? (
+                    <div>
+                      <strong>Comparação com a versão anterior</strong>
+                      <ul>
+                        {table.changes.map((change) => (
+                          <li key={change}>{change}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
                 </div>
               )}
               <footer>
@@ -476,7 +553,10 @@ export function PayrollPage() {
       />
       <Modal
         open={Boolean(resolve)}
-        onClose={() => { setResolve(undefined); setResolveNote(""); }}
+        onClose={() => {
+          setResolve(undefined);
+          setResolveNote("");
+        }}
         title="Resolver exceção da folha"
         description="A resolução fica vinculada ao cálculo desta competência."
       >
@@ -492,16 +572,23 @@ export function PayrollPage() {
           <footer className="form-actions">
             <button
               className="secondary-button"
-              onClick={() => { setResolve(undefined); setResolveNote(""); }}
+              onClick={() => {
+                setResolve(undefined);
+                setResolveNote("");
+              }}
             >
               Cancelar
             </button>
             <button
               className="primary-button"
-              disabled={resolveNote.trim().length < 3 || resolveMutation.isPending}
+              disabled={
+                resolveNote.trim().length < 3 || resolveMutation.isPending
+              }
               onClick={() => resolveMutation.mutate()}
             >
-              {resolveMutation.isPending ? "Salvando..." : "Confirmar resolução"}
+              {resolveMutation.isPending
+                ? "Salvando..."
+                : "Confirmar resolução"}
             </button>
           </footer>
         </div>
@@ -639,7 +726,7 @@ function EmployeePayrollModal({
           </div>
           <div className="payroll-detail-actions">
             <button className="secondary-button" onClick={() => window.print()}>
-            <FileText /> Imprimir holerite
+              <FileText /> Imprimir holerite
             </button>
             <button
               className="primary-button"

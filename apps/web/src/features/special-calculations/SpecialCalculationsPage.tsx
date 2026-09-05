@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
+import { BrazilianCompetenceInput } from "@/components/ui/BrazilianCompetenceInput";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import {
   approveSpecialCalculation,
@@ -501,7 +502,10 @@ function NewCalculation({
   close: () => void;
   done: () => void;
 }) {
-  const { data: employees = [] } = useQuery({ queryKey: ["employees"], queryFn: getEmployees });
+  const { data: employees = [] } = useQuery({
+    queryKey: ["employees"],
+    queryFn: getEmployees,
+  });
   const [employeeId, setEmployeeId] = useState("");
   const [type, setType] =
     useState<SpecialCalculation["type"]>("thirteenth_first");
@@ -538,9 +542,18 @@ function NewCalculation({
       <div className="special-form">
         <label>
           Colaborador
-          <select value={employeeId} onChange={(event) => setEmployeeId(event.target.value)}>
+          <select
+            value={employeeId}
+            onChange={(event) => setEmployeeId(event.target.value)}
+          >
             <option value="">Selecione</option>
-            {employees.filter((item) => item.status !== "terminated").map((item) => <option key={item.id} value={item.id}>{item.fullName} · {item.registration}</option>)}
+            {employees
+              .filter((item) => item.status !== "terminated")
+              .map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.fullName} · {item.registration}
+                </option>
+              ))}
           </select>
         </label>
         <label>
@@ -556,24 +569,95 @@ function NewCalculation({
             <option value="vacation">Férias</option>
           </select>
         </label>
-        <label>Competência (AAAA-MM)<input required pattern="\d{4}-(0[1-9]|1[0-2])" placeholder="2026-09" value={competence} onChange={(event) => setCompetence(event.target.value)} /></label>
+        <label>
+          Competência
+          <BrazilianCompetenceInput
+            required
+            value={competence}
+            onValueChange={setCompetence}
+          />
+        </label>
         <div className="form-grid">
           <label>
             Salário-base
-            <input value={employee ? money(employee.salary) : "Selecione o colaborador"} readOnly />
+            <input
+              value={
+                employee ? money(employee.salary) : "Selecione o colaborador"
+              }
+              readOnly
+            />
           </label>
           <label>
             Média variável
-            <input type="number" min={0} value={averageVariables} onChange={(event) => setAverageVariables(Number(event.target.value))} />
+            <input
+              type="number"
+              min={0}
+              value={averageVariables}
+              onChange={(event) =>
+                setAverageVariables(Number(event.target.value))
+              }
+            />
           </label>
-          <label>Avos de direito<input type="number" min={0} max={12} value={entitledTwelfths} onChange={(event) => setEntitledTwelfths(Number(event.target.value))} /></label>
+          <label>
+            Avos de direito
+            <input
+              type="number"
+              min={0}
+              max={12}
+              value={entitledTwelfths}
+              onChange={(event) =>
+                setEntitledTwelfths(Number(event.target.value))
+              }
+            />
+          </label>
         </div>
-        {type === "vacation" && <div className="form-grid"><label>Dias de férias<input type="number" min={1} max={30} value={vacationDays} onChange={(event) => setVacationDays(Number(event.target.value))} /></label><label>Dias vendidos<input type="number" min={0} max={10} value={soldDays} onChange={(event) => setSoldDays(Number(event.target.value))} /></label><label className="switch-row"><input type="checkbox" checked={advanceThirteenth} onChange={(event) => setAdvanceThirteenth(event.target.checked)} /><span>Antecipar 13º</span></label></div>}
+        {type === "vacation" && (
+          <div className="form-grid">
+            <label>
+              Dias de férias
+              <input
+                type="number"
+                min={1}
+                max={30}
+                value={vacationDays}
+                onChange={(event) =>
+                  setVacationDays(Number(event.target.value))
+                }
+              />
+            </label>
+            <label>
+              Dias vendidos
+              <input
+                type="number"
+                min={0}
+                max={10}
+                value={soldDays}
+                onChange={(event) => setSoldDays(Number(event.target.value))}
+              />
+            </label>
+            <label className="switch-row">
+              <input
+                type="checkbox"
+                checked={advanceThirteenth}
+                onChange={(event) => setAdvanceThirteenth(event.target.checked)}
+              />
+              <span>Antecipar 13º</span>
+            </label>
+          </div>
+        )}
         <footer className="form-actions">
           <button className="secondary-button" onClick={close}>
             Cancelar
           </button>
-          <button className="primary-button" disabled={!employee || !/^\d{4}-(0[1-9]|1[0-2])$/.test(competence) || mutation.isPending} onClick={() => mutation.mutate()}>
+          <button
+            className="primary-button"
+            disabled={
+              !employee ||
+              !/^\d{4}-(0[1-9]|1[0-2])$/.test(competence) ||
+              mutation.isPending
+            }
+            onClick={() => mutation.mutate()}
+          >
             Calcular
           </button>
         </footer>

@@ -18,6 +18,7 @@ import {
   UsersRound,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Modal } from "@/components/ui/Modal";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import {
@@ -31,20 +32,57 @@ import {
 import { exceptionLabels, formatMinutes, punchLabels } from "./time-ui";
 
 type Tab = "overview" | "schedules" | "punch" | "exceptions" | "closing";
-function exportPunches(punches: Array<{recordedAt:string;employeeName:string;type:string;locationName:string;deviceId:string}>) {
+function exportPunches(
+  punches: Array<{
+    recordedAt: string;
+    employeeName: string;
+    type: string;
+    locationName: string;
+    deviceId: string;
+  }>,
+) {
   const header = "data_hora,colaborador,tipo,local,dispositivo";
-  const lines = punches.map((item)=>[item.recordedAt,item.employeeName,item.type,item.locationName,item.deviceId].map((value)=>`"${String(value).replaceAll('"','""')}"`).join(","));
-  const url=URL.createObjectURL(new Blob([[header,...lines].join("\n")],{type:"text/csv;charset=utf-8"}));
-  const link=document.createElement("a");link.href=url;link.download="marcacoes-ponto.csv";link.click();URL.revokeObjectURL(url);
+  const lines = punches.map((item) =>
+    [
+      item.recordedAt,
+      item.employeeName,
+      item.type,
+      item.locationName,
+      item.deviceId,
+    ]
+      .map((value) => `"${String(value).replaceAll('"', '""')}"`)
+      .join(","),
+  );
+  const url = URL.createObjectURL(
+    new Blob([[header, ...lines].join("\n")], {
+      type: "text/csv;charset=utf-8",
+    }),
+  );
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "marcacoes-ponto.csv";
+  link.click();
+  URL.revokeObjectURL(url);
 }
 export function TimeTrackingPage() {
   const client = useQueryClient();
+  const [searchParams] = useSearchParams();
   const { data, isLoading } = useQuery({
     queryKey: ["time-overview"],
     queryFn: getTimeOverview,
   });
-  const { data: competence } = useQuery({ queryKey: ["time-competence"], queryFn: getCurrentTimeCompetence });
-  const [tab, setTab] = useState<Tab>("overview");
+  const { data: competence } = useQuery({
+    queryKey: ["time-competence"],
+    queryFn: getCurrentTimeCompetence,
+  });
+  const requestedTab = searchParams.get("tab");
+  const [tab, setTab] = useState<Tab>(
+    (
+      ["overview", "schedules", "punch", "exceptions", "closing"] as string[]
+    ).includes(requestedTab ?? "")
+      ? (requestedTab as Tab)
+      : "overview",
+  );
   const [resolveId, setResolveId] = useState<string>();
   const [note, setNote] = useState(
     "Ocorrência conferida e ajustada conforme justificativa do colaborador.",
@@ -56,8 +94,9 @@ export function TimeTrackingPage() {
   const [punchEmployeeId, setPunchEmployeeId] = useState("");
   const [deviceId, setDeviceId] = useState("");
   const punchEmployee =
-    data?.employees.find((employee) => employee.employeeId === punchEmployeeId) ??
-    data?.employees[0];
+    data?.employees.find(
+      (employee) => employee.employeeId === punchEmployeeId,
+    ) ?? data?.employees[0];
   const refresh = () =>
     client.invalidateQueries({ queryKey: ["time-overview"] });
   const resolveMutation = useMutation({
@@ -87,8 +126,15 @@ export function TimeTrackingPage() {
     onSuccess: refresh,
   });
   const closeMutation = useMutation({
-    mutationFn: () => closeTimeCompetence(competence!.id, "Competência conferida e fechada pelo RH."),
-    onSuccess: () => { client.invalidateQueries({ queryKey: ["time-competence"] }); refresh(); },
+    mutationFn: () =>
+      closeTimeCompetence(
+        competence!.id,
+        "Competência conferida e fechada pelo RH.",
+      ),
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: ["time-competence"] });
+      refresh();
+    },
   });
   if (isLoading || !data)
     return (
@@ -141,7 +187,13 @@ export function TimeTrackingPage() {
         <Exceptions data={data} onResolve={setResolveId} />
       )}{" "}
       {tab === "closing" && (
-        <Closing data={data} competence={competence} closing={closeMutation.isPending} onClose={()=>closeMutation.mutate()} onApprove={(id) => approveMutation.mutate(id)} />
+        <Closing
+          data={data}
+          competence={competence}
+          closing={closeMutation.isPending}
+          onClose={() => closeMutation.mutate()}
+          onApprove={(id) => approveMutation.mutate(id)}
+        />
       )}
       <Modal
         open={Boolean(resolveId)}
@@ -367,7 +419,12 @@ function Schedules({
 }) {
   const days = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
   const [scheduleFilter, setScheduleFilter] = useState("all");
-  const employees = scheduleFilter === "all" ? data.employees : data.employees.filter((employee) => employee.scheduleName === scheduleFilter);
+  const employees =
+    scheduleFilter === "all"
+      ? data.employees
+      : data.employees.filter(
+          (employee) => employee.scheduleName === scheduleFilter,
+        );
   return (
     <>
       <section className="schedule-grid">
@@ -377,7 +434,11 @@ function Schedules({
               <span style={{ background: schedule.color }}>
                 <CalendarDays />
               </span>
-              <button className="icon-button" aria-label={`Filtrar pela escala ${schedule.name}`} onClick={() => setScheduleFilter(schedule.name)}>
+              <button
+                className="icon-button"
+                aria-label={`Filtrar pela escala ${schedule.name}`}
+                onClick={() => setScheduleFilter(schedule.name)}
+              >
                 <Filter />
               </button>
             </header>
@@ -420,10 +481,23 @@ function Schedules({
             <span className="section-label">Planejamento</span>
             <h2>Escala da semana · 24–30 de agosto</h2>
           </div>
-          <label className="secondary-button"><Filter />
-            <select aria-label="Filtrar equipe por escala" value={scheduleFilter} onChange={(event)=>setScheduleFilter(event.target.value)}>
+          <label className="secondary-button">
+            <Filter />
+            <select
+              aria-label="Filtrar equipe por escala"
+              value={scheduleFilter}
+              onChange={(event) => setScheduleFilter(event.target.value)}
+            >
               <option value="all">Todas as escalas</option>
-              {[...new Set(data.employees.map((employee)=>employee.scheduleName))].map((name)=><option key={name} value={name}>{name}</option>)}
+              {[
+                ...new Set(
+                  data.employees.map((employee) => employee.scheduleName),
+                ),
+              ].map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
             </select>
           </label>
         </div>
@@ -504,7 +578,10 @@ function PunchStation({
             <span className="section-label">Evidências</span>
             <h2>Marcações de hoje</h2>
           </div>
-          <button className="secondary-button" onClick={() => exportPunches(data.punches)}>
+          <button
+            className="secondary-button"
+            onClick={() => exportPunches(data.punches)}
+          >
             <Download /> Exportar
           </button>
         </div>
@@ -538,18 +615,32 @@ function Exceptions({
   data: NonNullable<Awaited<ReturnType<typeof getTimeOverview>>>;
   onResolve: (id: string) => void;
 }) {
-  const [query,setQuery]=useState("");
-  const [pendingOnly,setPendingOnly]=useState(false);
-  const rows=data.exceptions.filter((item)=>(!pendingOnly||item.status!=="resolved")&&`${item.employeeName} ${item.title} ${item.description}`.toLowerCase().includes(query.toLowerCase()));
+  const [query, setQuery] = useState("");
+  const [pendingOnly, setPendingOnly] = useState(false);
+  const rows = data.exceptions.filter(
+    (item) =>
+      (!pendingOnly || item.status !== "resolved") &&
+      `${item.employeeName} ${item.title} ${item.description}`
+        .toLowerCase()
+        .includes(query.toLowerCase()),
+  );
   return (
     <section className="panel data-panel">
       <div className="table-toolbar people-toolbar">
         <div className="field">
           <Search />
-          <input placeholder="Buscar colaborador ou ocorrência" value={query} onChange={(event)=>setQuery(event.target.value)} />
+          <input
+            placeholder="Buscar colaborador ou ocorrência"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
         </div>
-        <button className="secondary-button" aria-pressed={pendingOnly} onClick={()=>setPendingOnly((value)=>!value)}>
-          <Filter /> {pendingOnly?"Mostrar todas":"Somente pendentes"}
+        <button
+          className="secondary-button"
+          aria-pressed={pendingOnly}
+          onClick={() => setPendingOnly((value) => !value)}
+        >
+          <Filter /> {pendingOnly ? "Mostrar todas" : "Somente pendentes"}
         </button>
         <span>
           {data.exceptions.filter((x) => x.status !== "resolved").length}{" "}
@@ -629,7 +720,12 @@ function Closing({
             <FileCheck2 />
           </span>
           <div>
-            <span className="section-label">Competência 08/2026</span>
+            <span className="section-label">
+              Competência{" "}
+              {competence?.competence
+                ? `${competence.competence.slice(5, 7)}/${competence.competence.slice(0, 4)}`
+                : "não aberta"}
+            </span>
             <h2>Fechamento de ponto</h2>
             <p>
               {data.summary.closingProgress}% da equipe conferida e pronta para
@@ -643,8 +739,22 @@ function Closing({
             <i style={{ width: `${data.summary.closingProgress}%` }} />
           </div>
         </div>
-        <button className="primary-button" disabled={!competence || competence.status === "closed" || data.summary.closingProgress < 100 || closing} onClick={onClose}>
-          <ShieldCheck /> {competence?.status === "closed" ? "Competência fechada" : closing ? "Fechando..." : "Fechar competência"}
+        <button
+          className="primary-button"
+          disabled={
+            !competence ||
+            competence.status === "closed" ||
+            data.summary.closingProgress < 100 ||
+            closing
+          }
+          onClick={onClose}
+        >
+          <ShieldCheck />{" "}
+          {competence?.status === "closed"
+            ? "Competência fechada"
+            : closing
+              ? "Fechando..."
+              : "Fechar competência"}
         </button>
       </section>
       <section className="panel data-panel">

@@ -15,6 +15,7 @@ import {
 import { useState } from "react";
 import type { ServiceRequest } from "@fluxrh/contracts";
 import { Modal } from "@/components/ui/Modal";
+import { DecisionModal } from "@/components/ui/DecisionModal";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import {
   createServiceRequest,
@@ -36,7 +37,12 @@ export function EmployeePortalPage() {
   const client = useQueryClient(),
     [tab, setTab] = useState<Tab>("home"),
     [newType, setNewType] = useState<ServiceRequest["type"]>(),
-    [detail, setDetail] = useState<ServiceRequest>();
+    [detail, setDetail] = useState<ServiceRequest>(),
+    [decisionTarget, setDecisionTarget] = useState<{
+      id: string;
+      decision: "approve" | "reject";
+    }>(),
+    [decisionNote, setDecisionNote] = useState("");
   const { data, isLoading } = useQuery({
     queryKey: ["employee-portal"],
     queryFn: getEmployeePortal,
@@ -50,8 +56,12 @@ export function EmployeePortalPage() {
     }: {
       id: string;
       decision: "approve" | "reject";
-    }) => decidePortalApproval(id, decision, "Decisão registrada pelo gestor."),
-    onSuccess: refresh,
+    }) => decidePortalApproval(id, decision, decisionNote.trim()),
+    onSuccess: () => {
+      setDecisionTarget(undefined);
+      setDecisionNote("");
+      refresh();
+    },
   });
   if (isLoading || !data)
     return (
@@ -219,8 +229,13 @@ export function EmployeePortalPage() {
                   ? "Aceite necessário"
                   : "Disponível"}
               </StatusBadge>
-              <button className="secondary-button" onClick={() => window.print()}>
-                {d.status === "action_required" ? "Imprimir para revisão" : "Imprimir documento"}
+              <button
+                className="secondary-button"
+                onClick={() => window.print()}
+              >
+                {d.status === "action_required"
+                  ? "Imprimir para revisão"
+                  : "Imprimir documento"}
               </button>
             </article>
           ))}
@@ -283,16 +298,18 @@ export function EmployeePortalPage() {
                   <span>
                     <button
                       className="reject-button"
+                      aria-label={`Rejeitar solicitação de ${a.employeeName}`}
                       onClick={() =>
-                        decide.mutate({ id: a.id, decision: "reject" })
+                        setDecisionTarget({ id: a.id, decision: "reject" })
                       }
                     >
                       <X />
                     </button>
                     <button
                       className="approve-button"
+                      aria-label={`Aprovar solicitação de ${a.employeeName}`}
                       onClick={() =>
-                        decide.mutate({ id: a.id, decision: "approve" })
+                        setDecisionTarget({ id: a.id, decision: "approve" })
                       }
                     >
                       <Check />
@@ -309,6 +326,21 @@ export function EmployeePortalPage() {
           </div>
         </section>
       )}
+      <DecisionModal
+        open={Boolean(decisionTarget)}
+        title="Decidir solicitação da equipe"
+        description="A justificativa será registrada no protocolo da solicitação."
+        decision={decisionTarget?.decision ?? "approve"}
+        note={decisionNote}
+        pending={decide.isPending}
+        error={decide.error}
+        onNoteChange={setDecisionNote}
+        onClose={() => {
+          setDecisionTarget(undefined);
+          setDecisionNote("");
+        }}
+        onConfirm={() => decisionTarget && decide.mutate(decisionTarget)}
+      />
       <NewRequest
         type={newType}
         profile={data.profile}
@@ -416,7 +448,10 @@ function NewRequest({
       <div className="special-form">
         <label>
           Assunto
-          <input value={title} onChange={(event) => setTitle(event.target.value)} />
+          <input
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+          />
         </label>
         <label>
           Descrição
@@ -427,7 +462,19 @@ function NewRequest({
             placeholder="Descreva o que você precisa e inclua os dados necessários para análise."
           />
         </label>
-        <label>Prioridade<select value={priority} onChange={(event) => setPriority(event.target.value as typeof priority)}><option value="low">Baixa</option><option value="medium">Normal</option><option value="high">Alta</option></select></label>
+        <label>
+          Prioridade
+          <select
+            value={priority}
+            onChange={(event) =>
+              setPriority(event.target.value as typeof priority)
+            }
+          >
+            <option value="low">Baixa</option>
+            <option value="medium">Normal</option>
+            <option value="high">Alta</option>
+          </select>
+        </label>
         <div className="form-note">
           <ShieldCheck />
           <p>
@@ -439,7 +486,15 @@ function NewRequest({
           <button className="secondary-button" onClick={close}>
             Cancelar
           </button>
-          <button className="primary-button" disabled={title.trim().length < 3 || description.trim().length < 5 || mutation.isPending} onClick={() => mutation.mutate()}>
+          <button
+            className="primary-button"
+            disabled={
+              title.trim().length < 3 ||
+              description.trim().length < 5 ||
+              mutation.isPending
+            }
+            onClick={() => mutation.mutate()}
+          >
             Enviar solicitação
           </button>
         </footer>

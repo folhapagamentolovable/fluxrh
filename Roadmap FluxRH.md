@@ -27,8 +27,10 @@
 
 - ✅ Central de Operações e Exceções
 - ✅ Estrutura organizacional
-- 🟡 Cadastro e prontuário digital de colaboradores (ações secundárias pendentes: dependentes, solicitação de documentos e edição completa)
+- 🟡 Cadastro e prontuário digital de colaboradores (edição completa do vínculo ainda pendente)
   - ✅ Correção da abertura de prontuários pela busca global após alinhamento do schema de dependentes
+  - ✅ Cadastro persistente de dependentes pelo prontuário
+  - ✅ Solicitação persistente de documentos pelo prontuário
 - ✅ Motor de workflows, regras e tarefas
 - ✅ Documentos e aceites eletrônicos
 - ✅ Admissão e onboarding
@@ -74,7 +76,7 @@
 
 ### Próximo passo confirmado
 
-🟡 Marco 29 — reconciliação frontend–backend e primeiro ciclo real controlado. A auditoria individual `AUD-0001` e a parametrização inicial da CCT foram concluídas; o controle persistente e a interface do ciclo paralelo estão implementados. A primeira varredura de ações e payloads do frontend corrigiu ponto, atestados, empresas e indicadores do dashboard; o upload binário de atestados no Storage e seu vínculo persistente também foram implementados. Restam a validação autenticada no ambiente publicado e a varredura dos fluxos secundários restantes.
+🟡 Marco 29 — reconciliação frontend–backend e primeiro ciclo real controlado. A auditoria individual `AUD-0001` e a parametrização inicial da CCT foram concluídas; o controle persistente e a interface do ciclo paralelo estão implementados. A varredura corrigiu payloads e ações de ponto, atestados, férias, benefícios, portal, admissões, folha e atalhos da operação. Restam a validação autenticada no ambiente publicado e a edição completa do vínculo no prontuário.
 
 ### Ponto de retomada — 29 de agosto de 2026
 
@@ -90,7 +92,12 @@
 - ✅ Dashboard deixou de exibir data e quantidades operacionais sintéticas, passando a usar o snapshot retornado pela API
 - ✅ Arquivo binário do atestado conectado ao Storage privado, verificado pela API e vinculado ao registro persistido, com exclusão compensatória em caso de falha
 - ✅ Resolução de exceções da folha passa a persistir a justificativa efetivamente digitada, com validação e teste de payload
-- 🟡 Validar a interface autenticada no Lovable e concluir a varredura das ações secundárias restantes
+- ✅ Decisões de férias, atestados, benefícios e portal exigem e persistem a justificativa digitada
+- ✅ Solicitação de férias envia datas, dias vendidos e opção de antecipação do 13º selecionados pelo RH
+- ✅ Nova admissão usa empresa, estabelecimento, departamento, gestor, data e salário informados, sem valores demonstrativos ocultos
+- ✅ Competências e períodos visíveis em jornada, benefícios, cálculos especiais e calendário de ausências deixaram de usar datas fixas
+- ✅ Atalhos da Central de Operações abrem diretamente a aba ou ação correspondente em jornada, ausências e folha
+- 🟡 Validar a interface autenticada no Lovable e implementar a edição completa do vínculo no prontuário
 
 ---
 

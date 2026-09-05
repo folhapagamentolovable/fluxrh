@@ -14,15 +14,20 @@ Varredura inicial das ações visíveis, destinos de navegação e payloads envi
 | Dashboard | Data, competência e totais operacionais eram valores sintéticos fixos | Data e competência são correntes; métricas e textos usam o snapshot da API |
 | Dashboard | “Analisar” forçava recarga integral pelo `window.location` | Navegação substituída por rota interna do React Router |
 | Folha | Campo de decisão era visual; a API recebia sempre uma justificativa fixa | O texto digitado passa a compor o payload, com validação mínima e estado de envio |
+| Férias, atestados, benefícios e portal | Aprovações e recusas não coletavam a decisão humana | Modal comum exige justificativa e envia o texto à operação auditável |
+| Admissões | Nova admissão iniciava com organização, gestor e data demonstrativos | Estrutura organizacional e demais dados passam a ser selecionados ou digitados |
+| Férias | Dias vendidos e antecipação do 13º não podiam ser informados | As duas opções estão disponíveis e cobertas por teste de payload |
+| Atalhos operacionais | Ações da Visão Geral abriam apenas a raiz do módulo | Jornada, afastamentos e folha recebem links para a aba ou operação exata |
+| Períodos e competências | Algumas telas ainda exibiam agosto/2026 ou datas de férias fixas | Rótulos derivam dos dados e entradas seguem o formato brasileiro |
 
 Os payloads de ponto e atestado receberam testes automatizados para impedir a reintrodução das identidades fixas.
 
 ## Pendências priorizadas
 
 1. ✅ Integrar o conteúdo binário selecionado no recebimento de atestado ao bucket privado, associando o ativo ao registro do atestado. O envio direto por URL assinada, a confirmação pela API e a exclusão compensatória foram implementados.
-2. Validar os fluxos corrigidos com sessão autenticada no ambiente publicado.
-3. Prosseguir pela varredura de ações secundárias: justificativas de férias, atestados, benefícios e portal; atalhos que devem abrir a etapa correta; edição completa do vínculo no prontuário.
-4. Padronizar a competência exibida em jornada e cálculos no formato brasileiro e eliminar períodos fixos remanescentes.
+2. 🟡 Validar os fluxos corrigidos com sessão autenticada no ambiente publicado.
+3. 🟡 Varredura de ações secundárias: justificativas de férias, atestados, benefícios e portal e atalhos diretos foram corrigidos; resta a edição completa do vínculo no prontuário.
+4. ✅ Padronizar a competência exibida em jornada e cálculos no formato brasileiro e eliminar períodos fixos remanescentes.
 
 ## Critério de encerramento
 
