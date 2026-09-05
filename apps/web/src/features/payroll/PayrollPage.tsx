@@ -53,16 +53,18 @@ export function PayrollPage() {
     employeeId: string;
     exceptionId: string;
   }>();
+  const [resolveNote, setResolveNote] = useState("");
   const refresh = () => client.invalidateQueries({ queryKey: ["payroll"] });
   const resolveMutation = useMutation({
     mutationFn: () =>
       resolvePayrollException(
         resolve!.employeeId,
         resolve!.exceptionId,
-        "Ocorrência conferida com os dados de jornada e ausência.",
+        resolveNote.trim(),
       ),
     onSuccess: () => {
       setResolve(undefined);
+      setResolveNote("");
       refresh();
     },
   });
@@ -474,27 +476,32 @@ export function PayrollPage() {
       />
       <Modal
         open={Boolean(resolve)}
-        onClose={() => setResolve(undefined)}
+        onClose={() => { setResolve(undefined); setResolveNote(""); }}
         title="Resolver exceção da folha"
         description="A resolução fica vinculada ao cálculo desta competência."
       >
         <div className="validation-modal">
           <label>
             Decisão
-            <textarea defaultValue="Ocorrência conferida com os dados de jornada e ausência." />
+            <textarea
+              value={resolveNote}
+              onChange={(event) => setResolveNote(event.target.value)}
+              placeholder="Descreva a conferência e a decisão tomada"
+            />
           </label>
           <footer className="form-actions">
             <button
               className="secondary-button"
-              onClick={() => setResolve(undefined)}
+              onClick={() => { setResolve(undefined); setResolveNote(""); }}
             >
               Cancelar
             </button>
             <button
               className="primary-button"
+              disabled={resolveNote.trim().length < 3 || resolveMutation.isPending}
               onClick={() => resolveMutation.mutate()}
             >
-              Confirmar resolução
+              {resolveMutation.isPending ? "Salvando..." : "Confirmar resolução"}
             </button>
           </footer>
         </div>

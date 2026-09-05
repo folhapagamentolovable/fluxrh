@@ -13,6 +13,7 @@ Varredura inicial das ações visíveis, destinos de navegação e payloads envi
 | Empresas | Botão “Mais ações” não possuía evento, menu, rota ou API | Controle removido até existir uma operação suportada |
 | Dashboard | Data, competência e totais operacionais eram valores sintéticos fixos | Data e competência são correntes; métricas e textos usam o snapshot da API |
 | Dashboard | “Analisar” forçava recarga integral pelo `window.location` | Navegação substituída por rota interna do React Router |
+| Folha | Campo de decisão era visual; a API recebia sempre uma justificativa fixa | O texto digitado passa a compor o payload, com validação mínima e estado de envio |
 
 Os payloads de ponto e atestado receberam testes automatizados para impedir a reintrodução das identidades fixas.
 
@@ -20,7 +21,7 @@ Os payloads de ponto e atestado receberam testes automatizados para impedir a re
 
 1. ✅ Integrar o conteúdo binário selecionado no recebimento de atestado ao bucket privado, associando o ativo ao registro do atestado. O envio direto por URL assinada, a confirmação pela API e a exclusão compensatória foram implementados.
 2. Validar os fluxos corrigidos com sessão autenticada no ambiente publicado.
-3. Prosseguir pela varredura de ações secundárias: decisões com justificativa, atalhos que devem abrir a etapa correta, edição de prontuário e solicitação de documentos.
+3. Prosseguir pela varredura de ações secundárias: justificativas de férias, atestados, benefícios e portal; atalhos que devem abrir a etapa correta; edição completa do vínculo no prontuário.
 4. Padronizar a competência exibida em jornada e cálculos no formato brasileiro e eliminar períodos fixos remanescentes.
 
 ## Critério de encerramento

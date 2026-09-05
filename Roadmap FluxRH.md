@@ -89,6 +89,7 @@
 - ✅ Ação decorativa “Mais ações” removida dos cartões de empresas até existir operação correspondente
 - ✅ Dashboard deixou de exibir data e quantidades operacionais sintéticas, passando a usar o snapshot retornado pela API
 - ✅ Arquivo binário do atestado conectado ao Storage privado, verificado pela API e vinculado ao registro persistido, com exclusão compensatória em caso de falha
+- ✅ Resolução de exceções da folha passa a persistir a justificativa efetivamente digitada, com validação e teste de payload
 - 🟡 Validar a interface autenticada no Lovable e concluir a varredura das ações secundárias restantes
 
 ---

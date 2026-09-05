@@ -103,6 +103,7 @@ Estado: **em andamento**.
 - Ausências: metadados e arquivo binário do atestado conectados ao colaborador e valores informados; ativo privado verificado e vinculado ao registro persistido, com rollback em caso de falha.
 - Empresas: ação visual sem backend removida até existir operação correspondente.
 - Dashboard: data, competência e indicadores operacionais sintéticos substituídos por valores correntes e pelo snapshot da API.
+- Folha: resolução de exceção conectada à justificativa digitada, sem decisão demonstrativa fixa.
 - Pendente: validação autenticada da interface publicada e varredura das ações secundárias restantes.
 
 ## Critério de conclusão de cada incremento
