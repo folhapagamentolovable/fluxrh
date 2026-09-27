@@ -2,7 +2,7 @@
 
 > 📌 **Documento principal de acompanhamento do projeto.** Consultar este arquivo no início de cada nova etapa e atualizar os marcadores ao concluir uma entrega.
 >
-> **Última conferência:** 5 de setembro de 2026
+> **Última conferência:** 27 de setembro de 2026
 > **Legenda:** ✅ concluído · 🟡 em andamento · ⬜ planejado
 >
 > **Nova premissa de aceite:** a conclusão exige que o fluxo completo esteja exercitável no ambiente publicado, incluindo ações primárias e secundárias, estados de sucesso/erro, persistência, permissões e auditoria. Build, migrations ou telas demonstráveis isoladamente não bastam. Entregas sintéticas/operacionais continuam identificadas como validações técnicas, não como liberação comercial.
@@ -97,6 +97,7 @@
 - ✅ Nova admissão usa empresa, estabelecimento, departamento, gestor, data e salário informados, sem valores demonstrativos ocultos
 - ✅ Competências e períodos visíveis em jornada, benefícios, cálculos especiais e calendário de ausências deixaram de usar datas fixas
 - ✅ Atalhos da Central de Operações abrem diretamente a aba ou ação correspondente em jornada, ausências e folha
+- ✅ Usuário `Neozinho` (`blogdoneozinho@gmail.com`) validado como `super_admin` ativo da Officecamp, com senha provisória e troca obrigatória no primeiro acesso
 - 🟡 Validar a interface autenticada no Lovable e implementar a edição completa do vínculo no prontuário
 
 ---

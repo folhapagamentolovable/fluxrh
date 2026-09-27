@@ -7,5 +7,8 @@ export function ProtectedRoute() {
 
   if (loading) return <div className="auth-loading">Abrindo seu ambiente FluxRH…</div>;
   if (!user) return <Navigate to="/entrar" state={{ from: location }} replace />;
+  if (user.user_metadata.must_change_password === true && location.pathname !== "/alterar-senha") {
+    return <Navigate to="/alterar-senha" replace />;
+  }
   return <Outlet />;
 }

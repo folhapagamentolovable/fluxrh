@@ -25,6 +25,7 @@ describe("LoginPage", () => {
     expect(screen.getByRole("heading", { name: "Entre no FluxRH" })).toBeVisible();
     expect(screen.getByRole("textbox", { name: "E-mail" })).toHaveAttribute("autocomplete", "email");
     expect(screen.getByLabelText("Senha")).toHaveAttribute("autocomplete", "current-password");
+    expect(screen.getByLabelText("Senha")).toHaveAttribute("minlength", "6");
     expect((await axe.run(container, { rules: { "color-contrast": { enabled: false } } })).violations).toEqual([]);
   });
 
@@ -34,6 +35,7 @@ describe("LoginPage", () => {
     render(<MemoryRouter><LoginPage /></MemoryRouter>);
 
     await user.click(screen.getByRole("button", { name: "Primeiro acesso? Criar conta" }));
+    expect(screen.getByLabelText("Senha")).toHaveAttribute("minlength", "8");
     await user.type(screen.getByRole("textbox", { name: "Nome completo" }), "Pessoa Teste");
     await user.type(screen.getByRole("textbox", { name: "E-mail" }), "pessoa@example.com");
     await user.type(screen.getByLabelText("Senha"), "senha-segura");

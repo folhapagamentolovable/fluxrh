@@ -47,7 +47,7 @@ export function LoginPage() {
       {!isSupabaseConfigured && <div className="auth-message error" role="alert">Integração Supabase ainda não configurada.</div>}
       {mode === "signup" && <label>Nome completo<input required value={fullName} onChange={event => setFullName(event.target.value)} autoComplete="name" /></label>}
       <label>E-mail<input required type="email" value={email} onChange={event => setEmail(event.target.value)} autoComplete="email" /></label>
-      <label>Senha<input required minLength={8} type="password" value={password} onChange={event => setPassword(event.target.value)} autoComplete={mode === "login" ? "current-password" : "new-password"} /></label>
+      <label>Senha<input required minLength={mode === "login" ? 6 : 8} type="password" value={password} onChange={event => setPassword(event.target.value)} autoComplete={mode === "login" ? "current-password" : "new-password"} /></label>
       {message && <div className={`auth-message ${message.includes("Confirme") ? "success" : "error"}`} role={message.includes("Confirme") ? "status" : "alert"}>{message}</div>}
       <button className="primary-button auth-submit" disabled={pending || !isSupabaseConfigured}>{pending ? "Aguarde…" : mode === "login" ? "Entrar" : "Criar acesso"}</button>
       <button type="button" className="auth-switch" onClick={() => { setMode(mode === "login" ? "signup" : "login"); setMessage(""); }}>{mode === "login" ? "Primeiro acesso? Criar conta" : "Já possui acesso? Entrar"}</button>

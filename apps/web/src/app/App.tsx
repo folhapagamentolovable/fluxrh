@@ -29,11 +29,14 @@ import { LoginPage } from "@/features/auth/LoginPage";
 import { OrganizationGate } from "@/auth/OrganizationGate";
 import { UserManualPage } from "@/features/manual/UserManualPage";
 import { NotFoundPage } from "@/features/not-found/NotFoundPage";
+import { ChangePasswordPage } from "@/features/auth/ChangePasswordPage";
 
 export function App() {
   return <Routes>
     <Route path="entrar" element={<LoginPage />} />
-    <Route element={<ProtectedRoute />}><Route element={<OrganizationGate />}><Route element={<AppShell />}>
+    <Route element={<ProtectedRoute />}>
+    <Route path="alterar-senha" element={<ChangePasswordPage />} />
+    <Route element={<OrganizationGate />}><Route element={<AppShell />}>
     <Route index element={<DashboardPage />} />
     <Route path="excecoes" element={<ExceptionsPage />} />
     <Route path="pessoas" element={<EmployeesPage />} />
