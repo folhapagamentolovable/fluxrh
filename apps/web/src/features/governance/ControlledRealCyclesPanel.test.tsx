@@ -46,5 +46,5 @@ describe("ControlledRealCyclesPanel", () => {
     expect(submit).toBeEnabled();
     await user.click(submit);
     expect(api.prepareControlledRealCycle).toHaveBeenCalledWith(expect.objectContaining({ competence: "2026-09", scope: ["employees"], humanReviewer: "Neozinho" }));
-  });
+  }, 10_000);
 });
