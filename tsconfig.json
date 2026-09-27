@@ -18,20 +18,15 @@
     "jsx": "react-jsx",
     "paths": {
       "@/*": [
-        "apps/web/src/*"
+        "./apps/web/src/*"
       ],
       "@fluxrh/contracts": [
-        "packages/contracts/src/index.ts"
+        "./packages/contracts/src/index.ts"
       ]
     }
   },
   "include": [
     "apps/web/src",
     "packages/contracts/src"
-  ],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
   ]
 }
