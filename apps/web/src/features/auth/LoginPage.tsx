@@ -11,6 +11,7 @@ export function LoginPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
 
@@ -47,7 +48,12 @@ export function LoginPage() {
       {!isSupabaseConfigured && <div className="auth-message error" role="alert">Integração Supabase ainda não configurada.</div>}
       {mode === "signup" && <label>Nome completo<input required value={fullName} onChange={event => setFullName(event.target.value)} autoComplete="name" /></label>}
       <label>E-mail<input required type="email" value={email} onChange={event => setEmail(event.target.value)} autoComplete="email" /></label>
-      <label>Senha<input required minLength={mode === "login" ? 6 : 8} type="password" value={password} onChange={event => setPassword(event.target.value)} autoComplete={mode === "login" ? "current-password" : "new-password"} /></label>
+      <label>Senha
+        <span className="password-field">
+          <input required minLength={mode === "login" ? 6 : 8} type={showPassword ? "text" : "password"} value={password} onChange={event => setPassword(event.target.value)} autoComplete={mode === "login" ? "current-password" : "new-password"} />
+          <button type="button" className="password-toggle" onClick={() => setShowPassword(value => !value)} aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"} aria-pressed={showPassword}>{showPassword ? "Ocultar" : "Mostrar"}</button>
+        </span>
+      </label>
       {message && <div className={`auth-message ${message.includes("Confirme") ? "success" : "error"}`} role={message.includes("Confirme") ? "status" : "alert"}>{message}</div>}
       <button className="primary-button auth-submit" disabled={pending || !isSupabaseConfigured}>{pending ? "Aguarde…" : mode === "login" ? "Entrar" : "Criar acesso"}</button>
       <button type="button" className="auth-switch" onClick={() => { setMode(mode === "login" ? "signup" : "login"); setMessage(""); }}>{mode === "login" ? "Primeiro acesso? Criar conta" : "Já possui acesso? Entrar"}</button>
