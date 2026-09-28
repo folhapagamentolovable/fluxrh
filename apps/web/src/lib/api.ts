@@ -178,7 +178,18 @@ async function request<T>(
     },
     ...options,
   });
-  if (!response.ok) throw new Error(`A operação falhou (${response.status}).`);
+  if (!response.ok) {
+    const failure = (await response.json().catch(() => ({}))) as {
+      error?: string;
+      message?: string;
+    };
+    const detail = failure.message ?? failure.error;
+    throw new Error(
+      detail
+        ? `A operação falhou (${response.status}): ${detail}`
+        : `A operação falhou (${response.status}).`,
+    );
+  }
   const payload = (await response.json()) as ApiResponse<unknown>;
   return schema.parse(payload.data);
 }

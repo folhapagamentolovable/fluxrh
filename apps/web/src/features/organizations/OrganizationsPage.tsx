@@ -590,8 +590,15 @@ export function OrganizationsPage() {
             </label>
           )}
           {companyMutation.error && (
-            <p className="form-error span-2">
-              Não foi possível salvar. Confira os dados e se o CNPJ já existe.
+            <p className="form-error span-2" role="alert">
+              {companyMutation.error.message.includes("404")
+                ? "A API ainda não publicou a rota de edição. Aguarde o deploy do Render e tente novamente."
+                : companyMutation.error.message.includes("403")
+                  ? "Seu acesso não possui permissão para alterar esta empresa. Entre novamente com a conta super-admin."
+                  : companyMutation.error.message.includes("duplicate") ||
+                      companyMutation.error.message.includes("unique")
+                    ? "Já existe uma empresa cadastrada com este CNPJ."
+                    : `Não foi possível salvar. ${companyMutation.error.message}`}
             </p>
           )}
           <footer className="form-actions span-2">
