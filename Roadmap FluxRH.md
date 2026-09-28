@@ -103,6 +103,7 @@
 - ✅ Fallbacks demonstrativos removidos do caminho de produção; módulos sem snapshot retornam coleções vazias, métricas zeradas e nunca persistem a massa em memória
 - ✅ Frontend e API passaram a exigir explicitamente o modo local para usar fixtures de teste; configuração ausente não exibe dados demonstrativos
 - ✅ Definição sintética `Admissão piloto 2026-08` removida do Supabase principal
+- ✅ Foco dos formulários em modais estabilizado; digitar ou colar não move mais o cursor para o botão de fechar
 - 🟡 Validar a interface autenticada no Lovable e implementar a edição completa do vínculo no prontuário
 
 ---
