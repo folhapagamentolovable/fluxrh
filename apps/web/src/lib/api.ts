@@ -152,7 +152,7 @@ const apiBaseUrl =
     "",
   ) ?? "";
 const localDataMode =
-  (import.meta.env.VITE_FLUXRH_DATA_MODE as string | undefined) !== "remote";
+  (import.meta.env.VITE_FLUXRH_DATA_MODE as string | undefined) === "local";
 
 async function request<T>(
   url: string,

@@ -189,7 +189,7 @@ export class InMemoryCommunicationsRepository {
           0,
         ),
         readRate: recipients ? Math.round((reads / recipients) * 100) : 0,
-        automatedToday: 27,
+        automatedToday: 0,
       },
       notifications,
       announcements,

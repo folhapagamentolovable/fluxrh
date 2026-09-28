@@ -188,9 +188,9 @@ export class InMemoryPatrolsRepository {
         scheduledToday: patrols.length,
         inProgress: patrols.filter((x) => x.status === "in_progress").length,
         completedToday: patrols.filter((x) => x.status === "completed").length,
-        coverageRate: Math.round(
-          patrols.reduce((s, x) => s + x.progress, 0) / patrols.length,
-        ),
+        coverageRate: patrols.length
+          ? Math.round(patrols.reduce((s, x) => s + x.progress, 0) / patrols.length)
+          : 0,
         openOccurrences: occurrences.filter((x) => x.status !== "resolved")
           .length,
         openExceptions: patrols

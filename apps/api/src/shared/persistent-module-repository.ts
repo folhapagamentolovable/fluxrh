@@ -8,6 +8,22 @@ interface HydratableRepository {
   overview(...args: unknown[]): Promise<object>;
 }
 
+const emptyModuleStates: Record<string, JsonObject> = {
+  absences: {
+    vacationPeriods: [], vacationRequests: [], certificates: [],
+    occurrences: [], leaves: [],
+  },
+  analytics: { trend: [], departments: [], reports: [], runs: [] },
+  benefits: { plans: [], enrollments: [], movements: [] },
+  communications: { notifications: [], announcements: [], templates: [], rules: [] },
+  governance: { users: [], permissions: [], audit: [], sessions: [] },
+  occupational_health: { exams: [], risks: [], programs: [], exceptions: [] },
+  patrols: { routes: [], patrols: [], occurrences: [] },
+  portal: { requests: [], approvals: [] },
+  special_calculations: { calculations: [], averageHistory: [] },
+  terminations: { processes: [] },
+};
+
 const queues = new Map<string, Promise<void>>();
 
 async function exclusively<T>(
@@ -79,7 +95,9 @@ export function createPersistentModuleRepository<T extends object>(
           for (let attempt = 0; attempt < 2; attempt += 1) {
             const repository = factory() as T & HydratableRepository;
             const loaded = await loadState(client, organizationId, moduleName);
-            if (loaded.state) repository.hydrate(structuredClone(loaded.state));
+            repository.hydrate(structuredClone(
+              loaded.state ?? emptyModuleStates[moduleName] ?? {},
+            ));
 
             const method = repository[property as keyof T];
             if (typeof method !== "function")

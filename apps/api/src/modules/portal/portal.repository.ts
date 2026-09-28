@@ -89,23 +89,23 @@ export class InMemoryPortalRepository {
   async overview(): Promise<EmployeePortalOverview> {
     return structuredClone({
       profile: {
-        employeeId: "emp_carlos",
-        name: "Carlos Mendes",
-        registration: "FLX-101",
-        position: "Supervisor de Operações",
-        department: "Operações",
-        company: "Flux Serviços Ltda.",
-        manager: "Marina Souza",
-        email: "carlos.mendes@flux.local",
-        phone: "(11) 99876-4321",
+        employeeId: "",
+        name: "",
+        registration: "",
+        position: "",
+        department: "",
+        company: "",
+        manager: "",
+        email: "",
+        phone: "",
       },
       summary: {
-        vacationBalance: 22,
-        timeBankMinutes: 348,
+        vacationBalance: 0,
+        timeBankMinutes: 0,
         openRequests: requests.filter(
           (x) => !["completed", "rejected"].includes(x.status),
         ).length,
-        pendingDocuments: 1,
+        pendingDocuments: 0,
       },
       quickActions: [
         {
@@ -133,76 +133,22 @@ export class InMemoryPortalRepository {
           type: "other",
         },
       ],
-      documents: [
-        {
-          id: "pd_1",
-          name: "Holerite",
-          category: "Folha de pagamento",
-          competence: "08/2026",
-          status: "available",
-          updatedAt: "2026-08-25",
-        },
-        {
-          id: "pd_2",
-          name: "Espelho de ponto",
-          category: "Jornada",
-          competence: "08/2026",
-          status: "available",
-          updatedAt: "2026-08-26",
-        },
-        {
-          id: "pd_3",
-          name: "Política de segurança",
-          category: "Aceite eletrônico",
-          status: "action_required",
-          updatedAt: "2026-08-22",
-        },
-        {
-          id: "pd_4",
-          name: "Informe de rendimentos",
-          category: "Fiscal",
-          competence: "2025",
-          status: "available",
-          updatedAt: "2026-02-27",
-        },
-      ],
+      documents: [],
       requests,
-      team: [
-        {
-          employeeId: "emp_beatriz",
-          name: "Beatriz Lima",
-          position: "Assistente operacional",
-          status: "working",
-          pendingItems: 1,
-        },
-        {
-          employeeId: "emp_paulo",
-          name: "Paulo Ribeiro",
-          position: "Vigilante",
-          status: "working",
-          pendingItems: 1,
-        },
-        {
-          employeeId: "emp_ana",
-          name: "Ana Paula Rocha",
-          position: "Analista sênior",
-          status: "vacation",
-          pendingItems: 0,
-        },
-      ],
+      team: [],
       approvals,
     });
   }
   async create(input: CreateServiceRequestInput) {
     const value: ServiceRequest = {
       id: `req_${crypto.randomUUID()}`,
-      protocol: `FLX-2026-${String(requests.length + 42).padStart(4, "0")}`,
+      protocol: `FLX-${new Date().getFullYear()}-${String(requests.length + 1).padStart(4, "0")}`,
       ...input,
       status: "submitted",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       assignedTo: input.type === "time_adjustment" ? "Gestor direto" : "FluxRH",
-      dueAt: "2026-09-02",
+      dueAt: new Date(Date.now() + 7 * 86_400_000).toISOString().slice(0, 10),
       timeline: [
         {
           id: `tl_${crypto.randomUUID()}`,

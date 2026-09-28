@@ -228,11 +228,13 @@ export class InMemorySpecialRepository {
         grossTotal: calculations.reduce((s, c) => s + c.grossAmount, 0),
         netTotal: calculations.reduce((s, c) => s + c.netAmount, 0),
         openExceptions: open,
-        approvalProgress: Math.round(
-          (calculations.filter((c) => c.status === "approved").length /
-            calculations.length) *
-            100,
-        ),
+        approvalProgress: calculations.length
+          ? Math.round(
+              (calculations.filter((c) => c.status === "approved").length /
+                calculations.length) *
+                100,
+            )
+          : 0,
       },
       calculations,
       averageHistory,

@@ -186,7 +186,7 @@ export class InMemoryOccupationalRepository {
     const completed = exams.filter((x) => x.status === "completed").length;
     return structuredClone({
       summary: {
-        complianceRate: Math.round((completed / exams.length) * 100),
+        complianceRate: exams.length ? Math.round((completed / exams.length) * 100) : 0,
         examsDue30Days: exams.filter((x) =>
           ["required", "scheduled"].includes(x.status),
         ).length,

@@ -20,7 +20,7 @@ import { categoryLabels, statusLabels, statusTones } from "./document-ui";
 const blank = {
   subjectName: "",
   subjectDocument: "",
-  companyName: "Grupo Flux",
+  companyName: "",
   title: "",
   category: "personal" as const,
   required: true,

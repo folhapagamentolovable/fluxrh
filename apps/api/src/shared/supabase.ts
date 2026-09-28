@@ -3,7 +3,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 export type PersistenceMode = "memory" | "supabase";
 
 export function getPersistenceMode(): PersistenceMode {
-  return process.env.FLUXRH_PERSISTENCE === "supabase" ? "supabase" : "memory";
+  return process.env.FLUXRH_PERSISTENCE === "memory" ? "memory" : "supabase";
 }
 
 export function createRequestSupabaseClient(authorization?: string): SupabaseClient {

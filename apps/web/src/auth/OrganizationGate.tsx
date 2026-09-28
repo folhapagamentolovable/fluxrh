@@ -49,7 +49,7 @@ export function OrganizationGate() {
   const documentIsInvalid = documentTouched && !isValidCnpj(document);
   return <main className="onboarding-page"><form className="auth-card" onSubmit={createOrganization}>
     <header><span className="eyebrow">Configuração inicial</span><h2>Crie sua organização</h2><p>Seu acesso será definido como proprietário. Os dados desta organização ficarão isolados das demais.</p></header>
-    <label>Nome da organização<input required minLength={2} value={name} onChange={event => setName(event.target.value)} placeholder="Ex.: Grupo Flux" /></label>
+    <label>Nome da organização<input required minLength={2} value={name} onChange={event => setName(event.target.value)} placeholder="Ex.: Officecamp" /></label>
     <label>CNPJ<input
       required
       inputMode="numeric"

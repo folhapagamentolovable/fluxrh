@@ -203,7 +203,7 @@ export function GovernancePage() {
         <section className="panel governance-users" role="tabpanel" id="governance-panel-users" aria-labelledby="governance-tab-users">
           <div className="panel-heading">
             <div>
-              <span className="section-label">Organização Grupo Flux</span>
+              <span className="section-label">Organização atual</span>
               <h2>Usuários e escopos</h2>
             </div>
           </div>

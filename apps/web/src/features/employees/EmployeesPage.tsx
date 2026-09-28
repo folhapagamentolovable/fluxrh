@@ -35,15 +35,15 @@ const initialForm = {
   email: "",
   phone: "",
   birthDate: "",
-  hireDate: "2026-08-25",
-  companyId: "company_flux",
-  establishmentId: "est_sp",
-  departmentId: "dept_people",
-  costCenterId: "cc_people",
+  hireDate: "",
+  companyId: "",
+  establishmentId: "",
+  departmentId: "",
+  costCenterId: "",
   position: "",
   salary: 0,
-  workSchedule: "Seg–Sex · 08:00–17:48",
-  managerName: "Marina Alves",
+  workSchedule: "",
+  managerName: "",
 };
 
 export function EmployeesPage() {

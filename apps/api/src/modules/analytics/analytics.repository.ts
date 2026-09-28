@@ -184,9 +184,10 @@ export class InMemoryAnalyticsRepository {
       filter.departmentId && filter.departmentId !== "all"
         ? departments.filter((x) => x.id === filter.departmentId)
         : departments;
-    const ratio =
-      selected.reduce((s, x) => s + x.headcount, 0) /
-      departments.reduce((s, x) => s + x.headcount, 0);
+    const totalHeadcount = departments.reduce((s, x) => s + x.headcount, 0);
+    const ratio = totalHeadcount
+      ? selected.reduce((s, x) => s + x.headcount, 0) / totalHeadcount
+      : 0;
     const trend = baseTrend.map((x) => ({
       ...x,
       headcount: Math.round(x.headcount * ratio),
@@ -194,14 +195,10 @@ export class InMemoryAnalyticsRepository {
       terminations: Math.round(x.terminations * ratio),
       payrollCost: Math.round(x.payrollCost * ratio),
     }));
-    const last = trend.at(-1)!;
+    const last = trend.at(-1);
     return structuredClone({
       filters: {
-        companies: [
-          { id: "all", name: "Todas as empresas" },
-          { id: "company_flux", name: "Flux Serviços Ltda." },
-          { id: "company_guard", name: "Guard Facilities Ltda." },
-        ],
+        companies: [{ id: "all", name: "Todas as empresas" }],
         departments: [
           { id: "all", name: "Todos os departamentos" },
           ...departments.map(({ id, name }) => ({ id, name })),
@@ -211,54 +208,21 @@ export class InMemoryAnalyticsRepository {
         period: filter.period ?? "6m",
       },
       summary: {
-        headcount: last.headcount,
-        headcountChange: 2.4,
-        turnoverRate: 2.3,
-        turnoverChange: -0.4,
-        absenteeismRate: last.absenteeismRate,
-        absenteeismChange: -0.6,
-        monthlyPayrollCost: last.payrollCost,
-        payrollChange: 2.9,
-        automationRate: last.automationRate,
-        automationChange: 3,
+        headcount: last?.headcount ?? 0,
+        headcountChange: 0,
+        turnoverRate: 0,
+        turnoverChange: 0,
+        absenteeismRate: last?.absenteeismRate ?? 0,
+        absenteeismChange: 0,
+        monthlyPayrollCost: last?.payrollCost ?? 0,
+        payrollChange: 0,
+        automationRate: last?.automationRate ?? 0,
+        automationChange: 0,
         openExceptions: selected.reduce((s, x) => s + x.openExceptions, 0),
       },
       trend,
       departments: selected,
-      insights: [
-        {
-          id: "ins_1",
-          title: "Absenteísmo em queda",
-          description: "A taxa caiu pelo segundo mês consecutivo.",
-          severity: "positive",
-          metric: "−0,6 p.p.",
-          change: -0.6,
-          recommendation: "Manter o acompanhamento das ações preventivas.",
-          source: "Férias e ausências",
-        },
-        {
-          id: "ins_2",
-          title: "Horas extras concentradas",
-          description: "Operações responde por 67% das horas extras do mês.",
-          severity: "attention",
-          metric: "186h",
-          change: 12,
-          recommendation:
-            "Revisar escala e cobertura dos postos com maior recorrência.",
-          source: "Jornada",
-        },
-        {
-          id: "ins_3",
-          title: "Automação avançou",
-          description: "91% das ações foram concluídas sem intervenção humana.",
-          severity: "positive",
-          metric: "+3 p.p.",
-          change: 3,
-          recommendation:
-            "Automatizar a validação das exceções de baixa criticidade.",
-          source: "Workflows",
-        },
-      ],
+      insights: [],
       reports,
       runs,
     });

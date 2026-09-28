@@ -236,47 +236,19 @@ export class InMemoryGovernanceRepository {
         activeSessions: sessions.filter((x) => x.status === "active").length,
         sensitiveActionsToday: audit.filter((x) => x.risk !== "normal").length,
         deniedAttempts: audit.filter((x) => x.action.endsWith("denied")).length,
-        mfaCoverage: Math.round(
-          (users.filter((x) => x.status === "active" && x.mfaEnabled).length /
-            users.filter((x) => x.status === "active").length) *
-            100,
-        ),
+        mfaCoverage: users.some((x) => x.status === "active")
+          ? Math.round(
+              (users.filter((x) => x.status === "active" && x.mfaEnabled).length /
+                users.filter((x) => x.status === "active").length) *
+                100,
+            )
+          : 0,
       },
       users,
       permissions,
       audit,
       sessions,
-      policies: [
-        {
-          id: "pol_1",
-          name: "Isolamento organizacional",
-          description: "Toda entidade deve pertencer à organização ativa.",
-          status: "active",
-          coverage: 100,
-        },
-        {
-          id: "pol_2",
-          name: "Segregação de funções",
-          description:
-            "Solicitante não pode aprovar a própria operação crítica.",
-          status: "active",
-          coverage: 100,
-        },
-        {
-          id: "pol_3",
-          name: "Autenticação multifator",
-          description: "Obrigatória para perfis administrativos e folha.",
-          status: "attention",
-          coverage: 67,
-        },
-        {
-          id: "pol_4",
-          name: "Mascaramento de dados",
-          description: "Campos sensíveis respeitam papel e escopo.",
-          status: "active",
-          coverage: 100,
-        },
-      ],
+      policies: [],
     });
   }
   async invite(input: InviteGovernanceUserInput) {

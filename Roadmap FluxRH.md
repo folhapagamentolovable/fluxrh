@@ -76,7 +76,7 @@
 
 ### Próximo passo confirmado
 
-🟡 Marco 29 — reconciliação frontend–backend e primeiro ciclo real controlado. A auditoria individual `AUD-0001` e a parametrização inicial da CCT foram concluídas; o controle persistente e a interface do ciclo paralelo estão implementados. A massa fictícia foi removida do banco principal, preservando apenas Officecamp, Neozinho e os parâmetros legais/configurações reais. Restam substituir os fallbacks demonstrativos embutidos nos módulos, validar a interface autenticada no ambiente publicado e implementar a edição completa do vínculo no prontuário.
+🟡 Marco 29 — reconciliação frontend–backend e primeiro ciclo real controlado. A auditoria individual `AUD-0001` e a parametrização inicial da CCT foram concluídas; o controle persistente e a interface do ciclo paralelo estão implementados. A massa fictícia e os fallbacks automáticos foram removidos, preservando apenas Officecamp, Neozinho e os parâmetros legais/configurações reais. Restam validar a interface autenticada no ambiente publicado e implementar a edição completa do vínculo no prontuário.
 
 ### Ponto de retomada — 27 de setembro de 2026
 
@@ -100,7 +100,9 @@
 - ✅ Usuário `Neozinho` (`blogdoneozinho@gmail.com`) validado como `super_admin` ativo da Officecamp, com senha provisória e troca obrigatória no primeiro acesso
 - ✅ Snapshot privado `backup_20260927_pre_real` criado no Supabase principal antes do corte, com 56 tabelas e os 309 colaboradores sintéticos para recuperação controlada
 - ✅ Massa fictícia excluída das tabelas operacionais do Supabase principal; Officecamp, Neozinho e sete conjuntos de parâmetros legais reais foram preservados
-- 🟡 Remover os fallbacks demonstrativos embutidos nos módulos para que estados vazios nunca exibam pessoas ou operações fictícias
+- ✅ Fallbacks demonstrativos removidos do caminho de produção; módulos sem snapshot retornam coleções vazias, métricas zeradas e nunca persistem a massa em memória
+- ✅ Frontend e API passaram a exigir explicitamente o modo local para usar fixtures de teste; configuração ausente não exibe dados demonstrativos
+- ✅ Definição sintética `Admissão piloto 2026-08` removida do Supabase principal
 - 🟡 Validar a interface autenticada no Lovable e implementar a edição completa do vínculo no prontuário
 
 ---
