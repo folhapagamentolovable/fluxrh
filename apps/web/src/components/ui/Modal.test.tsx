@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { useState } from "react";
 import axe from "axe-core";
 import { describe, expect, it, vi } from "vitest";
 import { Modal } from "./Modal";
@@ -20,7 +21,7 @@ describe("Modal", () => {
     trigger.focus();
     const view = render(<Modal open title="Editar perfil" onClose={onClose}><button>Salvar</button></Modal>);
 
-    expect(screen.getByRole("button", { name: "Fechar Editar perfil" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Salvar" })).toHaveFocus();
     await user.keyboard("{Escape}");
     expect(onClose).toHaveBeenCalledOnce();
     view.unmount();
@@ -34,10 +35,30 @@ describe("Modal", () => {
     const close = screen.getByRole("button", { name: "Fechar Editar perfil" });
     const save = screen.getByRole("button", { name: "Salvar" });
 
-    expect(close).toHaveFocus();
-    await user.tab({ shift: true });
     expect(save).toHaveFocus();
-    await user.tab();
+    await user.tab({ shift: true });
     expect(close).toHaveFocus();
+    await user.tab();
+    expect(save).toHaveFocus();
+  });
+
+  it("mantém o foco no campo durante digitação controlada", async () => {
+    const user = userEvent.setup();
+    render(<EditableModal />);
+    const input = screen.getByRole("textbox", { name: "Razão social" });
+
+    expect(input).toHaveFocus();
+    await user.type(input, "Officecamp");
+
+    expect(input).toHaveValue("Officecamp");
+    expect(input).toHaveFocus();
   });
 });
+
+function EditableModal() {
+  const [value, setValue] = useState("");
+  return <Modal open title="Nova empresa" onClose={() => undefined}>
+    <label>Razão social<input value={value} onChange={(event) => setValue(event.target.value)} /></label>
+    <button>Salvar</button>
+  </Modal>;
+}
