@@ -46,6 +46,7 @@ export function buildApp(securityOptions: ApiSecurityOptions = {}) {
   const allowedOrigins = resolveAllowedOrigins(securityOptions.allowedOrigins);
   app.register(cors, {
     credentials: true,
+    methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     origin(origin, callback) {
       if (!origin || allowedOrigins.includes(origin))
         return callback(null, true);
