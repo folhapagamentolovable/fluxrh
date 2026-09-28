@@ -3,6 +3,9 @@ import type {
   CreateBenefitEnrollmentInput,
   CreateAnnouncementInput,
   CreateCompanyInput,
+  UpdateCompanyInput,
+  CreateOrganizationUnitInput,
+  UpdateOrganizationUnitInput,
   CreateDocumentRequestInput,
   CreateEmployeeInput,
   CreateEmployeeMovementInput,
@@ -26,11 +29,21 @@ import { InMemoryPortalRepository } from "../../../api/src/modules/portal/portal
 import { InMemoryCommunicationsRepository } from "../../../api/src/modules/communications/communications.repository";
 import { InMemoryAnalyticsRepository } from "../../../api/src/modules/analytics/analytics.repository";
 import type { GenerateReportInput } from "@fluxrh/contracts";
-import type { CompleteOccupationalExamInput, CreateOccupationalExamInput } from "@fluxrh/contracts";
+import type {
+  CompleteOccupationalExamInput,
+  CreateOccupationalExamInput,
+} from "@fluxrh/contracts";
 import { InMemoryOccupationalRepository } from "../../../api/src/modules/occupational-health/occupational.repository";
 import { InMemoryPatrolsRepository } from "../../../api/src/modules/patrols/patrols.repository";
-import type { CreatePatrolOccurrenceInput, RegisterPatrolVisitInput, StartPatrolInput } from "@fluxrh/contracts";
-import type { InviteGovernanceUserInput, UpdateRolePermissionsInput } from "@fluxrh/contracts";
+import type {
+  CreatePatrolOccurrenceInput,
+  RegisterPatrolVisitInput,
+  StartPatrolInput,
+} from "@fluxrh/contracts";
+import type {
+  InviteGovernanceUserInput,
+  UpdateRolePermissionsInput,
+} from "@fluxrh/contracts";
 import { InMemoryGovernanceRepository } from "../../../api/src/modules/governance/governance.repository";
 import { InMemoryWorkflowsRepository } from "../../../api/src/modules/workflows/workflows.repository";
 
@@ -61,93 +74,499 @@ function required<T>(value: T | undefined, message: string): T {
   return value;
 }
 
-export async function localDataRequest(url: string, options?: RequestInit): Promise<unknown> {
+export async function localDataRequest(
+  url: string,
+  options?: RequestInit,
+): Promise<unknown> {
   const method = options?.method ?? "GET";
   let match: RegExpMatchArray | null;
 
-  if (method === "GET" && url === "/api/v1/operations/dashboard") return operations.getDashboard();
-  if (method === "GET" && url === "/api/v1/organizations") return organizations.getSnapshot();
-  if (method === "POST" && url === "/api/v1/organizations/companies") return organizations.createCompany(body<CreateCompanyInput>(options));
+  if (method === "GET" && url === "/api/v1/operations/dashboard")
+    return operations.getDashboard();
+  if (method === "GET" && url === "/api/v1/organizations")
+    return organizations.getSnapshot();
+  if (method === "POST" && url === "/api/v1/organizations/companies")
+    return organizations.createCompany(body<CreateCompanyInput>(options));
+  if (
+    method === "PUT" &&
+    (match = url.match(/^\/api\/v1\/organizations\/companies\/([^/]+)$/))
+  )
+    return required(
+      await organizations.updateCompany(
+        match[1],
+        body<UpdateCompanyInput>(options),
+      ),
+      "Empresa não encontrada.",
+    );
+  if (
+    method === "DELETE" &&
+    (match = url.match(/^\/api\/v1\/organizations\/companies\/([^/]+)$/))
+  )
+    return organizations.deleteCompany(match[1]);
+  if (method === "POST" && url === "/api/v1/organizations/units")
+    return organizations.createUnit(body<CreateOrganizationUnitInput>(options));
+  if (
+    method === "PUT" &&
+    (match = url.match(/^\/api\/v1\/organizations\/units\/([^/]+)$/))
+  )
+    return required(
+      await organizations.updateUnit(
+        match[1],
+        body<UpdateOrganizationUnitInput>(options),
+      ),
+      "Unidade não encontrada.",
+    );
+  if (
+    method === "DELETE" &&
+    (match = url.match(/^\/api\/v1\/organizations\/units\/([^/]+)$/))
+  )
+    return organizations.deleteUnit(match[1]);
   if (method === "GET" && url === "/api/v1/employees") return employees.list();
-  if (method === "GET" && (match = url.match(/^\/api\/v1\/employees\/([^/]+)$/))) return required(await employees.findById(match[1]), "Colaborador não encontrado.");
-  if (method === "POST" && url === "/api/v1/employees") return employees.create(body<CreateEmployeeInput>(options));
+  if (
+    method === "GET" &&
+    (match = url.match(/^\/api\/v1\/employees\/([^/]+)$/))
+  )
+    return required(
+      await employees.findById(match[1]),
+      "Colaborador não encontrado.",
+    );
+  if (method === "POST" && url === "/api/v1/employees")
+    return employees.create(body<CreateEmployeeInput>(options));
 
-  if (method === "GET" && url === "/api/v1/workflows/overview") return workflows.overview();
-  if (method === "GET" && url === "/api/v1/workflows/exceptions") return workflows.exceptions();
-  if (method === "GET" && url.startsWith("/api/v1/workflows/audit")) { const params=new URL(url,"http://local").searchParams; return workflows.audit(params.get("workflowId")??undefined); }
-  if (method === "POST" && (match = url.match(/^\/api\/v1\/workflows\/exceptions\/([^/]+)\/resolve$/))) return required(await workflows.resolveException(match[1],body<{note:string}>(options).note),"Exceção não encontrada.");
-  if (method === "POST" && (match = url.match(/^\/api\/v1\/workflows\/admissions\/([^/]+)\/exceptions$/))) {const input=body<{title:string;description:string;priority:"critical"|"high"|"medium"|"low"}>(options);return required(await workflows.createException(match[1],input.title,input.description,input.priority),"Admissão não encontrada.");}
-  if (method === "GET" && url === "/api/v1/workflows/admissions") return workflows.list();
-  if (method === "GET" && (match = url.match(/^\/api\/v1\/workflows\/admissions\/([^/]+)$/))) return required(await workflows.find(match[1]), "Admissão não encontrada.");
-  if (method === "POST" && url === "/api/v1/workflows/admissions") return workflows.create(body<CreateAdmissionInput>(options));
-  if (method === "POST" && (match = url.match(/^\/api\/v1\/workflows\/admissions\/([^/]+)\/advance$/))) return required(await workflows.advance(match[1], body<{note?:string}>(options).note), "Admissão não encontrada.");
+  if (method === "GET" && url === "/api/v1/workflows/overview")
+    return workflows.overview();
+  if (method === "GET" && url === "/api/v1/workflows/exceptions")
+    return workflows.exceptions();
+  if (method === "GET" && url.startsWith("/api/v1/workflows/audit")) {
+    const params = new URL(url, "http://local").searchParams;
+    return workflows.audit(params.get("workflowId") ?? undefined);
+  }
+  if (
+    method === "POST" &&
+    (match = url.match(/^\/api\/v1\/workflows\/exceptions\/([^/]+)\/resolve$/))
+  )
+    return required(
+      await workflows.resolveException(
+        match[1],
+        body<{ note: string }>(options).note,
+      ),
+      "Exceção não encontrada.",
+    );
+  if (
+    method === "POST" &&
+    (match = url.match(
+      /^\/api\/v1\/workflows\/admissions\/([^/]+)\/exceptions$/,
+    ))
+  ) {
+    const input = body<{
+      title: string;
+      description: string;
+      priority: "critical" | "high" | "medium" | "low";
+    }>(options);
+    return required(
+      await workflows.createException(
+        match[1],
+        input.title,
+        input.description,
+        input.priority,
+      ),
+      "Admissão não encontrada.",
+    );
+  }
+  if (method === "GET" && url === "/api/v1/workflows/admissions")
+    return workflows.list();
+  if (
+    method === "GET" &&
+    (match = url.match(/^\/api\/v1\/workflows\/admissions\/([^/]+)$/))
+  )
+    return required(await workflows.find(match[1]), "Admissão não encontrada.");
+  if (method === "POST" && url === "/api/v1/workflows/admissions")
+    return workflows.create(body<CreateAdmissionInput>(options));
+  if (
+    method === "POST" &&
+    (match = url.match(/^\/api\/v1\/workflows\/admissions\/([^/]+)\/advance$/))
+  )
+    return required(
+      await workflows.advance(match[1], body<{ note?: string }>(options).note),
+      "Admissão não encontrada.",
+    );
 
-  if (method === "GET" && url === "/api/v1/documents/overview") return documents.overview();
-  if (method === "GET" && (match = url.match(/^\/api\/v1\/documents\/([^/]+)$/))) return required(await documents.find(match[1]), "Documento não encontrado.");
-  if (method === "POST" && url === "/api/v1/documents/requests") return documents.create(body<CreateDocumentRequestInput>(options));
-  if (method === "POST" && (match = url.match(/^\/api\/v1\/documents\/([^/]+)\/validate$/))) { const input=body<{decision:"approve"|"reject";note:string}>(options); return required(await documents.validate(match[1],input.decision,input.note),"Documento não encontrado."); }
-  if (method === "POST" && (match = url.match(/^\/api\/v1\/documents\/([^/]+)\/accept$/))) { const input=body<{signerName:string;signerDocument:string}>(options); return required(await documents.accept(match[1],input.signerName,input.signerDocument,"lovable-preview","FluxRH local data"),"Documento não encontrado."); }
+  if (method === "GET" && url === "/api/v1/documents/overview")
+    return documents.overview();
+  if (
+    method === "GET" &&
+    (match = url.match(/^\/api\/v1\/documents\/([^/]+)$/))
+  )
+    return required(
+      await documents.find(match[1]),
+      "Documento não encontrado.",
+    );
+  if (method === "POST" && url === "/api/v1/documents/requests")
+    return documents.create(body<CreateDocumentRequestInput>(options));
+  if (
+    method === "POST" &&
+    (match = url.match(/^\/api\/v1\/documents\/([^/]+)\/validate$/))
+  ) {
+    const input = body<{ decision: "approve" | "reject"; note: string }>(
+      options,
+    );
+    return required(
+      await documents.validate(match[1], input.decision, input.note),
+      "Documento não encontrado.",
+    );
+  }
+  if (
+    method === "POST" &&
+    (match = url.match(/^\/api\/v1\/documents\/([^/]+)\/accept$/))
+  ) {
+    const input = body<{ signerName: string; signerDocument: string }>(options);
+    return required(
+      await documents.accept(
+        match[1],
+        input.signerName,
+        input.signerDocument,
+        "lovable-preview",
+        "FluxRH local data",
+      ),
+      "Documento não encontrado.",
+    );
+  }
 
-  if (method === "GET" && url === "/api/v1/time/overview") return time.overview();
-  if (method === "POST" && url === "/api/v1/time/punches") { const result=await time.register(body<Parameters<typeof time.register>[0]>(options)); if("error" in result) throw new Error("Token de ponto inválido."); return result.data; }
-  if (method === "POST" && (match = url.match(/^\/api\/v1\/time\/exceptions\/([^/]+)\/resolve$/))) return required(await time.resolve(match[1],body<{note:string}>(options).note),"Exceção não encontrada.");
-  if (method === "POST" && (match = url.match(/^\/api\/v1\/time\/employees\/([^/]+)\/approve$/))) return required(await time.approveEmployee(match[1]),"Colaborador não encontrado.");
+  if (method === "GET" && url === "/api/v1/time/overview")
+    return time.overview();
+  if (method === "POST" && url === "/api/v1/time/punches") {
+    const result = await time.register(
+      body<Parameters<typeof time.register>[0]>(options),
+    );
+    if ("error" in result) throw new Error("Token de ponto inválido.");
+    return result.data;
+  }
+  if (
+    method === "POST" &&
+    (match = url.match(/^\/api\/v1\/time\/exceptions\/([^/]+)\/resolve$/))
+  )
+    return required(
+      await time.resolve(match[1], body<{ note: string }>(options).note),
+      "Exceção não encontrada.",
+    );
+  if (
+    method === "POST" &&
+    (match = url.match(/^\/api\/v1\/time\/employees\/([^/]+)\/approve$/))
+  )
+    return required(
+      await time.approveEmployee(match[1]),
+      "Colaborador não encontrado.",
+    );
 
-  if (method === "GET" && url === "/api/v1/absences/overview") return absences.overview();
-  if (method === "POST" && url === "/api/v1/absences/vacations") { const result=await absences.createVacation(body<CreateVacationRequestInput>(options)); if("error" in result) throw new Error(result.error); return result.data; }
-  if (method === "POST" && (match = url.match(/^\/api\/v1\/absences\/vacations\/([^/]+)\/decision$/))) { const input=body<{decision:"approve"|"reject";note:string}>(options); return required(await absences.decideVacation(match[1],input.decision,input.note),"Solicitação não encontrada."); }
-  if (method === "POST" && url === "/api/v1/absences/certificates") return absences.createCertificate(body<CreateMedicalCertificateInput>(options));
-  if (method === "POST" && (match = url.match(/^\/api\/v1\/absences\/certificates\/([^/]+)\/review$/))) { const input=body<{decision:"approve"|"reject";note:string}>(options); return required(await absences.reviewCertificate(match[1],input.decision,input.note),"Atestado não encontrado."); }
+  if (method === "GET" && url === "/api/v1/absences/overview")
+    return absences.overview();
+  if (method === "POST" && url === "/api/v1/absences/vacations") {
+    const result = await absences.createVacation(
+      body<CreateVacationRequestInput>(options),
+    );
+    if ("error" in result) throw new Error(result.error);
+    return result.data;
+  }
+  if (
+    method === "POST" &&
+    (match = url.match(/^\/api\/v1\/absences\/vacations\/([^/]+)\/decision$/))
+  ) {
+    const input = body<{ decision: "approve" | "reject"; note: string }>(
+      options,
+    );
+    return required(
+      await absences.decideVacation(match[1], input.decision, input.note),
+      "Solicitação não encontrada.",
+    );
+  }
+  if (method === "POST" && url === "/api/v1/absences/certificates")
+    return absences.createCertificate(
+      body<CreateMedicalCertificateInput>(options),
+    );
+  if (
+    method === "POST" &&
+    (match = url.match(/^\/api\/v1\/absences\/certificates\/([^/]+)\/review$/))
+  ) {
+    const input = body<{ decision: "approve" | "reject"; note: string }>(
+      options,
+    );
+    return required(
+      await absences.reviewCertificate(match[1], input.decision, input.note),
+      "Atestado não encontrado.",
+    );
+  }
 
-  if (method === "GET" && url === "/api/v1/payroll/overview") return payroll.overview();
-  if (method === "POST" && (match = url.match(/^\/api\/v1\/payroll\/employees\/([^/]+)\/exceptions\/([^/]+)\/resolve$/))) return required(await payroll.resolve(match[1],match[2]),"Exceção não encontrada.");
-  if (method === "POST" && (match = url.match(/^\/api\/v1\/payroll\/employees\/([^/]+)\/approve$/))) return required(await payroll.approve(match[1]),"Existem exceções abertas.");
-  if (method === "POST" && url === "/api/v1/payroll/close") { const result=await payroll.close(); if("error" in result) throw new Error("Existem colaboradores pendentes."); return result.data; }
+  if (method === "GET" && url === "/api/v1/payroll/overview")
+    return payroll.overview();
+  if (
+    method === "POST" &&
+    (match = url.match(
+      /^\/api\/v1\/payroll\/employees\/([^/]+)\/exceptions\/([^/]+)\/resolve$/,
+    ))
+  )
+    return required(
+      await payroll.resolve(match[1], match[2]),
+      "Exceção não encontrada.",
+    );
+  if (
+    method === "POST" &&
+    (match = url.match(/^\/api\/v1\/payroll\/employees\/([^/]+)\/approve$/))
+  )
+    return required(
+      await payroll.approve(match[1]),
+      "Existem exceções abertas.",
+    );
+  if (method === "POST" && url === "/api/v1/payroll/close") {
+    const result = await payroll.close();
+    if ("error" in result) throw new Error("Existem colaboradores pendentes.");
+    return result.data;
+  }
 
-  if (method === "GET" && url === "/api/v1/benefits/overview") return benefits.overview();
-  if (method === "POST" && url === "/api/v1/benefits/enrollments") return required(await benefits.enroll(body<CreateBenefitEnrollmentInput>(options)),"Plano não encontrado.");
-  if (method === "POST" && url === "/api/v1/benefits/movements") return benefits.createMovement(body<CreateEmployeeMovementInput>(options));
-  if (method === "POST" && (match = url.match(/^\/api\/v1\/benefits\/movements\/([^/]+)\/decision$/))) return required(await benefits.decideMovement(match[1],body<{decision:"approve"|"reject"}>(options).decision),"Movimentação não encontrada.");
+  if (method === "GET" && url === "/api/v1/benefits/overview")
+    return benefits.overview();
+  if (method === "POST" && url === "/api/v1/benefits/enrollments")
+    return required(
+      await benefits.enroll(body<CreateBenefitEnrollmentInput>(options)),
+      "Plano não encontrado.",
+    );
+  if (method === "POST" && url === "/api/v1/benefits/movements")
+    return benefits.createMovement(body<CreateEmployeeMovementInput>(options));
+  if (
+    method === "POST" &&
+    (match = url.match(/^\/api\/v1\/benefits\/movements\/([^/]+)\/decision$/))
+  )
+    return required(
+      await benefits.decideMovement(
+        match[1],
+        body<{ decision: "approve" | "reject" }>(options).decision,
+      ),
+      "Movimentação não encontrada.",
+    );
 
-  if (method === "GET" && url === "/api/v1/special-calculations/overview") return special.overview();
-  if (method === "POST" && url === "/api/v1/special-calculations/calculations") return special.create(body<CreateSpecialCalculationInput>(options));
-  if (method === "POST" && (match = url.match(/^\/api\/v1\/special-calculations\/calculations\/([^/]+)\/exceptions\/([^/]+)\/resolve$/))) return required(await special.resolve(match[1],match[2]),"Exceção não encontrada.");
-  if (method === "POST" && (match = url.match(/^\/api\/v1\/special-calculations\/calculations\/([^/]+)\/approve$/))) return required(await special.approve(match[1]),"Existem exceções abertas.");
+  if (method === "GET" && url === "/api/v1/special-calculations/overview")
+    return special.overview();
+  if (method === "POST" && url === "/api/v1/special-calculations/calculations")
+    return special.create(body<CreateSpecialCalculationInput>(options));
+  if (
+    method === "POST" &&
+    (match = url.match(
+      /^\/api\/v1\/special-calculations\/calculations\/([^/]+)\/exceptions\/([^/]+)\/resolve$/,
+    ))
+  )
+    return required(
+      await special.resolve(match[1], match[2]),
+      "Exceção não encontrada.",
+    );
+  if (
+    method === "POST" &&
+    (match = url.match(
+      /^\/api\/v1\/special-calculations\/calculations\/([^/]+)\/approve$/,
+    ))
+  )
+    return required(
+      await special.approve(match[1]),
+      "Existem exceções abertas.",
+    );
 
-  if (method === "GET" && url === "/api/v1/terminations/overview") return terminations.overview();
-  if (method === "POST" && url === "/api/v1/terminations/processes") return terminations.create(body<CreateTerminationInput>(options));
-  if (method === "POST" && (match = url.match(/^\/api\/v1\/terminations\/processes\/([^/]+)\/exceptions\/([^/]+)\/resolve$/))) return required(await terminations.resolve(match[1],match[2]),"Exceção não encontrada.");
-  if (method === "POST" && (match = url.match(/^\/api\/v1\/terminations\/processes\/([^/]+)\/tasks\/([^/]+)\/toggle$/))) return required(await terminations.toggleTask(match[1],match[2]),"Tarefa bloqueada.");
-  if (method === "POST" && (match = url.match(/^\/api\/v1\/terminations\/processes\/([^/]+)\/approve$/))) return required(await terminations.approve(match[1]),"Existem pendências abertas.");
+  if (method === "GET" && url === "/api/v1/terminations/overview")
+    return terminations.overview();
+  if (method === "POST" && url === "/api/v1/terminations/processes")
+    return terminations.create(body<CreateTerminationInput>(options));
+  if (
+    method === "POST" &&
+    (match = url.match(
+      /^\/api\/v1\/terminations\/processes\/([^/]+)\/exceptions\/([^/]+)\/resolve$/,
+    ))
+  )
+    return required(
+      await terminations.resolve(match[1], match[2]),
+      "Exceção não encontrada.",
+    );
+  if (
+    method === "POST" &&
+    (match = url.match(
+      /^\/api\/v1\/terminations\/processes\/([^/]+)\/tasks\/([^/]+)\/toggle$/,
+    ))
+  )
+    return required(
+      await terminations.toggleTask(match[1], match[2]),
+      "Tarefa bloqueada.",
+    );
+  if (
+    method === "POST" &&
+    (match = url.match(
+      /^\/api\/v1\/terminations\/processes\/([^/]+)\/approve$/,
+    ))
+  )
+    return required(
+      await terminations.approve(match[1]),
+      "Existem pendências abertas.",
+    );
 
-  if (method === "GET" && url === "/api/v1/portal/overview") return portal.overview();
-  if (method === "POST" && url === "/api/v1/portal/requests") return portal.create(body<CreateServiceRequestInput>(options));
-  if (method === "POST" && (match = url.match(/^\/api\/v1\/portal\/approvals\/([^/]+)\/decision$/))) { const input=body<{decision:"approve"|"reject";note:string}>(options); return required(await portal.decide(match[1],input.decision,input.note),"Aprovação não encontrada."); }
+  if (method === "GET" && url === "/api/v1/portal/overview")
+    return portal.overview();
+  if (method === "POST" && url === "/api/v1/portal/requests")
+    return portal.create(body<CreateServiceRequestInput>(options));
+  if (
+    method === "POST" &&
+    (match = url.match(/^\/api\/v1\/portal\/approvals\/([^/]+)\/decision$/))
+  ) {
+    const input = body<{ decision: "approve" | "reject"; note: string }>(
+      options,
+    );
+    return required(
+      await portal.decide(match[1], input.decision, input.note),
+      "Aprovação não encontrada.",
+    );
+  }
 
-  if (method === "GET" && url === "/api/v1/communications/overview") return communications.overview();
-  if (method === "POST" && (match = url.match(/^\/api\/v1\/communications\/notifications\/([^/]+)\/read$/))) return required(await communications.markRead(match[1]),"Notificação não encontrada.");
-  if (method === "POST" && (match = url.match(/^\/api\/v1\/communications\/notifications\/([^/]+)\/acknowledge$/))) return required(await communications.acknowledge(match[1]),"Notificação não encontrada.");
-  if (method === "POST" && url === "/api/v1/communications/announcements") return communications.createAnnouncement(body<CreateAnnouncementInput>(options));
-  if (method === "POST" && url === "/api/v1/communications/escalations/run") return required((await communications.escalate())?.data,"Nenhum escalonamento disponível.");
+  if (method === "GET" && url === "/api/v1/communications/overview")
+    return communications.overview();
+  if (
+    method === "POST" &&
+    (match = url.match(
+      /^\/api\/v1\/communications\/notifications\/([^/]+)\/read$/,
+    ))
+  )
+    return required(
+      await communications.markRead(match[1]),
+      "Notificação não encontrada.",
+    );
+  if (
+    method === "POST" &&
+    (match = url.match(
+      /^\/api\/v1\/communications\/notifications\/([^/]+)\/acknowledge$/,
+    ))
+  )
+    return required(
+      await communications.acknowledge(match[1]),
+      "Notificação não encontrada.",
+    );
+  if (method === "POST" && url === "/api/v1/communications/announcements")
+    return communications.createAnnouncement(
+      body<CreateAnnouncementInput>(options),
+    );
+  if (method === "POST" && url === "/api/v1/communications/escalations/run")
+    return required(
+      (await communications.escalate())?.data,
+      "Nenhum escalonamento disponível.",
+    );
 
-  if (method === "GET" && url.startsWith("/api/v1/analytics/overview")) { const params=new URL(url,"http://local").searchParams; return analytics.overview({companyId:params.get("companyId")??undefined,departmentId:params.get("departmentId")??undefined,period:params.get("period")??undefined}); }
-  if (method === "POST" && url === "/api/v1/analytics/reports/generate") return required(await analytics.generate(body<GenerateReportInput>(options)),"Relatório não encontrado.");
+  if (method === "GET" && url.startsWith("/api/v1/analytics/overview")) {
+    const params = new URL(url, "http://local").searchParams;
+    return analytics.overview({
+      companyId: params.get("companyId") ?? undefined,
+      departmentId: params.get("departmentId") ?? undefined,
+      period: params.get("period") ?? undefined,
+    });
+  }
+  if (method === "POST" && url === "/api/v1/analytics/reports/generate")
+    return required(
+      await analytics.generate(body<GenerateReportInput>(options)),
+      "Relatório não encontrado.",
+    );
 
-  if (method === "GET" && url === "/api/v1/occupational-health/overview") return occupational.overview();
-  if (method === "POST" && url === "/api/v1/occupational-health/exams") return occupational.create(body<CreateOccupationalExamInput>(options));
-  if (method === "POST" && (match=url.match(/^\/api\/v1\/occupational-health\/exams\/([^/]+)\/complete$/))) return required(await occupational.complete(match[1],body<CompleteOccupationalExamInput>(options)),"Exame não encontrado.");
-  if (method === "POST" && (match=url.match(/^\/api\/v1\/occupational-health\/exceptions\/([^/]+)\/resolve$/))) return required(await occupational.resolveException(match[1],body<{note:string}>(options).note),"Exceção não encontrada.");
+  if (method === "GET" && url === "/api/v1/occupational-health/overview")
+    return occupational.overview();
+  if (method === "POST" && url === "/api/v1/occupational-health/exams")
+    return occupational.create(body<CreateOccupationalExamInput>(options));
+  if (
+    method === "POST" &&
+    (match = url.match(
+      /^\/api\/v1\/occupational-health\/exams\/([^/]+)\/complete$/,
+    ))
+  )
+    return required(
+      await occupational.complete(
+        match[1],
+        body<CompleteOccupationalExamInput>(options),
+      ),
+      "Exame não encontrado.",
+    );
+  if (
+    method === "POST" &&
+    (match = url.match(
+      /^\/api\/v1\/occupational-health\/exceptions\/([^/]+)\/resolve$/,
+    ))
+  )
+    return required(
+      await occupational.resolveException(
+        match[1],
+        body<{ note: string }>(options).note,
+      ),
+      "Exceção não encontrada.",
+    );
 
-  if (method === "GET" && url === "/api/v1/patrols/overview") return patrols.overview();
-  if (method === "POST" && (match=url.match(/^\/api\/v1\/patrols\/routes\/([^/]+)\/start$/))) return required(await patrols.start(match[1],body<StartPatrolInput>(options)),"Rota não encontrada.");
-  if (method === "POST" && (match=url.match(/^\/api\/v1\/patrols\/patrols\/([^/]+)\/visits$/))) { const result=await patrols.visit(match[1],body<RegisterPatrolVisitInput>(options)); if("error"in result)throw new Error(result.error);return result.data; }
-  if (method === "POST" && (match=url.match(/^\/api\/v1\/patrols\/patrols\/([^/]+)\/occurrences$/))) return required(await patrols.occurrence(match[1],body<CreatePatrolOccurrenceInput>(options)),"Ronda não encontrada.");
-  if (method === "POST" && (match=url.match(/^\/api\/v1\/patrols\/occurrences\/([^/]+)\/resolve$/))) return required(await patrols.resolveOccurrence(match[1],body<{note:string}>(options).note),"Ocorrência não encontrada.");
+  if (method === "GET" && url === "/api/v1/patrols/overview")
+    return patrols.overview();
+  if (
+    method === "POST" &&
+    (match = url.match(/^\/api\/v1\/patrols\/routes\/([^/]+)\/start$/))
+  )
+    return required(
+      await patrols.start(match[1], body<StartPatrolInput>(options)),
+      "Rota não encontrada.",
+    );
+  if (
+    method === "POST" &&
+    (match = url.match(/^\/api\/v1\/patrols\/patrols\/([^/]+)\/visits$/))
+  ) {
+    const result = await patrols.visit(
+      match[1],
+      body<RegisterPatrolVisitInput>(options),
+    );
+    if ("error" in result) throw new Error(result.error);
+    return result.data;
+  }
+  if (
+    method === "POST" &&
+    (match = url.match(/^\/api\/v1\/patrols\/patrols\/([^/]+)\/occurrences$/))
+  )
+    return required(
+      await patrols.occurrence(
+        match[1],
+        body<CreatePatrolOccurrenceInput>(options),
+      ),
+      "Ronda não encontrada.",
+    );
+  if (
+    method === "POST" &&
+    (match = url.match(/^\/api\/v1\/patrols\/occurrences\/([^/]+)\/resolve$/))
+  )
+    return required(
+      await patrols.resolveOccurrence(
+        match[1],
+        body<{ note: string }>(options).note,
+      ),
+      "Ocorrência não encontrada.",
+    );
 
-  if (method === "GET" && url === "/api/v1/governance/overview") return governance.overview();
-  if (method === "POST" && url === "/api/v1/governance/users/invite") return governance.invite(body<InviteGovernanceUserInput>(options));
-  if (method === "PUT" && (match=url.match(/^\/api\/v1\/governance\/roles\/([^/]+)\/permissions$/))) return required(await governance.updatePermission(match[1],body<UpdateRolePermissionsInput>(options)),"Permissão não encontrada.");
-  if (method === "POST" && (match=url.match(/^\/api\/v1\/governance\/sessions\/([^/]+)\/revoke$/))) return required(await governance.revokeSession(match[1],body<{justification:string}>(options).justification),"Sessão atual ou inexistente.");
+  if (method === "GET" && url === "/api/v1/governance/overview")
+    return governance.overview();
+  if (method === "POST" && url === "/api/v1/governance/users/invite")
+    return governance.invite(body<InviteGovernanceUserInput>(options));
+  if (
+    method === "PUT" &&
+    (match = url.match(/^\/api\/v1\/governance\/roles\/([^/]+)\/permissions$/))
+  )
+    return required(
+      await governance.updatePermission(
+        match[1],
+        body<UpdateRolePermissionsInput>(options),
+      ),
+      "Permissão não encontrada.",
+    );
+  if (
+    method === "POST" &&
+    (match = url.match(/^\/api\/v1\/governance\/sessions\/([^/]+)\/revoke$/))
+  )
+    return required(
+      await governance.revokeSession(
+        match[1],
+        body<{ justification: string }>(options).justification,
+      ),
+      "Sessão atual ou inexistente.",
+    );
 
   throw new Error(`Operação local não implementada: ${method} ${url}`);
 }

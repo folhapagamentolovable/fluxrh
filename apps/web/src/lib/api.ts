@@ -19,6 +19,8 @@ import {
   medicalCertificateSchema,
   notificationSchema,
   organizationSnapshotSchema,
+  companySchema,
+  organizationUnitSchema,
   preparedFileUploadSchema,
   payrollEmployeeSchema,
   payrollOverviewSchema,
@@ -44,6 +46,9 @@ import {
   type CreateAnnouncementInput,
   type CreateBenefitEnrollmentInput,
   type CreateCompanyInput,
+  type UpdateCompanyInput,
+  type CreateOrganizationUnitInput,
+  type UpdateOrganizationUnitInput,
   type CreateDocumentRequestInput,
   type CreateEmployeeInput,
   type CreateEmployeeMovementInput,
@@ -178,6 +183,25 @@ async function request<T>(
   return schema.parse(payload.data);
 }
 
+async function deleteResource(url: string): Promise<void> {
+  if (localDataMode) {
+    await localDataRequest(url, { method: "DELETE" });
+    return;
+  }
+  const session = isSupabaseConfigured
+    ? (await supabase.auth.getSession()).data.session
+    : null;
+  if (!apiBaseUrl)
+    throw new Error("A URL da API persistente não está configurada.");
+  const response = await fetch(`${apiBaseUrl}${url}`, {
+    method: "DELETE",
+    headers: {
+      ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}),
+    },
+  });
+  if (!response.ok) throw new Error(`A operação falhou (${response.status}).`);
+}
+
 export async function getDashboard(): Promise<DashboardSnapshot> {
   return request("/api/v1/operations/dashboard", dashboardSnapshotSchema);
 }
@@ -193,9 +217,52 @@ export const createCompany = (input: CreateCompanyInput) =>
       body: JSON.stringify({
         ...input,
         document: normalizeDigits(input.document),
+        phone: normalizeDigits(input.phone),
+        postalCode: normalizeDigits(input.postalCode),
       }),
     },
   );
+export const updateCompany = (id: string, input: UpdateCompanyInput) =>
+  request(`/api/v1/organizations/companies/${id}`, companySchema, {
+    method: "PUT",
+    body: JSON.stringify({
+      ...input,
+      document: normalizeDigits(input.document),
+      phone: normalizeDigits(input.phone),
+      postalCode: normalizeDigits(input.postalCode),
+    }),
+  });
+export const deleteCompany = (id: string) =>
+  deleteResource(`/api/v1/organizations/companies/${id}`);
+export const createOrganizationUnit = (input: CreateOrganizationUnitInput) =>
+  request("/api/v1/organizations/units", organizationUnitSchema, {
+    method: "POST",
+    body: JSON.stringify({
+      ...input,
+      document: input.document ? normalizeDigits(input.document) : undefined,
+      phone: input.phone ? normalizeDigits(input.phone) : undefined,
+      postalCode: input.postalCode
+        ? normalizeDigits(input.postalCode)
+        : undefined,
+    }),
+  });
+export const updateOrganizationUnit = (
+  id: string,
+  input: UpdateOrganizationUnitInput,
+) =>
+  request(`/api/v1/organizations/units/${id}`, organizationUnitSchema, {
+    method: "PUT",
+    body: JSON.stringify({
+      ...input,
+      document: input.document ? normalizeDigits(input.document) : undefined,
+      phone: input.phone ? normalizeDigits(input.phone) : undefined,
+      postalCode: input.postalCode
+        ? normalizeDigits(input.postalCode)
+        : undefined,
+    }),
+  });
+export const deleteOrganizationUnit = (id: string) =>
+  deleteResource(`/api/v1/organizations/units/${id}`);
 export const getEmployees = (): Promise<EmployeeListItem[]> =>
   request("/api/v1/employees?limit=200", employeeListSchema);
 export const getEmployee = (id: string): Promise<Employee> =>
@@ -354,19 +421,28 @@ export const createMedicalCertificate = (
   });
 export async function uploadPrivateFile(
   file: File,
-  input: Omit<PrepareFileUploadInput, "originalName" | "mimeType" | "sizeBytes">,
+  input: Omit<
+    PrepareFileUploadInput,
+    "originalName" | "mimeType" | "sizeBytes"
+  >,
 ): Promise<FileAsset> {
   if (localDataMode || !isSupabaseConfigured)
-    throw new Error("O upload privado exige a API persistente e uma sessão Supabase configurada.");
-  const prepared = await request("/api/v1/files/uploads", preparedFileUploadSchema, {
-    method: "POST",
-    body: JSON.stringify({
-      ...input,
-      originalName: file.name,
-      mimeType: file.type,
-      sizeBytes: file.size,
-    }),
-  });
+    throw new Error(
+      "O upload privado exige a API persistente e uma sessão Supabase configurada.",
+    );
+  const prepared = await request(
+    "/api/v1/files/uploads",
+    preparedFileUploadSchema,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        ...input,
+        originalName: file.name,
+        mimeType: file.type,
+        sizeBytes: file.size,
+      }),
+    },
+  );
   try {
     const uploaded = await supabase.storage
       .from(prepared.asset.bucketId)
@@ -736,5 +812,13 @@ export const updateEmployee = (
     method: "PATCH",
     body: JSON.stringify(input),
   });
-export const sendExternalEmail = (input: { to: string[]; subject: string; text: string; idempotencyKey?: string }): Promise<string> =>
-  request("/api/v1/integrations/email/send", notificationSchema.shape.id, { method: "POST", body: JSON.stringify(input) });
+export const sendExternalEmail = (input: {
+  to: string[];
+  subject: string;
+  text: string;
+  idempotencyKey?: string;
+}): Promise<string> =>
+  request("/api/v1/integrations/email/send", notificationSchema.shape.id, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });

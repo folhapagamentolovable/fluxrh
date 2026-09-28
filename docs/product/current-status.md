@@ -58,6 +58,7 @@ Atualizado em 28 de agosto de 2026.
 - Segunda etapa concluída em saúde ocupacional, cálculos especiais, solicitações do portal, convites de governança e comunicações: os payloads agora refletem os dados selecionados ou digitados; convites usam empresas cadastradas e agendamentos exigem data e hora explícitas.
 - Reconciliação de rondas concluída: início avulso exige colaborador e dispositivo, cada leitura registra dispositivo, modo offline e conferência de localização, e ocorrências coletam classificação, severidade, descrição, responsável e quantidade de evidências.
 - Interface do primeiro ciclo real controlado implementada em Configurações, com competência brasileira, escopo mínimo, checklist integral, revisor humano, plano de rollback, aprovação restrita e evidências referenciadas; o fluxo não executa nem substitui a folha oficial.
+- Cadastro organizacional ampliado com criação, edição e exclusão de empresas, estabelecimentos, departamentos e centros de custo; empresas incluem responsável, cargo, telefone e endereço completo, e cada tipo de unidade possui formulário contextual e vínculo hierárquico explícito.
 
 ## Limitações conhecidas
 

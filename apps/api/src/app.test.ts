@@ -51,6 +51,22 @@ describe("FluxRH API", () => {
     expect(response.json().data.units.length).toBeGreaterThan(5);
   });
 
+  it("creates, edits and removes companies and organizational units", async () => {
+    const companyInput={legalName:"Empresa Organizacional Teste Ltda.",tradeName:"Org Teste",document:"11222333000181",responsibleName:"Responsável Teste",responsibleRole:"Diretora",phone:"11999998888",street:"Rua Teste",streetNumber:"10",complement:"Sala 2",district:"Centro",city:"São Paulo",state:"SP",postalCode:"01001000"};
+    const created=await app.inject({method:"POST",url:"/api/v1/organizations/companies",payload:companyInput});
+    expect(created.statusCode).toBe(201);
+    const company=created.json().data;
+    const updated=await app.inject({method:"PUT",url:`/api/v1/organizations/companies/${company.id}`,payload:{...companyInput,tradeName:"Org Teste Atualizada",status:"active"}});
+    expect(updated.json().data.tradeName).toBe("Org Teste Atualizada");
+    const unit=await app.inject({method:"POST",url:"/api/v1/organizations/units",payload:{companyId:company.id,parentId:null,type:"establishment",code:"EST-TESTE",name:"Estabelecimento Teste",status:"active",managerName:"Gestora Teste",city:"São Paulo",state:"SP"}});
+    expect(unit.statusCode).toBe(201);
+    const unitId=unit.json().data.id;
+    const unitUpdated=await app.inject({method:"PUT",url:`/api/v1/organizations/units/${unitId}`,payload:{companyId:company.id,parentId:null,type:"establishment",code:"EST-TESTE",name:"Estabelecimento Atualizado",status:"active",managerName:"Gestora Teste",city:"São Paulo",state:"SP"}});
+    expect(unitUpdated.json().data.name).toBe("Estabelecimento Atualizado");
+    expect((await app.inject({method:"DELETE",url:`/api/v1/organizations/units/${unitId}`})).statusCode).toBe(204);
+    expect((await app.inject({method:"DELETE",url:`/api/v1/organizations/companies/${company.id}`})).statusCode).toBe(204);
+  });
+
   it("returns employees and a complete profile", async () => {
     const list = await app.inject({ method: "GET", url: "/api/v1/employees" });
     expect(list.statusCode).toBe(200);

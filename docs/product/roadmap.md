@@ -101,10 +101,20 @@ Estado: **em andamento**.
 - Rondas: operador, dispositivo, condições da leitura e dados completos da ocorrência passam a compor os payloads enviados.
 - Jornada: marcação de ponto conectada ao colaborador, tipo e dispositivo escolhidos, sem identidade demonstrativa fixa.
 - Ausências: metadados e arquivo binário do atestado conectados ao colaborador e valores informados; ativo privado verificado e vinculado ao registro persistido, com rollback em caso de falha.
-- Empresas: ação visual sem backend removida até existir operação correspondente.
+- Empresas e unidades: criação, edição e exclusão implementadas na API e na interface, com cadastro completo da empresa e formulários contextuais para estabelecimento, departamento e centro de custo.
 - Dashboard: data, competência e indicadores operacionais sintéticos substituídos por valores correntes e pelo snapshot da API.
 - Folha: resolução de exceção conectada à justificativa digitada, sem decisão demonstrativa fixa.
 - Pendente: validação autenticada da interface publicada e varredura das ações secundárias restantes.
+
+## Marco 30 — manutenção da estrutura organizacional
+
+Estado: **implementado; aplicação da migration e validação publicada pendentes**.
+
+- Empresas: dados jurídicos, responsável, contato e endereço completo.
+- Estabelecimentos: código, nome, responsável, contatos, CNPJ opcional e endereço.
+- Departamentos: vínculo obrigatório ao estabelecimento, código, nome, gestor e contatos.
+- Centros de custo: vínculo obrigatório ao departamento, código, nome, responsável e contatos.
+- Inclusão, edição, inativação e exclusão protegida por vínculos em todos os níveis.
 
 ## Critério de conclusão de cada incremento
 

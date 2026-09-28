@@ -93,6 +93,14 @@ export const companySchema = z.object({
   status: entityStatusSchema,
   city: z.string(),
   state: z.string(),
+  responsibleName: z.string().default(""),
+  responsibleRole: z.string().default(""),
+  phone: z.string().default(""),
+  street: z.string().default(""),
+  streetNumber: z.string().default(""),
+  complement: z.string().default(""),
+  district: z.string().default(""),
+  postalCode: z.string().default(""),
   employeesCount: z.number().int().nonnegative(),
   establishmentsCount: z.number().int().nonnegative(),
 });
@@ -107,6 +115,14 @@ export const organizationUnitSchema = z.object({
   city: z.string().optional(),
   state: z.string().optional(),
   managerName: z.string().optional(),
+  document: z.string().optional(),
+  phone: z.string().optional(),
+  email: z.string().optional(),
+  street: z.string().optional(),
+  streetNumber: z.string().optional(),
+  complement: z.string().optional(),
+  district: z.string().optional(),
+  postalCode: z.string().optional(),
   employeesCount: z.number().int().nonnegative(),
   status: entityStatusSchema,
 });
@@ -128,7 +144,53 @@ export const createCompanySchema = z.object({
   document: z.string().min(14),
   city: z.string().min(2),
   state: z.string().length(2),
+  responsibleName: z.string().min(3),
+  responsibleRole: z.string().min(2),
+  phone: z.string().min(10).max(11),
+  street: z.string().min(3),
+  streetNumber: z.string().min(1),
+  complement: z.string().max(100).optional().default(""),
+  district: z.string().min(2),
+  postalCode: z.string().length(8),
 });
+export const updateCompanySchema = createCompanySchema.extend({
+  status: entityStatusSchema,
+});
+export const createOrganizationUnitSchema = z
+  .object({
+    companyId: z.string(),
+    parentId: z.string().nullable(),
+    type: organizationUnitTypeSchema,
+    code: z.string().min(2).max(30),
+    name: z.string().min(2).max(150),
+    status: entityStatusSchema.default("active"),
+    managerName: z.string().max(150).optional(),
+    document: z.string().max(14).optional(),
+    phone: z.string().max(11).optional(),
+    email: z.string().email().optional().or(z.literal("")),
+    street: z.string().max(150).optional(),
+    streetNumber: z.string().max(30).optional(),
+    complement: z.string().max(100).optional(),
+    district: z.string().max(100).optional(),
+    city: z.string().max(100).optional(),
+    state: z.string().length(2).optional(),
+    postalCode: z.string().length(8).optional(),
+  })
+  .superRefine((value, context) => {
+    if (value.type === "establishment" && value.parentId !== null)
+      context.addIssue({
+        code: "custom",
+        path: ["parentId"],
+        message: "establishment_parent_must_be_null",
+      });
+    if (value.type !== "establishment" && !value.parentId)
+      context.addIssue({
+        code: "custom",
+        path: ["parentId"],
+        message: "unit_parent_required",
+      });
+  });
+export const updateOrganizationUnitSchema = createOrganizationUnitSchema;
 
 export const employeeStatusSchema = z.enum([
   "active",
@@ -217,6 +279,13 @@ export type Company = z.infer<typeof companySchema>;
 export type OrganizationUnit = z.infer<typeof organizationUnitSchema>;
 export type OrganizationSnapshot = z.infer<typeof organizationSnapshotSchema>;
 export type CreateCompanyInput = z.infer<typeof createCompanySchema>;
+export type UpdateCompanyInput = z.infer<typeof updateCompanySchema>;
+export type CreateOrganizationUnitInput = z.infer<
+  typeof createOrganizationUnitSchema
+>;
+export type UpdateOrganizationUnitInput = z.infer<
+  typeof updateOrganizationUnitSchema
+>;
 export type Employee = z.infer<typeof employeeSchema>;
 export type EmployeeListItem = z.infer<typeof employeeListItemSchema>;
 export type CreateEmployeeInput = z.infer<typeof createEmployeeSchema>;
@@ -1018,7 +1087,10 @@ export const resolvePayrollExceptionSchema = z.object({
   note: z.string().min(3).max(500),
 });
 export const processPayrollSchema = z.object({
-  competence: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/).optional(),
+  competence: z
+    .string()
+    .regex(/^\d{4}-(0[1-9]|1[0-2])$/)
+    .optional(),
 });
 export const addPayrollEventSchema = z.object({
   code: z.string(),
@@ -2276,14 +2348,25 @@ export const appendControlledRealCycleEvidenceSchema = z.object({
   kind: controlledRealCycleEvidenceSchema.shape.kind,
   label: z.string().trim().min(3).max(160),
   reference: z.string().trim().min(3).max(2000),
-  sha256: z.string().regex(/^[a-f0-9]{64}$/i).optional(),
+  sha256: z
+    .string()
+    .regex(/^[a-f0-9]{64}$/i)
+    .optional(),
 });
 export const controlledRealCycleCommandSchema = z.object({
   id: z.string().uuid(),
   status: z.string().optional(),
 });
 export type ControlledRealCycle = z.infer<typeof controlledRealCycleSchema>;
-export type ControlledRealCycleScope = z.infer<typeof controlledRealCycleScopeSchema>;
-export type PrepareControlledRealCycleInput = z.infer<typeof prepareControlledRealCycleSchema>;
-export type ApproveControlledRealCycleInput = z.infer<typeof approveControlledRealCycleSchema>;
-export type AppendControlledRealCycleEvidenceInput = z.infer<typeof appendControlledRealCycleEvidenceSchema>;
+export type ControlledRealCycleScope = z.infer<
+  typeof controlledRealCycleScopeSchema
+>;
+export type PrepareControlledRealCycleInput = z.infer<
+  typeof prepareControlledRealCycleSchema
+>;
+export type ApproveControlledRealCycleInput = z.infer<
+  typeof approveControlledRealCycleSchema
+>;
+export type AppendControlledRealCycleEvidenceInput = z.infer<
+  typeof appendControlledRealCycleEvidenceSchema
+>;
