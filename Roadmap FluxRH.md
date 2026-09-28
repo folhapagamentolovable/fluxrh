@@ -76,9 +76,9 @@
 
 ### Próximo passo confirmado
 
-🟡 Marco 29 — reconciliação frontend–backend e primeiro ciclo real controlado. A auditoria individual `AUD-0001` e a parametrização inicial da CCT foram concluídas; o controle persistente e a interface do ciclo paralelo estão implementados. A varredura corrigiu payloads e ações de ponto, atestados, férias, benefícios, portal, admissões, folha e atalhos da operação. Restam a validação autenticada no ambiente publicado e a edição completa do vínculo no prontuário.
+🟡 Marco 29 — reconciliação frontend–backend e primeiro ciclo real controlado. A auditoria individual `AUD-0001` e a parametrização inicial da CCT foram concluídas; o controle persistente e a interface do ciclo paralelo estão implementados. A massa fictícia foi removida do banco principal, preservando apenas Officecamp, Neozinho e os parâmetros legais/configurações reais. Restam substituir os fallbacks demonstrativos embutidos nos módulos, validar a interface autenticada no ambiente publicado e implementar a edição completa do vínculo no prontuário.
 
-### Ponto de retomada — 29 de agosto de 2026
+### Ponto de retomada — 27 de setembro de 2026
 
 - ✅ Caso fictício `AUD-0001` disponível para a auditoria trabalhista e da CCT
 - ✅ Busca global voltou a abrir prontuários após o alinhamento do schema de dependentes
@@ -98,6 +98,9 @@
 - ✅ Competências e períodos visíveis em jornada, benefícios, cálculos especiais e calendário de ausências deixaram de usar datas fixas
 - ✅ Atalhos da Central de Operações abrem diretamente a aba ou ação correspondente em jornada, ausências e folha
 - ✅ Usuário `Neozinho` (`blogdoneozinho@gmail.com`) validado como `super_admin` ativo da Officecamp, com senha provisória e troca obrigatória no primeiro acesso
+- ✅ Snapshot privado `backup_20260927_pre_real` criado no Supabase principal antes do corte, com 56 tabelas e os 309 colaboradores sintéticos para recuperação controlada
+- ✅ Massa fictícia excluída das tabelas operacionais do Supabase principal; Officecamp, Neozinho e sete conjuntos de parâmetros legais reais foram preservados
+- 🟡 Remover os fallbacks demonstrativos embutidos nos módulos para que estados vazios nunca exibam pessoas ou operações fictícias
 - 🟡 Validar a interface autenticada no Lovable e implementar a edição completa do vínculo no prontuário
 
 ---
