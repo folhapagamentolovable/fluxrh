@@ -2,7 +2,11 @@
   "compilerOptions": {
     "target": "ES2022",
     "useDefineForClassFields": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
@@ -12,12 +16,17 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["apps/web/src/*"],
-      "@fluxrh/contracts": ["packages/contracts/src/index.ts"]
+      "@/*": [
+        "./apps/web/src/*"
+      ],
+      "@fluxrh/contracts": [
+        "./packages/contracts/src/index.ts"
+      ]
     }
   },
-  "include": ["apps/web/src", "packages/contracts/src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": [
+    "apps/web/src",
+    "packages/contracts/src"
+  ]
 }
