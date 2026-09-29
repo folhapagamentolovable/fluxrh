@@ -8,7 +8,7 @@ import {
   UserCheck,
   UsersRound,
 } from "lucide-react";
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Modal } from "@/components/ui/Modal";
 import { BrazilianDateInput } from "@/components/ui/BrazilianDateInput";
@@ -81,12 +81,79 @@ export function EmployeesPage() {
       ),
     [employees, query, status],
   );
-  const selectedUnits =
-    organization?.units.filter((unit) => unit.companyId === form.companyId) ??
+  const activeCompanies =
+    organization?.companies.filter((company) => company.status === "active") ??
     [];
+  const establishments =
+    organization?.units.filter(
+      (unit) =>
+        unit.status === "active" &&
+        unit.companyId === form.companyId &&
+        unit.type === "establishment",
+    ) ?? [];
+  const departments =
+    organization?.units.filter(
+      (unit) =>
+        unit.status === "active" &&
+        unit.companyId === form.companyId &&
+        unit.type === "department" &&
+        unit.parentId === form.establishmentId,
+    ) ?? [];
+  const costCenters =
+    organization?.units.filter(
+      (unit) =>
+        unit.status === "active" &&
+        unit.companyId === form.companyId &&
+        unit.type === "cost_center" &&
+        unit.parentId === form.departmentId,
+    ) ?? [];
+
+  const organizationSelection = (companyId: string) => {
+    const establishment = organization?.units.find(
+      (unit) =>
+        unit.status === "active" &&
+        unit.companyId === companyId &&
+        unit.type === "establishment",
+    );
+    const department = organization?.units.find(
+      (unit) =>
+        unit.status === "active" &&
+        unit.companyId === companyId &&
+        unit.type === "department" &&
+        unit.parentId === establishment?.id,
+    );
+    const costCenter = organization?.units.find(
+      (unit) =>
+        unit.status === "active" &&
+        unit.companyId === companyId &&
+        unit.type === "cost_center" &&
+        unit.parentId === department?.id,
+    );
+    return {
+      companyId,
+      establishmentId: establishment?.id ?? "",
+      departmentId: department?.id ?? "",
+      costCenterId: costCenter?.id ?? "",
+    };
+  };
+
+  useEffect(() => {
+    if (!modalOpen || form.companyId || activeCompanies.length === 0) return;
+    setForm((current) => ({
+      ...current,
+      ...organizationSelection(activeCompanies[0].id),
+    }));
+  }, [activeCompanies, form.companyId, modalOpen, organization]);
+
+  const structureComplete = Boolean(
+    form.companyId &&
+    form.establishmentId &&
+    form.departmentId &&
+    form.costCenterId,
+  );
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    if (isValidCpf(form.cpf) && isValidPhone(form.phone))
+    if (structureComplete && isValidCpf(form.cpf) && isValidPhone(form.phone))
       mutation.mutate({
         ...form,
         cpf: normalizeDigits(form.cpf),
@@ -274,7 +341,10 @@ export function EmployeesPage() {
           </label>
           <label>
             Data de nascimento
-            <BrazilianDateInput required value={form.birthDate} onValueChange={(birthDate) => setForm({ ...form, birthDate })}
+            <BrazilianDateInput
+              required
+              value={form.birthDate}
+              onValueChange={(birthDate) => setForm({ ...form, birthDate })}
             />
           </label>
           <label>
@@ -303,10 +373,17 @@ export function EmployeesPage() {
           <label>
             Empresa
             <select
+              required
               value={form.companyId}
-              onChange={(e) => setForm({ ...form, companyId: e.target.value })}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  ...organizationSelection(e.target.value),
+                })
+              }
             >
-              {organization?.companies.map((x) => (
+              <option value="">Selecione a empresa</option>
+              {activeCompanies.map((x) => (
                 <option key={x.id} value={x.id}>
                   {x.tradeName}
                 </option>
@@ -316,52 +393,96 @@ export function EmployeesPage() {
           <label>
             Estabelecimento
             <select
+              required
+              disabled={!form.companyId || establishments.length === 0}
               value={form.establishmentId}
-              onChange={(e) =>
-                setForm({ ...form, establishmentId: e.target.value })
-              }
+              onChange={(e) => {
+                const establishmentId = e.target.value;
+                const department = organization?.units.find(
+                  (unit) =>
+                    unit.status === "active" &&
+                    unit.type === "department" &&
+                    unit.parentId === establishmentId,
+                );
+                const costCenter = organization?.units.find(
+                  (unit) =>
+                    unit.status === "active" &&
+                    unit.type === "cost_center" &&
+                    unit.parentId === department?.id,
+                );
+                setForm({
+                  ...form,
+                  establishmentId,
+                  departmentId: department?.id ?? "",
+                  costCenterId: costCenter?.id ?? "",
+                });
+              }}
             >
-              {selectedUnits
-                .filter((x) => x.type === "establishment")
-                .map((x) => (
-                  <option key={x.id} value={x.id}>
-                    {x.name}
-                  </option>
-                ))}
+              <option value="">
+                {form.companyId
+                  ? "Nenhum estabelecimento cadastrado"
+                  : "Selecione a empresa"}
+              </option>
+              {establishments.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.name}
+                </option>
+              ))}
             </select>
           </label>
           <label>
             Departamento
             <select
+              required
+              disabled={!form.establishmentId || departments.length === 0}
               value={form.departmentId}
-              onChange={(e) =>
-                setForm({ ...form, departmentId: e.target.value })
-              }
+              onChange={(e) => {
+                const departmentId = e.target.value;
+                const costCenter = organization?.units.find(
+                  (unit) =>
+                    unit.status === "active" &&
+                    unit.type === "cost_center" &&
+                    unit.parentId === departmentId,
+                );
+                setForm({
+                  ...form,
+                  departmentId,
+                  costCenterId: costCenter?.id ?? "",
+                });
+              }}
             >
-              {selectedUnits
-                .filter((x) => x.type === "department")
-                .map((x) => (
-                  <option key={x.id} value={x.id}>
-                    {x.name}
-                  </option>
-                ))}
+              <option value="">
+                {form.establishmentId
+                  ? "Nenhum departamento cadastrado"
+                  : "Selecione o estabelecimento"}
+              </option>
+              {departments.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.name}
+                </option>
+              ))}
             </select>
           </label>
           <label>
             Centro de custo
             <select
+              required
+              disabled={!form.departmentId || costCenters.length === 0}
               value={form.costCenterId}
               onChange={(e) =>
                 setForm({ ...form, costCenterId: e.target.value })
               }
             >
-              {selectedUnits
-                .filter((x) => x.type === "cost_center")
-                .map((x) => (
-                  <option key={x.id} value={x.id}>
-                    {x.name}
-                  </option>
-                ))}
+              <option value="">
+                {form.departmentId
+                  ? "Nenhum centro de custo cadastrado"
+                  : "Selecione o departamento"}
+              </option>
+              {costCenters.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.name}
+                </option>
+              ))}
             </select>
           </label>
           <label>
@@ -396,7 +517,10 @@ export function EmployeesPage() {
           </label>
           <label>
             Data de admissão
-            <BrazilianDateInput required value={form.hireDate} onValueChange={(hireDate) => setForm({ ...form, hireDate })}
+            <BrazilianDateInput
+              required
+              value={form.hireDate}
+              onValueChange={(hireDate) => setForm({ ...form, hireDate })}
             />
           </label>
           {mutation.error && (
@@ -416,6 +540,7 @@ export function EmployeesPage() {
               className="primary-button"
               disabled={
                 mutation.isPending ||
+                !structureComplete ||
                 !isValidCpf(form.cpf) ||
                 !isValidPhone(form.phone)
               }
