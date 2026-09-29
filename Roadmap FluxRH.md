@@ -105,6 +105,7 @@
 - ✅ Definição sintética `Admissão piloto 2026-08` removida do Supabase principal
 - ✅ Foco dos formulários em modais estabilizado; digitar ou colar não move mais o cursor para o botão de fechar
 - ✅ Cadastro de Pessoas carrega e encadeia a lotação persistida por empresa, estabelecimento, departamento e centro de custo, sem misturar estruturas de empresas distintas
+- ✅ Cadastro de Pessoas envia a escala/jornada obrigatória no payload, eliminando a rejeição `400` após o preenchimento dos campos visíveis
 - 🟡 Validar a interface autenticada no Lovable e implementar a edição completa do vínculo no prontuário
 
 ---

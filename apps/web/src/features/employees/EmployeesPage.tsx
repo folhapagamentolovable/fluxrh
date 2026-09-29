@@ -503,6 +503,17 @@ export function EmployeesPage() {
               }
             />
           </label>
+          <label className="span-2">
+            Escala / jornada
+            <input
+              required
+              value={form.workSchedule}
+              onChange={(e) =>
+                setForm({ ...form, workSchedule: e.target.value })
+              }
+              placeholder="Ex.: 12x36 · 07:00–19:00"
+            />
+          </label>
           <label>
             Salário
             <input

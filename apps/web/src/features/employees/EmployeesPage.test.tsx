@@ -10,9 +10,11 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import { EmployeesPage } from "@/features/employees/EmployeesPage";
 
+const spies = vi.hoisted(() => ({ createEmployee: vi.fn() }));
+
 vi.mock("@/lib/api", () => ({
   getEmployees: async () => [],
-  createEmployee: vi.fn(),
+  createEmployee: spies.createEmployee,
   getOrganizations: async () => ({
     summary: {
       companies: 2,
@@ -152,5 +154,78 @@ describe("employee organization fields", () => {
         name: "Residencial Campo das Figueiras",
       }),
     ).not.toBeInTheDocument();
+  });
+
+  it("sends the required work schedule in the employee payload", async () => {
+    spies.createEmployee.mockResolvedValue({ id: "employee_real" });
+    render(
+      <MemoryRouter>
+        <QueryClientProvider
+          client={
+            new QueryClient({ defaultOptions: { queries: { retry: false } } })
+          }
+        >
+          <EmployeesPage />
+        </QueryClientProvider>
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: /Novo colaborador/ }),
+    );
+    const dialog = screen.getByRole("dialog");
+    await waitFor(() =>
+      expect(within(dialog).getByLabelText("Empresa")).toHaveValue("officamp"),
+    );
+    fireEvent.change(within(dialog).getByLabelText("Nome completo"), {
+      target: { value: "José da Silva" },
+    });
+    fireEvent.change(within(dialog).getByLabelText("CPF"), {
+      target: { value: "52998224725" },
+    });
+    fireEvent.change(within(dialog).getByLabelText("E-mail"), {
+      target: { value: "jose@example.com" },
+    });
+    fireEvent.change(within(dialog).getByLabelText("Telefone"), {
+      target: { value: "19981259695" },
+    });
+    const dates = within(dialog).getAllByLabelText(
+      "Data no formato dd/mm/aaaa",
+    );
+    fireEvent.change(dates[0], { target: { value: "11/06/1969" } });
+    fireEvent.change(dates[1], { target: { value: "26/09/2025" } });
+    fireEvent.change(within(dialog).getByLabelText("Cargo"), {
+      target: { value: "Zelador" },
+    });
+    fireEvent.change(within(dialog).getByLabelText("Gestor"), {
+      target: { value: "Paulo Boaventura" },
+    });
+    fireEvent.change(within(dialog).getByLabelText("Escala / jornada"), {
+      target: { value: "12x36 · 07:00–19:00" },
+    });
+    fireEvent.change(within(dialog).getByLabelText("Salário"), {
+      target: { value: "2145" },
+    });
+    fireEvent.click(
+      within(dialog).getByRole("button", {
+        name: "Criar e iniciar admissão",
+      }),
+    );
+
+    await waitFor(() =>
+      expect(spies.createEmployee).toHaveBeenCalledWith(
+        expect.objectContaining({
+          fullName: "José da Silva",
+          companyId: "officamp",
+          establishmentId: "campo_figueiras",
+          departmentId: "operacao_figueiras",
+          costCenterId: "cc_figueiras",
+          position: "Zelador",
+          workSchedule: "12x36 · 07:00–19:00",
+          salary: 2145,
+        }),
+        expect.anything(),
+      ),
+    );
   });
 });
